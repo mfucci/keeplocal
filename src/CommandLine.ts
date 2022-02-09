@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+
+import * as net from "net";
+import { HOSTNAME, PORT } from "./DaemonSocketAPI";
+
+const socket = net.createConnection({host: HOSTNAME, port: PORT, timeout: 1000});
+socket.on("connect", () => {
+    socket.write(process.argv.splice(2).join(" ") + "\n");
+    socket.on("data", buffer => {
+        console.log(buffer.toString());
+        socket.end();
+    });
+});
+socket.on("error", error => console.error(`${error.name}: ${error.message}`));
+socket.on("timeout", () => {
+    console.log("A timeout occured while waiting for a reply");
+    socket.end();
+});
