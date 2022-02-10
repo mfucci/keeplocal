@@ -21,8 +21,5 @@
   "bin": {
     "keepsafe-daemon": "./build/Daemon.js",
     "keepsafe": "./build/CommandLine.js"
-  },
-  "dependencies": {
-    "uncloud": "^0.0.4"
   }
 }
