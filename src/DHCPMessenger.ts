@@ -1,3 +1,6 @@
+/**
+ * Messenger for serializing / deserializing inbounding and outbouding DHCP protocol messages.
+ */
 import EventEmitter = require("events");
 
 import { BOOTMessageType, DHCPMessageType, DHCPOptions, Packet, ParameterListOption, Socket, AddressRequestOption, HostnameOption, ClassIdOption, DHCPMessageTypeOption, DHCPServerIdOption, SubnetMaskOption, DomainNameOption, AddressTimeOption, GatewaysOption, SocketType } from "dhcp-mon";

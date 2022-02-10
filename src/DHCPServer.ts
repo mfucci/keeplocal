@@ -1,3 +1,11 @@
+/** 
+ * A simple DHCP server.
+ * 
+ * It assigns IP inside a default subnet to local devices.
+ * It can use to perform more advanced operations by moving local devices to other subnets.
+ * 
+ */
+
 import EventEmitter = require("events");
 import arp from "@network-utils/arp-lookup";
 import * as macAddressHelper from "macaddress";

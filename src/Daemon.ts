@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+/**
+ * keeplocal deamon to control local device connectivity.
+ * 
+ * It launches a DHCP server to be able to modify selectively how a device can reach Internet.
+ */
+
 import * as ip from "ip";
 import * as gateway from "default-gateway";
 import yargs from "yargs";

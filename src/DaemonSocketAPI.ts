@@ -1,4 +1,15 @@
-import yargs from "yargs";
+/**
+ * Socket-based API for the daemon.
+ * 
+ * Supported commands:
+ * <li>list
+ * <li>gate <device_mac>
+ * <li>free <device_mac>
+ * 
+ * @see DaemonAPI for command details
+ */
+
+import yargs from "yargs";  
 import * as net from "net";
 import { DaemonAPI } from "./DaemonAPI";
 

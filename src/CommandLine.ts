@@ -1,5 +1,13 @@
 #!/usr/bin/env node
 
+/**
+ * Command line interface to communicate with keeplocal Daemon.
+ * 
+ * It connects to a local keeplocal daemon listening on port 3432.
+ * 
+ * @see DaemonSocketAPI for command details
+ */
+
 import * as net from "net";
 import { HOSTNAME, PORT } from "./DaemonSocketAPI";
 
