@@ -1,5 +1,5 @@
 {
-  "name": "uncloud-dhcp",
+  "name": "keepsafe",
   "main": "build/CommandLine.js",
   "scripts": {
     "clean": "rm -r build",
@@ -19,8 +19,8 @@
     "yargs": "^17.3.1"
   },
   "bin": {
-    "uncloud-daemon": "./build/Daemon.js",
-    "uncloud-cli": "./build/CommandLine.js"
+    "keepsafe-daemon": "./build/Daemon.js",
+    "keepsafe": "./build/CommandLine.js"
   },
   "dependencies": {
     "uncloud": "^0.0.4"
