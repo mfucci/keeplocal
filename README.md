@@ -1,13 +1,13 @@
-# keepsafe
+# keeplocal
 
-Keepsafe allows you to control the cloud connectivity of your local smart devices.
+Keeplocal allows you to control the cloud connectivity of your local smart devices.
 
 ## Installation
 
 Get the source code:
 ```bash
-git clone https://github.com/mfucci/keepsafe.git
-cd keepsafe
+git clone https://github.com/mfucci/keeplocal.git
+cd keeplocal
 ```
 
 Patch bugs in dhcp-mon:
@@ -39,32 +39,32 @@ On your router:
 
 Start the daemon:
 ```bash
-sudo keepsafe-daemon
+sudo keeplocal-daemon
 ```
 
 List all the devices connected on your network:
 ```bash
-keepsafe list
+keeplocal list
 ```
 
 List all the devices connected on your network:
 ```bash
-keepsafe list
+keeplocal list
 ```
 
 Prevent a device to access the cloud:
 ```bash
-keepsafe gate <device_mac>
+keeplocal gate <device_mac>
 ```
 
 Give back access the cloud:
 ```bash
-keepsafe gate <device_mac>
+keeplocal gate <device_mac>
 ```
 
 ## Advanced usage
 
-Keepsafe actually declares the device running keepsafe as the router for gated devices, so you can use ```bash route ``` command to whitelist specific servers.
+Keeplocal actually declares the device running keeplocal as the router for gated devices, so you can use ```bash route ``` command to whitelist specific servers.
 
 ## Uninstall
 

@@ -1,5 +1,6 @@
 {
-  "name": "keepsafe",
+  "name": "keeplocal",
+  "version": "0.0.0",
   "main": "build/CommandLine.js",
   "scripts": {
     "clean": "rm -r build",
@@ -21,7 +22,7 @@
     "yargs": "^17.3.1"
   },
   "bin": {
-    "keepsafe-daemon": "./build/Daemon.js",
-    "keepsafe": "./build/CommandLine.js"
+    "keeplocal-daemon": "./build/Daemon.js",
+    "keeplocal": "./build/CommandLine.js"
   }
 }
