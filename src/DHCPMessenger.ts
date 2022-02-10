@@ -92,7 +92,7 @@ function toDHCPMessage(packet: Packet) {
             case DHCPOptions.ParameterList: result.parameterRequestList = (option as ParameterListOption).value; break;
             case DHCPOptions.AddressRequest: result.requestedIp = (option as AddressRequestOption).value; break;
             case DHCPOptions.Hostname: result.hostname = (option as HostnameOption).value; break;
-            case DHCPOptions.ClassId: result.hostname = (option as ClassIdOption).value; break;
+            case DHCPOptions.ClassId: result.classId = (option as ClassIdOption).value; break;
         }
     });
 
