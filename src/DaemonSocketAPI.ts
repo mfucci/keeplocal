@@ -13,6 +13,7 @@ import yargs from "yargs";
 import * as net from "net";
 import { DaemonAPI } from "./DaemonAPI";
 import * as table from "text-table";
+import { format } from "timeago.js";
 
 export const HOSTNAME = "localhost";
 export const PORT = 3432;
@@ -55,13 +56,9 @@ class SocketAPIHandler {
     private handleListDevices() {
         try {
             const devices = this.daemonAPI.listDevices();
-            console.log(JSON.stringify([
-                ["IP", "MAC", "Name", "Hostname", "ClassId", "Status"],
-                ...devices.map(({device: {ip, mac, displayName, hostname = "", classId = ""}, status}) => [ip, mac, displayName, hostname, classId, status]),
-            ]));
             this.reply.push(table([
-                ["IP", "MAC", "Name", "Hostname", "ClassId", "Status"],
-                ...devices.map(({device: {ip, mac, displayName, hostname = "", classId = ""}, status}) => [ip, mac, displayName, hostname, classId, status]),
+                ["IP", "MAC", "Name", "Hostname", "ClassId", "Status", "Pending", "Last Seen"],
+                ...devices.map(({device: {ip = "<none>", mac, displayName, hostname = "<none>", classId = "<none>", pendingChanges, lastSeen}, status}) => [ip, mac, displayName, hostname, classId, status, pendingChanges, lastSeen ? format(lastSeen) : "N/A"]),
             ]));
         } catch (error) {
             this.handleError(error);

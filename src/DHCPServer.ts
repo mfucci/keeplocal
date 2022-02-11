@@ -13,8 +13,10 @@ import * as ip from "ip";
 
 import { DHCPServerMessenger, Request } from "./DHCPMessenger";
 
+const LEASE_TIME = 5 * 60 /* 5 minutes */;
+
 export class Subnet {
-    readonly leaseTimeSeconds = 5 * 60 /* 5 minutes */;
+    readonly leaseTimeSeconds = LEASE_TIME;
 
     constructor(
         readonly mask: string,
@@ -30,18 +32,20 @@ export enum IpType {
 }
 
 export class Device {
-    mac: string;
-    ip: string;
     readonly ipType: IpType;
+    ip: string;
+    mac: string;
     hostname?: string;
     classId?: string;
     displayName: string;
+    pendingChanges: boolean = false;
+    lastSeen?: number;
 
     constructor(
         displayName: string,
         mac: string,
-        ip: string,
         ipType: IpType,
+        ip?: string,
         hostName?: string,
         vendorClassIdentifier?: string) {
         this.displayName = displayName;
@@ -81,8 +85,8 @@ export class DHCPServer extends EventEmitter {
 
     async start() {
         const { router: routerIp, dhcp: dhcpIp } = this.defaultSubnet;
-        this.createDevice(routerIp, { mac: await arp.toMAC(routerIp), hostname: "router", staticIp: true});
-        this.createDevice(dhcpIp, { mac: await macAddressHelper.one(), hostname: "dhcp", staticIp: true});
+        this.createDevice({ mac: await arp.toMAC(routerIp), hostname: "router", staticIp: routerIp});
+        this.createDevice({ mac: await macAddressHelper.one(), hostname: "dhcp", staticIp: dhcpIp});
         this.messenger.listen();
     }
 
@@ -107,21 +111,32 @@ export class DHCPServer extends EventEmitter {
         this.deviceByIp.delete(device.ip);
         this.subnetByDevice.delete(device);
         device.ip = this.assignIp(subnet);
+        device.pendingChanges = true;
         this.deviceByIp.set(device.ip, device);
         this.subnetByDevice.set(device, subnet);
     }
 
     private handleDiscover(request: Request) {
         const device = this.getDevice(request);
-        this.messenger.sendOffer(request, device, this.subnetByDevice.get(device));
+        const subnet = this.subnetByDevice.get(device);
+        device.pendingChanges = true;
+        device.lastSeen = Date.now();
+        if (device.ip === undefined) {
+            device.ip = this.assignIp(subnet);
+            this.deviceByIp.set(device.ip, device);
+        }
+        this.messenger.sendOffer(request, device, subnet);
     }
 
     private handleRequest(request: Request) {
         const device = this.getDevice(request);
+        device.lastSeen = Date.now();
         const addressRequested = request.ip !== undefined ? request.ip : request.requestedIp;
         if (addressRequested !== device.ip) {
+            device.pendingChanges = true;
             this.messenger.sendNak(request, device, this.subnetByDevice.get(device));
         } else {
+            device.pendingChanges = false;
             this.messenger.sendAck(request, device, this.subnetByDevice.get(device));
         }
     }
@@ -131,20 +146,20 @@ export class DHCPServer extends EventEmitter {
     
         var device = this.deviceByMac.get(mac);
         if (device === undefined) {
-            device = this.createDevice(this.assignIp(this.defaultSubnet), { mac, hostname, classId });
+            device = this.createDevice({ mac, hostname, classId });
         } else {
            this.updateDevice(device, { hostname, classId});
         }
         return device;
     }
 
-    private createDevice(ip: string, { mac, hostname, classId, staticIp }: { mac: string, hostname?: string, classId?: string, staticIp?: boolean}) {
+    private createDevice({ mac, hostname, classId, staticIp }: { mac: string, hostname?: string, classId?: string, staticIp?: string}) {
         const subnet = this.defaultSubnet;
         const displayName = (hostname !== undefined) ? hostname : mac;
-        const device = new Device(displayName, mac, ip, staticIp ? IpType.STATIC : IpType.DHCP, hostname, classId);
+        const device = new Device(displayName, mac, staticIp ? IpType.STATIC : IpType.DHCP, staticIp, hostname, classId);
         this.emit(DHCP_SERVER_EVENTS.NEW_DEVICE, device);
-        this.deviceByIp.set(ip, device);
         this.deviceByMac.set(mac, device);
+        if (staticIp !== undefined) this.deviceByIp.set(staticIp, device);
         this.subnetByDevice.set(device, subnet);
         return device;
     }
@@ -174,8 +189,23 @@ export class DHCPServer extends EventEmitter {
             }
             ipAddress++;
             if (ipAddress == 255) {
-                throw new Error(`No more available IP addresses in the subnet ${prefix}`);
+                // No more available IP on the subnet
+                break;
             }
         }
+
+        // Try to free an IP from a device not connected
+        [...this.subnetByDevice.entries()]
+            .filter(([, deviceSubnet]) => deviceSubnet == subnet)
+            .forEach(([device]) => {
+                if (device.ipType === IpType.STATIC) return;
+                if (device.ip === undefined) return;
+                if (Date.now() - device.lastSeen < LEASE_TIME) return;
+                const freedIp = device.ip;
+                device.ip = undefined;
+                this.deviceByIp.delete(freedIp);
+                return freedIp;
+            });
+        throw new Error(`No more available IP addresses in the subnet ${prefix}`);
     }
 }
