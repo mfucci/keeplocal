@@ -12,7 +12,9 @@ import yargs from "yargs";
 
 import { DHCPServer, DHCP_SERVER_EVENTS, Subnet } from "./DHCPServer";
 import { SocketApi } from "./DaemonSocketAPI";
-import { DaemonAPI, DeviceWithStatus, Status } from "./DaemonAPI";
+import { DaemonAPI, DeviceWithState, State } from "./DaemonAPI";
+import { Settings } from "./Settings";
+import { recordMap } from "./utils/ObjectUtils";
 
 const { router: routerIp, dhcp: dhcpIp } = yargs(process.argv.slice(2))
     .option({
@@ -32,11 +34,16 @@ if (!ip.subnet(routerIp, SUBNET_MASK).contains(dhcpIp)) {
     throw new Error("The router and the DHCP server should be on the same subnet");
 }
 
-const CLOUDED_SUBNET = new Subnet(SUBNET_MASK, dhcpIp, routerIp, routerIp);
-const UNCLOUDED_SUBNET = new Subnet(SUBNET_MASK, dhcpIp, dhcpIp, routerIp);
+const UNGATED_SUBNET: Subnet = {mask: SUBNET_MASK, dhcp: dhcpIp, router: routerIp, dns: routerIp};
+const GATED_SUBNET: Subnet = {mask: SUBNET_MASK, dhcp: dhcpIp, router: dhcpIp, dns: routerIp};
 
 class Daemon implements DaemonAPI {
-    private readonly dhcpServer = new DHCPServer(CLOUDED_SUBNET);
+    private readonly settings = new Settings("daemon");
+    private readonly gatedDevices = this.settings.getSetting<Record<string, State>>("gatedDevices");
+    private readonly dhcpServer = new DHCPServer({
+        default: UNGATED_SUBNET,
+        perMacDevice: recordMap(this.gatedDevices, state => state === State.GATED ? GATED_SUBNET : UNGATED_SUBNET),
+    });
     private readonly socketApi = new SocketApi(this);
 
     constructor() {
@@ -49,26 +56,22 @@ class Daemon implements DaemonAPI {
         this.socketApi.start();
     }
 
-    listDevices(): DeviceWithStatus[] {
-        return this.dhcpServer.getDevices().map(({device, subnet}) => ({device, status: subnet === CLOUDED_SUBNET ? Status.FREE : Status.GATED}));
+    listDevices(): DeviceWithState[] {
+        return this.dhcpServer.getDevices().map(device => ({device, state: device.subnet === UNGATED_SUBNET ? State.UNGATED : State.GATED}));
     }
 
     gateDevice(deviceMac: string): void {
-        this.dhcpServer.switchSubnet(this.getDeviceByMac(deviceMac), UNCLOUDED_SUBNET);
+        this.dhcpServer.switchSubnet(deviceMac, GATED_SUBNET);
+        this.gatedDevices[deviceMac] = State.GATED;
+        this.settings.save();
     }
 
-    freeDevice(deviceMac: string): void {
-        this.dhcpServer.switchSubnet(this.getDeviceByMac(deviceMac), CLOUDED_SUBNET);
-    }
-
-    private getDeviceByMac(mac: string) {
-        const device = this.dhcpServer.getDeviceByMac(mac);
-        if (device === undefined) {
-            throw new Error(`Cannot find device with MAC ${mac}`);
-        }
-        return device;
+    ungateDevice(deviceMac: string): void {
+        this.dhcpServer.switchSubnet(deviceMac, UNGATED_SUBNET);
+        delete this.gatedDevices[deviceMac];
+        this.settings.save();
     }
 }
 
-console.log(`Starting DHCP server for the subnet ${JSON.stringify(CLOUDED_SUBNET)}`);
+console.log(`Starting DHCP server for the subnet ${JSON.stringify(UNGATED_SUBNET)}`);
 new Daemon().start();

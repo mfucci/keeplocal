@@ -59,7 +59,7 @@ keeplocal gate <device_mac>
 
 Give back access the cloud:
 ```bash
-keeplocal gate <device_mac>
+keeplocal ungate <device_mac>
 ```
 
 ## Advanced usage

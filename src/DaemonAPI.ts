@@ -3,23 +3,23 @@
  */
 import { Device } from "./DHCPServer";
 
-export enum Status {
-    FREE = "FREE",
+export enum State {
+    UNGATED = "UNGATED",
     GATED = "GATED",
 }
 
-export type DeviceWithStatus = {
+export type DeviceWithState = {
     device: Device,
-    status: Status,
+    state: State,
 }
 
 export interface DaemonAPI {
     /** Returns a list of known devices. */
-    listDevices(): DeviceWithStatus[],
+    listDevices(): DeviceWithState[],
 
     /** Gates a device to prevent it to reach the cloud. */
     gateDevice(deviceMac: string): void,
 
-    /** Frees a device so restore its ability to reach the cloud. */
-    freeDevice(deviceMac: string): void,
+    /** Ungates a device so restore its ability to reach the cloud. */
+    ungateDevice(deviceMac: string): void,
 };

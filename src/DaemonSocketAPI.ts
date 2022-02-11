@@ -4,16 +4,17 @@
  * Supported commands:
  * <li>list
  * <li>gate <device_mac>
- * <li>free <device_mac>
+ * <li>ungate <device_mac>
  * 
  * @see DaemonAPI for command details
  */
 
-import yargs from "yargs";  
+import * as yargs from "yargs";  
 import * as net from "net";
 import { DaemonAPI } from "./DaemonAPI";
-import * as table from "text-table";
+import table from "text-table";
 import { format } from "timeago.js";
+import { isRandomMac } from "./utils/MacUtils";
 
 export const HOSTNAME = "localhost";
 export const PORT = 3432;
@@ -32,10 +33,10 @@ export class SocketApi {
 
 class SocketAPIHandler {
     private readonly reply = new Array<string>();
-    private readonly commandParser = yargs({})
+    private readonly commandParser = yargs
         .command("list", "List devices", {}, () => this.handleListDevices())
         .command("gate <deviceMac>", "Gate device cloud connectivity", yargs => yargs.positional("deviceMac", {type: "string", describe: "Mac address"}), ({deviceMac}) => this.handleGateDevice(deviceMac))
-        .command("free <deviceMac>", "Free device cloud connectivity", yargs => yargs.positional("deviceMac", {type: "string", describe: "Mac address"}), ({deviceMac}) => this.handleFreeDevice(deviceMac))
+        .command("ungate <deviceMac>", "Ungate device cloud connectivity", yargs => yargs.positional("deviceMac", {type: "string", describe: "Mac address"}), ({deviceMac}) => this.handleUngateDevice(deviceMac))
         .demandCommand();
 
     constructor(readonly daemonAPI: DaemonAPI, readonly socket: net.Socket) {
@@ -57,8 +58,27 @@ class SocketAPIHandler {
         try {
             const devices = this.daemonAPI.listDevices();
             this.reply.push(table([
-                ["IP", "MAC", "Name", "Hostname", "ClassId", "Status", "Pending", "Last Seen"],
-                ...devices.map(({device: {ip = "<none>", mac, displayName, hostname = "<none>", classId = "<none>", pendingChanges, lastSeen}, status}) => [ip, mac, displayName, hostname, classId, status, pendingChanges, lastSeen ? format(lastSeen) : "N/A"]),
+                ["IP Type", "IP", "MAC", "Hostname", "ClassId", "State", "Pending", "Last Seen"],
+                ...devices.map(({
+                    device: {
+                        ip = "<none>",
+                        ipType,
+                        mac,
+                        hostname = "<none>",
+                        classId = "<none>",
+                        pendingChanges,
+                        lastSeen
+                    },
+                    state
+                }) => [
+                    ipType,
+                    ip,
+                    isRandomMac(mac) ? "<random>" : mac,
+                    hostname,
+                    classId,
+                    state,
+                    pendingChanges,
+                    lastSeen ? format(lastSeen) : "N/A"]),
             ]));
         } catch (error) {
             this.handleError(error);
@@ -74,9 +94,9 @@ class SocketAPIHandler {
         }
     }
     
-    private handleFreeDevice(mac: string) {
+    private handleUngateDevice(mac: string) {
         try {
-            this.daemonAPI.gateDevice(mac);
+            this.daemonAPI.ungateDevice(mac);
             this.reply.push("Done");
         } catch (error) {
             this.handleError(error);

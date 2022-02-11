@@ -5,7 +5,7 @@ import EventEmitter = require("events");
 
 import { BOOTMessageType, DHCPMessageType, DHCPOptions, Packet, ParameterListOption, Socket, AddressRequestOption, HostnameOption, ClassIdOption, DHCPMessageTypeOption, DHCPServerIdOption, SubnetMaskOption, DomainNameOption, AddressTimeOption, GatewaysOption, SocketType } from "dhcp-mon";
 
-import { Device, Subnet } from "./DHCPServer";
+import { Device, LEASE_TIME, Subnet } from "./DHCPServer";
 
 export type Request = {
     transactionId: number,
@@ -52,33 +52,33 @@ export class DHCPServerMessenger extends EventEmitter {
         this.socket.close();
     }
 
-    sendOffer(request: Request, device: Device, subnet: Subnet) {
+    sendOffer(request: Request, device: Device) {
         const packet = new Packet();
         packet.options.push(new DHCPMessageTypeOption(DHCPMessageType.offer));
-        addRequestedParameters(request, packet, subnet);
+        addRequestedParameters(request, packet, device.subnet);
         packet.yiaddr = device.ip;
-        this.sendResponse(packet, request, subnet);
+        this.sendResponse(packet, request, device);
     }
 
-    sendAck(request: Request, device: Device, subnet: Subnet) {
+    sendAck(request: Request, device: Device) {
         const packet = new Packet();
         packet.options.push(new DHCPMessageTypeOption(DHCPMessageType.ack));
         packet.yiaddr = device.ip;
-        this.sendResponse(packet, request, subnet);
+        this.sendResponse(packet, request, device);
     }
 
-    sendNak(request: Request, device: Device, subnet: Subnet) {
+    sendNak(request: Request, device: Device) {
         const packet = new Packet();
         packet.options.push(new DHCPMessageTypeOption(DHCPMessageType.nak));
-        packet.options.push(new DHCPServerIdOption(subnet.dhcp));
-        this.sendResponse(packet, request, subnet);
+        packet.options.push(new DHCPServerIdOption(device.subnet.dhcp));
+        this.sendResponse(packet, request, device);
     }
 
-    private sendResponse(packet: Packet, request: Request, subnet: Subnet) {
+    private sendResponse(packet: Packet, request: Request, device: Device) {
         packet.xid = request.transactionId;
         packet.flags = request.flags;
         packet.chaddr = request.mac;
-        packet.siaddr = subnet.dhcp;
+        packet.siaddr = device.subnet.dhcp;
         this.socket.send(packet);
     }
 }
@@ -107,7 +107,7 @@ function addRequestedParameters(request: Request, packet: Packet, subnet: Subnet
         switch (parameter) {
             case DHCPOptions.SubnetMask: packet.options.push(new SubnetMaskOption(subnet.mask)); break;
             case DHCPOptions.DomainName: packet.options.push(new DomainNameOption(subnet.dns)); break;
-            case DHCPOptions.AddressTime: packet.options.push(new AddressTimeOption(subnet.leaseTimeSeconds)); break;
+            case DHCPOptions.AddressTime: packet.options.push(new AddressTimeOption(LEASE_TIME)); break;
             case DHCPOptions.DhcpServerId: packet.options.push(new DHCPServerIdOption(subnet.dhcp)); break;
             case DHCPOptions.Gateways: packet.options.push(new GatewaysOption([subnet.router])); break;
             case DHCPOptions.DomainServer: packet.options.push(new DomainNameOption(subnet.dns)); break;
