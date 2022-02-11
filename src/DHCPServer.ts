@@ -41,9 +41,9 @@ export class Device {
         displayName: string,
         mac: string,
         ip: string,
-        hostName: string,
-        vendorClassIdentifier: string,
-        ipType: IpType) {
+        ipType: IpType,
+        hostName?: string,
+        vendorClassIdentifier?: string) {
         this.displayName = displayName;
         this.mac = mac;
         this.hostname = hostName;
@@ -141,7 +141,7 @@ export class DHCPServer extends EventEmitter {
     private createDevice(ip: string, { mac, hostname, classId, staticIp }: { mac: string, hostname?: string, classId?: string, staticIp?: boolean}) {
         const subnet = this.defaultSubnet;
         const displayName = (hostname !== undefined) ? hostname : mac;
-        const device = new Device(displayName, mac, ip, hostname, classId, staticIp ? IpType.STATIC : IpType.DHCP);
+        const device = new Device(displayName, mac, ip, staticIp ? IpType.STATIC : IpType.DHCP, hostname, classId);
         this.emit(DHCP_SERVER_EVENTS.NEW_DEVICE, device);
         this.deviceByIp.set(ip, device);
         this.deviceByMac.set(mac, device);

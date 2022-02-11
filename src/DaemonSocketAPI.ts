@@ -12,6 +12,7 @@
 import yargs from "yargs";  
 import * as net from "net";
 import { DaemonAPI } from "./DaemonAPI";
+import * as table from "text-table";
 
 export const HOSTNAME = "localhost";
 export const PORT = 3432;
@@ -54,8 +55,14 @@ class SocketAPIHandler {
     private handleListDevices() {
         try {
             const devices = this.daemonAPI.listDevices();
-            this.reply.push("IP\t\tMAC\t\t\tName\thostname\tclassId\t");
-            devices.forEach(({device, status}) => this.reply.push(`${device.ip}\t${device.mac}\t${device.displayName}\t${device.hostname}\t${device.classId}\t${status}`));
+            console.log(JSON.stringify([
+                ["IP", "MAC", "Name", "Hostname", "ClassId", "Status"],
+                ...devices.map(({device: {ip, mac, displayName, hostname = "", classId = ""}, status}) => [ip, mac, displayName, hostname, classId, status]),
+            ]));
+            this.reply.push(table([
+                ["IP", "MAC", "Name", "Hostname", "ClassId", "Status"],
+                ...devices.map(({device: {ip, mac, displayName, hostname = "", classId = ""}, status}) => [ip, mac, displayName, hostname, classId, status]),
+            ]));
         } catch (error) {
             this.handleError(error);
         }
@@ -80,7 +87,7 @@ class SocketAPIHandler {
     }
 
     private handleError(error: Error) {
-        console.error(`Error during the execution of the command: ${error}`);
+        console.error(`Error during the execution of the command: ${error.message}\n${error.stack}`);
         this.reply.push(error.message);
     }
 }
