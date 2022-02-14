@@ -8,6 +8,7 @@ Get the source code:
 ```bash
 git clone https://github.com/mfucci/keeplocal.git
 cd keeplocal
+npm install
 ```
 
 Patch bugs in dhcp-mon:
