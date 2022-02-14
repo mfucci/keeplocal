@@ -18,7 +18,12 @@ export class Settings {
     }
 
     getSetting<T>(key: string) {
-        return this.pref[key] as T;
+        var result = this.pref[key] as T;
+        if (result === undefined) {
+            result = {} as T;
+            this.pref[key] = result;
+        }
+        return result;
     }
 
     save() {
