@@ -55,8 +55,8 @@ export class DHCPServerMessenger extends EventEmitter {
     sendOffer(request: Request, device: Device) {
         const packet = new Packet();
         packet.options.push(new DHCPMessageTypeOption(DHCPMessageType.offer));
-        addRequestedParameters(request, packet, device.subnet);
         packet.yiaddr = device.ip;
+        addRequestedParameters(request, packet, device.subnet);
         this.sendResponse(packet, request, device);
     }
 
@@ -64,6 +64,7 @@ export class DHCPServerMessenger extends EventEmitter {
         const packet = new Packet();
         packet.options.push(new DHCPMessageTypeOption(DHCPMessageType.ack));
         packet.yiaddr = device.ip;
+        addRequestedParameters(request, packet, device.subnet);
         this.sendResponse(packet, request, device);
     }
 
@@ -75,6 +76,7 @@ export class DHCPServerMessenger extends EventEmitter {
     }
 
     private sendResponse(packet: Packet, request: Request, device: Device) {
+        packet.op = BOOTMessageType.reply;
         packet.xid = request.transactionId;
         packet.flags = request.flags;
         packet.chaddr = request.mac;
