@@ -86,7 +86,7 @@ export class DHCPServer extends EventEmitter {
     }
 
     private loadSettings() {
-        for (var key in this.settings) {
+        for (var key in this.deviceSettings) {
             const { mac, ip, ipType, subnet } = this.deviceSettings[key];
             const device: Device = { mac, ip, ipType, subnet, pendingChanges: true };
             if (this.deviceByMac.has(mac)) {
