@@ -131,7 +131,7 @@ export class DHCPServer extends EventEmitter {
 
     private handleRequest(request: Request) {
         const device = this.getDevice(request);
-        const addressRequested = request.ip ? request.ip : request.requestedIp;
+        const addressRequested = request.requestedIp ? request.requestedIp : request.ip;
         if (addressRequested !== device.ip) {
             this.updateDevice(device, {pendingChanges: true, lastSeen: Date.now()});
             this.messenger.sendNak(request, device);
