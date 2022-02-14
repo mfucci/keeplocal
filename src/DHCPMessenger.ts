@@ -3,9 +3,9 @@
  */
 import EventEmitter = require("events");
 
-import { BOOTMessageType, DHCPMessageType, DHCPOptions, Packet, ParameterListOption, Socket, AddressRequestOption, HostnameOption, ClassIdOption, DHCPMessageTypeOption, DHCPServerIdOption, SubnetMaskOption, DomainNameOption, AddressTimeOption, GatewaysOption, SocketType } from "dhcp-mon";
+import { BOOTMessageType, DHCPMessageType, DHCPOptions, Packet, ParameterListOption, Socket, AddressRequestOption, HostnameOption, ClassIdOption, DHCPMessageTypeOption, DHCPServerIdOption, SubnetMaskOption, DomainNameOption, AddressTimeOption, GatewaysOption, SocketType, DomainServerOption } from "dhcp-mon";
 
-import { Device, LEASE_TIME, Subnet } from "./DHCPServer";
+import { Device, LEASE_TIME, LOCAL_DOMAIN, Subnet } from "./DHCPServer";
 
 export type Request = {
     transactionId: number,
@@ -108,11 +108,11 @@ function addRequestedParameters(request: Request, packet: Packet, subnet: Subnet
     request.parameterRequestList.forEach(parameter => {
         switch (parameter) {
             case DHCPOptions.SubnetMask: packet.options.push(new SubnetMaskOption(subnet.mask)); break;
-            case DHCPOptions.DomainName: packet.options.push(new DomainNameOption(subnet.dns)); break;
+            case DHCPOptions.DomainName: packet.options.push(new DomainNameOption(LOCAL_DOMAIN)); break;
             case DHCPOptions.AddressTime: packet.options.push(new AddressTimeOption(LEASE_TIME)); break;
             case DHCPOptions.DhcpServerId: packet.options.push(new DHCPServerIdOption(subnet.dhcp)); break;
             case DHCPOptions.Gateways: packet.options.push(new GatewaysOption([subnet.router])); break;
-            case DHCPOptions.DomainServer: packet.options.push(new DomainNameOption(subnet.dns)); break;
+            case DHCPOptions.DomainServer: packet.options.push(new DomainServerOption([subnet.dns])); break;
         }
     });
 }
