@@ -14,6 +14,7 @@ import * as ipUtil from "ip";
 import { DHCPServerMessenger, Request } from "./DHCPMessenger";
 import { Settings } from "./Settings";
 
+export const LOCAL_DOMAIN = "local";
 export const LEASE_TIME = 5 * 60 /* 5 minutes */;
 export const UNASSIGNED_IP = "<unassigned>";
 
