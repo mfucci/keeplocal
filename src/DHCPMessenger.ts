@@ -90,6 +90,7 @@ function toDHCPMessage(packet: Packet) {
         transactionId: packet.xid,
         flags: packet.flags,
         mac: packet.chaddr,
+        ip: packet.ciaddr,
     };
 
     packet.options.forEach(option => {
