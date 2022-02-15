@@ -12,7 +12,7 @@ import * as macAddressHelper from "macaddress";
 import * as ipUtil from "ip";
 
 import { DHCPServerMessenger, Request } from "./DHCPMessenger";
-import { Settings } from "./Settings";
+import { Settings } from "../utils/Settings";
 
 export const LOCAL_DOMAIN = "local";
 export const LEASE_TIME = 5 * 60 /* 5 minutes */;

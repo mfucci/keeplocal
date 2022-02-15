@@ -1,7 +1,7 @@
 /**
  * API to control the daemon.
  */
-import { Device } from "./DHCPServer";
+import { Device } from "./dhcp/DHCPServer";
 
 export enum State {
     UNGATED = "UNGATED",

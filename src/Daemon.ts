@@ -10,10 +10,10 @@ import * as ip from "ip";
 import * as gateway from "default-gateway";
 import yargs from "yargs";
 
-import { DHCPServer, DHCP_SERVER_EVENTS, Subnet } from "./DHCPServer";
+import { DHCPServer, DHCP_SERVER_EVENTS, Subnet } from "./dhcp/DHCPServer";
 import { SocketApi } from "./DaemonSocketAPI";
 import { DaemonAPI, DeviceWithState, State } from "./DaemonAPI";
-import { Settings } from "./Settings";
+import { Settings } from "./utils/Settings";
 import { recordMap } from "./utils/ObjectUtils";
 
 const { router: routerIp, dhcp: dhcpIp } = yargs(process.argv.slice(2))
