@@ -13,7 +13,7 @@ import { HOSTNAME, PORT } from "./DaemonSocketAPI";
 
 const socket = net.createConnection({host: HOSTNAME, port: PORT, timeout: 1000});
 socket.on("connect", () => {
-    socket.write(process.argv.splice(2).join(" ") + "\n");
+    socket.write(JSON.stringify(process.argv.splice(2)) + "\n");
     socket.on("data", buffer => {
         console.log(buffer.toString());
         socket.end();

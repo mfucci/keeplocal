@@ -9,7 +9,7 @@
  * @see DaemonAPI for command details
  */
 
-import * as yargs from "yargs";  
+import yargs from "yargs";  
 import * as net from "net";
 import { DaemonAPI } from "./DaemonAPI";
 import table from "text-table";
@@ -33,7 +33,7 @@ export class SocketApi {
 
 class SocketAPIHandler {
     private readonly reply = new Array<string>();
-    private readonly commandParser = yargs
+    private readonly commandParser = yargs([])
         .command("list", "List devices", {}, () => this.handleListDevices())
         .command("gate <deviceMac>", "Gate device cloud connectivity", yargs => yargs.positional("deviceMac", {type: "string", describe: "Mac address"}), ({deviceMac}) => this.handleGateDevice(deviceMac))
         .command("ungate <deviceMac>", "Ungate device cloud connectivity", yargs => yargs.positional("deviceMac", {type: "string", describe: "Mac address"}), ({deviceMac}) => this.handleUngateDevice(deviceMac))
@@ -44,12 +44,12 @@ class SocketAPIHandler {
     }
 
     private handleSocketData(data: Buffer): string {
-        const command = data.toString().slice(0, -1); // Remove trailing \n
-        this.commandParser.parseSync(command.split(" "), {}, (err, argv, output) => {
+        const command = JSON.parse(data.toString());
+        this.commandParser.parse(command, {}, (err, argv, output) => {
             if (output != "") this.reply.push(output);
         });
 
-        const response = this.reply.join("\n");
+        const response = this.reply.join("\n") + "\n";
         this.reply.length = 0;
         return response;
     }
