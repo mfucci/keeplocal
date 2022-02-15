@@ -63,6 +63,25 @@ Give back access the cloud:
 keeplocal ungate <device_mac>
 ```
 
+## Automatically start on boot
+
+Install the service configuration:
+```bash
+sudo cp conf/keeplocal.service /etc/systemd/system/
+```
+
+Activate and start:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable keeplocal
+sudo systemctl start keeplocal
+```
+
+Check status and logs:
+```bash
+systemctl status keeplocal
+```
+
 ## Advanced usage
 
 Keeplocal actually declares the device running keeplocal as the router for gated devices, so you can use ```bash route ``` command to whitelist specific servers.
