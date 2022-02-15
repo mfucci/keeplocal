@@ -155,7 +155,7 @@ export class DHCPServer extends EventEmitter {
 
     private createDevice({ mac, hostname, classId, staticIp }: { mac: string, hostname?: string, classId?: string, staticIp?: string }) {
         const device: Device = {
-            mac,
+            mac: mac.toUpperCase(),
             ipType: staticIp ? IpType.STATIC : IpType.DYNAMIC,
             ip: staticIp !== undefined ? staticIp : UNASSIGNED_IP,
             hostname,
