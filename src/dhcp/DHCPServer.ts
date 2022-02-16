@@ -94,12 +94,13 @@ export class DHCPServer extends EventEmitter {
                 throw new Error(`Cannot add ${JSON.stringify(device)}: there is already another device with this MAC address`);
             }
             this.deviceByMac.set(mac, device);
-            if (ip !== UNASSIGNED_IP) {
-                if (this.assignedIps.has(ip)) {
-                    device.ip = UNASSIGNED_IP;
-                } else {
-                    this.assignedIps.set(ip, device);
-                }
+
+            if (ip === UNASSIGNED_IP) continue;
+
+            if (this.assignedIps.has(ip)) {
+                device.ip = UNASSIGNED_IP;
+            } else {
+                this.assignedIps.set(ip, device);
             }
         }
     }
@@ -131,7 +132,7 @@ export class DHCPServer extends EventEmitter {
 
     private handleRequest(request: Request) {
         const device = this.getDevice(request);
-        const addressRequested = request.requestedIp ? request.requestedIp : request.ip;
+        const addressRequested = request.requestedIp ?? request.ip;
         if (addressRequested !== device.ip) {
             this.updateDevice(device, {pendingChanges: true, lastSeen: Date.now()});
             this.messenger.sendNak(request, device);
@@ -221,13 +222,13 @@ export class DHCPServer extends EventEmitter {
     }
 
     private persistDeviceConfig(device: Device) {
-        this.deviceSettings[device.mac] = {mac: device.mac, ipType: device.ipType, ip: device.ip, subnet: device.subnet};
+        const { mac, ipType, ip, subnet } = device;
+        this.deviceSettings[mac] = {mac, ipType, ip, subnet};
         this.settings.save();
     }
 
     private assignSubnet(mac: string) {
-        const deviceSubnet = this.subnetConfiguration.perMacDevice[mac];
-        return deviceSubnet !== undefined ? deviceSubnet : this.subnetConfiguration.default;
+        return this.subnetConfiguration.perMacDevice[mac] ?? this.subnetConfiguration.default;
     }
 
     private getNewIp(device: Device) {
@@ -248,7 +249,7 @@ export class DHCPServer extends EventEmitter {
 
         // Try to free an IP from a device not connected
         [...this.assignedIps.entries()]
-            .filter(([ip, {ipType, lastSeen}]) => ip.startsWith(prefix) && ipType === IpType.DYNAMIC && Date.now() - (lastSeen ? lastSeen : 0) > LEASE_TIME)
+            .filter(([ip, {ipType, lastSeen}]) => ip.startsWith(prefix) && ipType === IpType.DYNAMIC && Date.now() - (lastSeen ?? 0) > LEASE_TIME)
             .forEach(([, otherDevice]) => {
                 const freedIp = otherDevice.ip;
                 this.updateDevice(otherDevice, {ip: UNASSIGNED_IP});
