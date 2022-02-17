@@ -11,13 +11,6 @@ cd keeplocal
 npm install
 ```
 
-Patch bugs in dhcp-mon:
-```bash
-sed -i 's/export ;//g' node_modules/dhcp-mon/out/index.d.ts
-sed -i 's/ClassIdOption extends BufferOption/ClassIdOption extends Utf8Option/g' node_modules/dhcp-mon/out/index.d.ts
-sed -i 's/ClassIdOption extends BufferOption/ClassIdOption extends Utf8Option/g' node_modules/dhcp-mon/out/index.js
-```
-
 Build and install:
 ```bash
 npm run build
