@@ -4,6 +4,10 @@
  * keeplocal deamon to control local device connectivity.
  * 
  * It launches a DHCP server to be able to modify selectively how a device can reach Internet.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 import * as ip from "ip";

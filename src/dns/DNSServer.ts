@@ -1,3 +1,11 @@
+/**
+ * A simple DNS server.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { createAaaaRecord, createARecord, createCnameRecord, createConsoleLog, createMxRecord, createNsRecord, createSoaRecord, createSrvRecord, createTxtRecord, Server } from "denamed";
 import Query from "denamed/dist/query";
 import dns from "dns";

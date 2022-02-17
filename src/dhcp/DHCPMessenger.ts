@@ -1,5 +1,9 @@
 /**
  * Messenger for serializing / deserializing inbounding and outbouding DHCP protocol messages.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
  */
 import EventEmitter from "events";
 import { BOOTMessageType, DHCPMessageType, DHCPOptions, Packet, ParameterListOption, Socket, AddressRequestOption, HostnameOption, ClassIdOption, DHCPMessageTypeOption, DHCPServerIdOption, SubnetMaskOption, DomainNameOption, AddressTimeOption, GatewaysOption, SocketType, DomainServerOption } from "@network-utils/dhcp";

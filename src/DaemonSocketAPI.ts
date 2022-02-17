@@ -7,6 +7,10 @@
  * <li>ungate <device_mac>
  * 
  * @see DaemonAPI for command details
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 import yargs from "yargs";  

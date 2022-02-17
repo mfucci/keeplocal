@@ -4,6 +4,9 @@
  * It assigns IP inside a default subnet to local devices.
  * It can use to perform more advanced operations by moving local devices to other subnets.
  * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 import EventEmitter = require("events");

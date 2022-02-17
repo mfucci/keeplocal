@@ -1,5 +1,7 @@
 # keeplocal
 
+[![license](https://img.shields.io/badge/license-Apache2-green.svg?style=flat)](https://raw.githubusercontent.com/mfucci/keeplocal/master/LICENSE) 
+
 Keeplocal allows you to control the cloud connectivity of your local smart devices.
 
 ## Installation

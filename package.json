@@ -1,7 +1,14 @@
 {
   "name": "keeplocal",
-  "version": "0.0.0",
-  "main": "build/CommandLine.js",
+  "version": "0.0.1",
+  "description": "Allows to control how local devices can data are shared with the cloud",
+  "keywords": ["privacy", "local network", "lan", "iot", "home automation"],
+  "license": "Apache-2.0",
+  "author": "Marco Fucci di Napoli <mfucci@gmail.com> (https://www.linkedin.com/in/marco-fucci-di-napoli/)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mfucci/keeplocal.git"
+  },
   "scripts": {
     "clean": "rm -rf build",
     "build": "tsc"

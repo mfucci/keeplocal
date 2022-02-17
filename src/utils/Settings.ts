@@ -1,3 +1,11 @@
+/**
+ * Loads / saves local settings.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import Preferences from "preferences";
 import * as os from "os";
 import * as path from "path";
