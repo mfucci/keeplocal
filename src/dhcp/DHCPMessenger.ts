@@ -1,9 +1,8 @@
 /**
  * Messenger for serializing / deserializing inbounding and outbouding DHCP protocol messages.
  */
-import EventEmitter = require("events");
-
-import { BOOTMessageType, DHCPMessageType, DHCPOptions, Packet, ParameterListOption, Socket, AddressRequestOption, HostnameOption, ClassIdOption, DHCPMessageTypeOption, DHCPServerIdOption, SubnetMaskOption, DomainNameOption, AddressTimeOption, GatewaysOption, SocketType, DomainServerOption } from "dhcp-mon";
+import EventEmitter from "events";
+import { BOOTMessageType, DHCPMessageType, DHCPOptions, Packet, ParameterListOption, Socket, AddressRequestOption, HostnameOption, ClassIdOption, DHCPMessageTypeOption, DHCPServerIdOption, SubnetMaskOption, DomainNameOption, AddressTimeOption, GatewaysOption, SocketType, DomainServerOption } from "@network-utils/dhcp";
 
 import { Device, LEASE_TIME, LOCAL_DOMAIN, Subnet } from "./DHCPServer";
 
