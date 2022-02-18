@@ -41,6 +41,10 @@ if (!ip.subnet(routerIp, SUBNET_MASK).contains(dhcpIp)) {
 const UNGATED_SUBNET: Subnet = {mask: SUBNET_MASK, dhcp: dhcpIp, router: routerIp, dns: routerIp};
 const GATED_SUBNET: Subnet = {mask: SUBNET_MASK, dhcp: dhcpIp, router: dhcpIp, dns: routerIp};
 
+function subnetEqual(subnet1: Subnet, subnet2: Subnet) {
+    return subnet1.mask ==  subnet2.mask && subnet1.dhcp == subnet2.dhcp && subnet1.router == subnet2.router && subnet1.dns == subnet2.dns;
+}
+
 class Daemon implements DaemonAPI {
     private readonly settings = new Settings("daemon");
     private readonly gatedDevices = this.settings.getSetting<Record<string, State>>("gatedDevices");
@@ -61,7 +65,7 @@ class Daemon implements DaemonAPI {
     }
 
     listDevices(): DeviceWithState[] {
-        return this.dhcpServer.getDevices().map(device => ({device, state: device.subnet === UNGATED_SUBNET ? State.UNGATED : State.GATED}));
+        return this.dhcpServer.getDevices().map(device => ({device, state: subnetEqual(device.subnet, UNGATED_SUBNET) ? State.UNGATED : State.GATED}));
     }
 
     gateDevice(deviceMac: string): void {
