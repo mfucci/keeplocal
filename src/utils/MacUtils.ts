@@ -11,5 +11,5 @@
  * @returns true if it is a random MAC address
  */
 export function isRandomMac(mac: string) {
-    return mac[1] in ["2", "6", "A", "E"];
+    return ["2", "6", "A", "E"].includes(mac.charAt(1));
 }
