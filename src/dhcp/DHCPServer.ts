@@ -92,7 +92,7 @@ export class DHCPServer extends EventEmitter {
     private loadSettings() {
         for (var key in this.deviceSettings) {
             const { mac, ip, ipType, subnet } = this.deviceSettings[key];
-            const device: Device = { mac, ip, ipType, subnet, pendingChanges: true };
+            const device: Device = { mac, ip, ipType, subnet, pendingChanges: ipType == IpType.DYNAMIC ? true : false };
             if (this.deviceByMac.has(mac)) {
                 throw new Error(`Cannot add ${JSON.stringify(device)}: there is already another device with this MAC address`);
             }
