@@ -39,8 +39,8 @@ class SocketAPIHandler {
     private readonly reply = new Array<string>();
     private readonly commandParser = yargs([])
         .command("list", "List devices", {}, () => this.handleListDevices())
-        .command("gate <deviceMac>", "Gate device cloud connectivity", yargs => yargs.positional("deviceMac", {type: "string", describe: "Mac address"}), ({deviceMac}) => this.handleGateDevice(deviceMac))
-        .command("ungate <deviceMac>", "Ungate device cloud connectivity", yargs => yargs.positional("deviceMac", {type: "string", describe: "Mac address"}), ({deviceMac}) => this.handleUngateDevice(deviceMac))
+        .command("gate <deviceMac>", "Gate device cloud connectivity", yargs => yargs.positional("deviceMac", {type: "string", describe: "Mac address"}), ({deviceMac}) => this.handleGateDevice(deviceMac as string))
+        .command("ungate <deviceMac>", "Ungate device cloud connectivity", yargs => yargs.positional("deviceMac", {type: "string", describe: "Mac address"}), ({deviceMac}) => this.handleUngateDevice(deviceMac as string))
         .demandCommand();
 
     constructor(readonly daemonAPI: DaemonAPI, readonly socket: net.Socket) {
@@ -85,7 +85,7 @@ class SocketAPIHandler {
                     lastSeen ? format(lastSeen) : "N/A"]),
             ]));
         } catch (error) {
-            this.handleError(error);
+            this.handleError(error as Error);
         }
     }
     
@@ -94,7 +94,7 @@ class SocketAPIHandler {
             this.daemonAPI.gateDevice(mac);
             this.reply.push("Done");
         } catch (error) {
-            this.handleError(error);
+            this.handleError(error as Error);
         }
     }
     
@@ -103,7 +103,7 @@ class SocketAPIHandler {
             this.daemonAPI.ungateDevice(mac);
             this.reply.push("Done");
         } catch (error) {
-            this.handleError(error);
+            this.handleError(error as Error);
         }
     }
 

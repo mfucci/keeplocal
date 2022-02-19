@@ -49,7 +49,7 @@ class Daemon implements DaemonAPI {
     private readonly settings = new Settings("daemon");
     private readonly gatedDevices = this.settings.getSetting<Record<string, State>>("gatedDevices");
     private readonly dhcpServer = new DHCPServer({
-        default: UNGATED_SUBNET,
+        defaultSubnet: UNGATED_SUBNET,
         perMacDevice: recordMap(this.gatedDevices, state => state === State.GATED ? GATED_SUBNET : UNGATED_SUBNET),
     });
     private readonly socketApi = new SocketApi(this);

@@ -41,7 +41,7 @@ export type StoredDevice = {
 }
 
 export type SubnetConfiguration = {
-    default: Subnet,
+    defaultSubnet: Subnet,
     perMacDevice?: Record<string, Subnet>,
 }
 
@@ -72,17 +72,22 @@ export class DHCPServer extends EventEmitter {
     private readonly messenger = new DHCPServerMessenger();
     private readonly deviceByMac = new Map<string, Device>();
     private readonly assignedIps = new Map<string, Device>();
+    private readonly defaultSubnet: Subnet;
+    private readonly subnetPerMac: Record<string, Subnet>;
 
-    constructor(readonly subnetConfiguration: SubnetConfiguration) {
+    constructor({ defaultSubnet, perMacDevice }: SubnetConfiguration) {
         super();
+        this.defaultSubnet = defaultSubnet;
+        this.subnetPerMac = perMacDevice ?? {};
         this.messenger.on("discover", request => this.handleDiscover(request));
         this.messenger.on("request", request => this.handleRequest(request));
     }
 
     async start() {
         this.loadSettings();
-        const { router: routerIp, dhcp: dhcpIp } = this.subnetConfiguration.default;
+        const { router: routerIp, dhcp: dhcpIp } = this.defaultSubnet;
         const routerMac = await arp.toMAC(routerIp);
+        if (routerMac === null) throw new Error("Cannot find the router");
         const dhcpMac = await macAddressHelper.one();
         if (!this.deviceByMac.has(routerMac)) {
             this.createDevice({ mac: routerMac, hostname: "router", staticIp: routerIp});
@@ -127,8 +132,10 @@ export class DHCPServer extends EventEmitter {
     }
 
     switchSubnet(mac: string, subnet: Subnet) {
-        this.subnetConfiguration.perMacDevice[mac] = subnet;
-        if (this.deviceByMac.has(mac)) this.updateDevice(this.deviceByMac.get(mac), {subnet});
+        this.subnetPerMac[mac] = subnet;
+        const device = this.deviceByMac.get(mac);
+        if (device === undefined) throw new Error(`Cannot find device with MAC ${mac}`);
+        this.updateDevice(device, {subnet});
     }
 
     private handleDiscover(request: Request) {
@@ -235,7 +242,7 @@ export class DHCPServer extends EventEmitter {
     }
 
     private assignSubnet(mac: string) {
-        return this.subnetConfiguration.perMacDevice[mac] ?? this.subnetConfiguration.default;
+        return this.subnetPerMac[mac] ?? this.defaultSubnet;
     }
 
     private getNewIp(device: Device) {

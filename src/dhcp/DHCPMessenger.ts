@@ -112,7 +112,7 @@ function addParameters(request: Request, packet: Packet, subnet: Subnet) {
     packet.options.push(new DHCPServerIdOption(subnet.dns));
     packet.options.push(new AddressTimeOption(LEASE_TIME));
 
-    request.parameterRequestList.forEach(parameter => {
+    request.parameterRequestList?.forEach(parameter => {
         switch (parameter) {
             case DHCPOptions.SubnetMask: packet.options.push(new SubnetMaskOption(subnet.mask)); break;
             case DHCPOptions.DomainName: packet.options.push(new DomainNameOption(LOCAL_DOMAIN)); break;
