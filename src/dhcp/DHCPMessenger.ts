@@ -60,7 +60,7 @@ export class DHCPServerMessenger extends EventEmitter {
         const packet = new Packet();
         packet.options.push(new DHCPMessageTypeOption(DHCPMessageType.offer));
         packet.yiaddr = device.ip;
-        addRequestedParameters(request, packet, device.subnet);
+        addParameters(request, packet, device.subnet);
         this.sendResponse(packet, request, device);
     }
 
@@ -68,7 +68,7 @@ export class DHCPServerMessenger extends EventEmitter {
         const packet = new Packet();
         packet.options.push(new DHCPMessageTypeOption(DHCPMessageType.ack));
         packet.yiaddr = device.ip;
-        addRequestedParameters(request, packet, device.subnet);
+        addParameters(request, packet, device.subnet);
         this.sendResponse(packet, request, device);
     }
 
@@ -109,16 +109,19 @@ function toDHCPMessage(packet: Packet) {
     return result;
 }
 
-function addRequestedParameters(request: Request, packet: Packet, subnet: Subnet) {
+function addParameters(request: Request, packet: Packet, subnet: Subnet) {
+    packet.options.push(new DHCPServerIdOption(subnet.dns));
+    packet.options.push(new AddressTimeOption(LEASE_TIME));
+
     request.parameterRequestList.forEach(parameter => {
         switch (parameter) {
             case DHCPOptions.SubnetMask: packet.options.push(new SubnetMaskOption(subnet.mask)); break;
             case DHCPOptions.DomainName: packet.options.push(new DomainNameOption(LOCAL_DOMAIN)); break;
-            case DHCPOptions.AddressTime: packet.options.push(new AddressTimeOption(LEASE_TIME)); break;
             case DHCPOptions.DhcpServerId: packet.options.push(new DHCPServerIdOption(subnet.dhcp)); break;
             case DHCPOptions.Gateways: packet.options.push(new GatewaysOption([subnet.router])); break;
             case DHCPOptions.DomainServer: packet.options.push(new DomainServerOption([subnet.dns])); break;
             case DHCPOptions.BroadcastAddress: packet.options.push(new BroadcastAddressOption(getBroadcastAddress(subnet))); break;
+            // TODO: reply hostname
         }
     });
 }
