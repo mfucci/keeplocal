@@ -62,6 +62,10 @@ export declare interface DHCPServer {
     on(event: DHCP_SERVER_EVENTS.UPDATE_DEVICE, listener: (device: Device) => void): this;
 }
 
+export function getBroadcastAddress(subnet: Subnet) {
+    return ipUtil.subnet(subnet.dhcp, subnet.mask).broadcastAddress;
+}
+
 export class DHCPServer extends EventEmitter {
     private readonly settings = new Settings("dhcp");
     private readonly deviceSettings = this.settings.getSetting<Record<string, StoredDevice>>("devices");

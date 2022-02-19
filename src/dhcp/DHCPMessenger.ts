@@ -8,7 +8,8 @@
 import EventEmitter from "events";
 import { BOOTMessageType, DHCPMessageType, DHCPOptions, Packet, ParameterListOption, Socket, AddressRequestOption, HostnameOption, ClassIdOption, DHCPMessageTypeOption, DHCPServerIdOption, SubnetMaskOption, DomainNameOption, AddressTimeOption, GatewaysOption, SocketType, DomainServerOption } from "@network-utils/dhcp";
 
-import { Device, LEASE_TIME, LOCAL_DOMAIN, Subnet } from "./DHCPServer";
+import { Device, getBroadcastAddress, LEASE_TIME, LOCAL_DOMAIN, Subnet } from "./DHCPServer";
+import { BroadcastAddressOption } from "./DHCPLibPatch";
 
 export type Request = {
     transactionId: number,
@@ -117,6 +118,7 @@ function addRequestedParameters(request: Request, packet: Packet, subnet: Subnet
             case DHCPOptions.DhcpServerId: packet.options.push(new DHCPServerIdOption(subnet.dhcp)); break;
             case DHCPOptions.Gateways: packet.options.push(new GatewaysOption([subnet.router])); break;
             case DHCPOptions.DomainServer: packet.options.push(new DomainServerOption([subnet.dns])); break;
+            case DHCPOptions.BroadcastAddress: packet.options.push(new BroadcastAddressOption(getBroadcastAddress(subnet))); break;
         }
     });
 }
