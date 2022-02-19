@@ -18,7 +18,7 @@ import * as net from "net";
 import { DaemonAPI } from "./DaemonAPI";
 import table from "text-table";
 import { format } from "timeago.js";
-import { isRandomMac } from "./utils/MacUtils";
+import { isRandomMac, vendorForMac } from "./utils/MacUtils";
 
 export const HOSTNAME = "localhost";
 export const PORT = 3432;
@@ -71,13 +71,14 @@ class SocketAPIHandler {
                         hostname = "<none>",
                         classId = "<none>",
                         pendingChanges,
-                        lastSeen
+                        lastSeen,
+                        vendor,
                     },
                     state
                 }) => [
                     ipType,
                     ip,
-                    isRandomMac(mac) ? "<random>" : mac,
+                    `${mac} (vendor)`,
                     hostname,
                     classId,
                     state,
@@ -88,7 +89,7 @@ class SocketAPIHandler {
             this.handleError(error as Error);
         }
     }
-    
+
     private handleGateDevice(mac: string) {
         try {
             this.daemonAPI.gateDevice(mac);

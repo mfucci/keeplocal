@@ -16,6 +16,7 @@ import * as ipUtil from "ip";
 
 import { DHCPServerMessenger, Request } from "./DHCPMessenger";
 import { Settings } from "../utils/Settings";
+import { vendorForMac } from "../utils/MacUtils";
 
 export const LOCAL_DOMAIN = "local";
 export const LEASE_TIME = 5 * 60 /* 5 minutes */;
@@ -50,6 +51,7 @@ export type Device = StoredDevice & {
     classId?: string;
     pendingChanges: boolean;
     lastSeen?: number;
+    vendor: string;
 }
 
 export enum DHCP_SERVER_EVENTS {
@@ -101,7 +103,7 @@ export class DHCPServer extends EventEmitter {
     private loadSettings() {
         for (var key in this.deviceSettings) {
             const { mac, ip, ipType, subnet } = this.deviceSettings[key];
-            const device: Device = { mac, ip, ipType, subnet, pendingChanges: ipType == IpType.DYNAMIC ? true : false };
+            const device: Device = { mac, ip, ipType, subnet, pendingChanges: ipType == IpType.DYNAMIC ? true : false, vendor: vendorForMac(mac) };
             if (this.deviceByMac.has(mac)) {
                 throw new Error(`Cannot add ${JSON.stringify(device)}: there is already another device with this MAC address`);
             }
@@ -177,6 +179,7 @@ export class DHCPServer extends EventEmitter {
             classId,
             pendingChanges: false,
             subnet: this.assignSubnet(mac),
+            vendor: vendorForMac(mac),
         };
         this.emit(DHCP_SERVER_EVENTS.NEW_DEVICE, device);
         this.persistDeviceConfig(device);

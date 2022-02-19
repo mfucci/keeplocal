@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { isRandomMac } from "../src/utils/MacUtils";
+import { isRandomMac, vendorForMac } from "../src/utils/MacUtils";
 import { recordMap } from "../src/utils/ObjectUtils";
 
 describe("MacUtils", () => {
@@ -10,6 +10,20 @@ describe("MacUtils", () => {
 
         it("returns true when it is a random MAC", () => {
             assert.equal(isRandomMac("26:2F:AA:BB:12:1F"), true);
+        });
+    });
+
+    context("vendorForMac", () => {
+        it("returns the vendor for a known MAC", () => {
+            assert.equal(vendorForMac("54:83:3A:8D:72:98"), "Zyxel Communications Corp");
+        });
+
+        it("returns <unknown> for an unknown MAC", () => {
+            assert.equal(vendorForMac("23:11:11:8D:72:98"), "<unknown>");
+        });
+
+        it("returns <random> for a random MAC", () => {
+            assert.equal(vendorForMac("26:2F:AA:BB:12:1F"), "<random>");
         });
     });
 });
