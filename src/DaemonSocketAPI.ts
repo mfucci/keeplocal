@@ -78,7 +78,7 @@ class SocketAPIHandler {
                 }) => [
                     ipType,
                     ip,
-                    `${mac} (vendor)`,
+                    `${mac} (${vendor})`,
                     hostname,
                     classId,
                     state,
