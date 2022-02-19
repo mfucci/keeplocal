@@ -61,7 +61,7 @@ export class DHCPServerMessenger extends EventEmitter {
         packet.options.push(new DHCPMessageTypeOption(DHCPMessageType.offer));
         packet.yiaddr = device.ip;
         addParameters(request, packet, device.subnet);
-        this.sendResponse(packet, request, device);
+        this.sendResponse(packet, request);
     }
 
     sendAck(request: Request, device: Device) {
@@ -69,22 +69,21 @@ export class DHCPServerMessenger extends EventEmitter {
         packet.options.push(new DHCPMessageTypeOption(DHCPMessageType.ack));
         packet.yiaddr = device.ip;
         addParameters(request, packet, device.subnet);
-        this.sendResponse(packet, request, device);
+        this.sendResponse(packet, request);
     }
 
     sendNak(request: Request, device: Device) {
         const packet = new Packet();
         packet.options.push(new DHCPMessageTypeOption(DHCPMessageType.nak));
         packet.options.push(new DHCPServerIdOption(device.subnet.dhcp));
-        this.sendResponse(packet, request, device);
+        this.sendResponse(packet, request);
     }
 
-    private sendResponse(packet: Packet, request: Request, device: Device) {
+    private sendResponse(packet: Packet, request: Request) {
         packet.op = BOOTMessageType.reply;
         packet.xid = request.transactionId;
         packet.flags = request.flags;
         packet.chaddr = request.mac;
-        packet.siaddr = device.subnet.dhcp;
         this.socket.send(packet);
     }
 }
