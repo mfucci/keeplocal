@@ -18,7 +18,7 @@ import * as net from "net";
 import { DaemonAPI } from "./DaemonAPI";
 import table from "text-table";
 import { format } from "timeago.js";
-import { isRandomMac, vendorForMac } from "./utils/MacUtils";
+import { vendorForMac } from "./utils/MacUtils";
 
 export const HOSTNAME = "localhost";
 export const PORT = 3432;

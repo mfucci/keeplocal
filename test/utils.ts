@@ -1,29 +1,23 @@
 import * as assert from "assert";
-import { isRandomMac, vendorForMac } from "../src/utils/MacUtils";
+import { vendorForMac } from "../src/utils/MacUtils";
 import { recordMap } from "../src/utils/ObjectUtils";
 
 describe("MacUtils", () => {
-    context("isRandomMac", () => {
-        it("returns false when it is not a random MAC", () => {
-            assert.equal(isRandomMac("23:2F:AA:BB:12:1F"), false);
-        });
-
-        it("returns true when it is a random MAC", () => {
-            assert.equal(isRandomMac("26:2F:AA:BB:12:1F"), true);
-        });
-    });
-
     context("vendorForMac", () => {
         it("returns the vendor for a known MAC", () => {
-            assert.equal(vendorForMac("54:83:3A:8D:72:98"), "Zyxel Communications Corp");
+            assert.equal(vendorForMac("54:83:3A:8D:72:98"), "Zyxel Communications Corporation");
         });
 
         it("returns <unknown> for an unknown MAC", () => {
             assert.equal(vendorForMac("23:11:11:8D:72:98"), "<unknown>");
         });
 
-        it("returns <random> for a random MAC", () => {
-            assert.equal(vendorForMac("26:2F:AA:BB:12:1F"), "<random>");
+        it("returns <random MAC> for a random MAC", () => {
+            assert.equal(vendorForMac("26:2F:AA:BB:12:1F"), "<random MAC>");
+        });
+
+        it("returns <private> for a private MAC", () => {
+            assert.equal(vendorForMac("70:B3:D5:6F:41:22"), "<private>");
         });
     });
 });
