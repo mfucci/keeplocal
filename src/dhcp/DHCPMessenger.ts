@@ -8,7 +8,8 @@
 import EventEmitter from "events";
 import { BOOTMessageType, DHCPMessageType, DHCPOptions, Packet, ParameterListOption, BroadcastAddressOption, Socket, AddressRequestOption, HostnameOption, ClassIdOption, DHCPMessageTypeOption, DHCPServerIdOption, SubnetMaskOption, DomainNameOption, AddressTimeOption, GatewaysOption, SocketType, DomainServerOption } from "@network-utils/dhcp";
 
-import { Device, getBroadcastAddress, LEASE_TIME, LOCAL_DOMAIN, Subnet } from "./DHCPServer";
+import { Device, getBroadcastAddress, LEASE_TIME, LOCAL_DOMAIN } from "./DHCPServer";
+import { Subnet } from "../subnet/Subnet";
 
 export type Request = {
     transactionId: number,
