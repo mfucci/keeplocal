@@ -14,9 +14,9 @@ import * as ip from "ip";
 import * as gateway from "default-gateway";
 import yargs from "yargs";
 
-import { DHCPServer, DHCP_SERVER_EVENTS } from "./dhcp/DHCPServer";
+import { Device, DHCPServer, DHCP_SERVER_EVENTS } from "./dhcp/DHCPServer";
 import { SocketApi } from "./DaemonSocketAPI";
-import { DaemonAPI, DeviceWithState, State } from "./DaemonAPI";
+import { DaemonAPI, DeviceWithState as DeviceInfo, State } from "./DaemonAPI";
 import { Settings } from "./utils/Settings";
 import { recordMap } from "./utils/ObjectUtils";
 import { getSubnet, Subnet } from "./subnet/Subnet";
@@ -42,18 +42,24 @@ if (!ip.subnet(routerIp, SUBNET_MASK).contains(dhcpIp)) {
 const UNGATED_SUBNET: Subnet = getSubnet({mask: SUBNET_MASK, dhcp: dhcpIp, router: routerIp, dns: routerIp});
 const GATED_SUBNET: Subnet = getSubnet({mask: SUBNET_MASK, dhcp: dhcpIp, router: dhcpIp, dns: routerIp});
 
+type DeviceConf = {
+    mac: string,
+    name: string,
+    state: State,
+};
+
 class Daemon implements DaemonAPI {
     private readonly settings = new Settings("daemon");
-    private readonly gatedDevices = this.settings.getSetting<Record<string, State>>("gatedDevices");
+    private readonly devices = this.settings.getSetting<Record<string, DeviceConf>>("devices");
     private readonly dhcpServer = new DHCPServer({
         defaultSubnet: UNGATED_SUBNET,
-        perMacDevice: recordMap(this.gatedDevices, state => state === State.GATED ? GATED_SUBNET : UNGATED_SUBNET),
+        subnetPerMac: recordMap(this.devices, ({state}) => state === State.GATED ? GATED_SUBNET : UNGATED_SUBNET),
     });
     private readonly socketApi = new SocketApi(this);
 
     constructor() {
-        this.dhcpServer.on(DHCP_SERVER_EVENTS.NEW_DEVICE, device => console.log(`New device joined the network: ${JSON.stringify(device)}`));
-        this.dhcpServer.on(DHCP_SERVER_EVENTS.UPDATE_DEVICE, device => console.log(`Device info updated: ${JSON.stringify(device)}`));
+        this.dhcpServer.on(DHCP_SERVER_EVENTS.NEW_DEVICE, device => this.handleNewDevice(device));
+        this.dhcpServer.on(DHCP_SERVER_EVENTS.UPDATE_DEVICE, device => this.handleDeviceUpdate(device));
     }
 
     start() {
@@ -61,20 +67,39 @@ class Daemon implements DaemonAPI {
         this.socketApi.start();
     }
 
-    listDevices(): DeviceWithState[] {
-        return this.dhcpServer.getDevices().map(device => ({device, state: device.subnet == UNGATED_SUBNET ? State.UNGATED : State.GATED}));
+    listDevices(): DeviceInfo[] {
+        return this.dhcpServer.getDevices().map(device => ({
+            name: this.devices[device.mac].name,
+            device,
+            state: device.subnet == UNGATED_SUBNET ? State.UNGATED : State.GATED}));
     }
 
     gateDevice(deviceMac: string): void {
         this.dhcpServer.switchSubnet(deviceMac, GATED_SUBNET);
-        this.gatedDevices[deviceMac] = State.GATED;
+        this.devices[deviceMac].state = State.GATED;
         this.settings.save();
     }
 
     ungateDevice(deviceMac: string): void {
         this.dhcpServer.switchSubnet(deviceMac, UNGATED_SUBNET);
-        delete this.gatedDevices[deviceMac];
+        this.devices[deviceMac].state = State.UNGATED;
         this.settings.save();
+    }
+
+    renameDevice(deviceMac: string, newName: string): void {
+        this.devices[deviceMac].name = newName;
+        this.settings.save();
+    }
+
+    private handleNewDevice(device: Device) {
+        console.log(`New device joined the network: ${JSON.stringify(device)}`)
+        const { mac, hostname } = device;
+        this.devices[mac] = { mac, name: hostname ?? mac, state: State.UNGATED };
+        this.settings.save();
+    }
+
+    private handleDeviceUpdate(device: Device) {
+        console.log(`Device info updated: ${JSON.stringify(device)}`)
     }
 }
 

@@ -37,7 +37,7 @@ export type StoredDevice = {
 
 export type SubnetConfiguration = {
     defaultSubnet: Subnet,
-    perMacDevice?: Record<string, Subnet>,
+    subnetPerMac?: Record<string, Subnet>,
 }
 
 export type Device = StoredDevice & {
@@ -71,7 +71,7 @@ export class DHCPServer extends EventEmitter {
     private readonly defaultSubnet: Subnet;
     private readonly subnetPerMac: Record<string, Subnet>;
 
-    constructor({ defaultSubnet, perMacDevice }: SubnetConfiguration) {
+    constructor({ defaultSubnet, subnetPerMac: perMacDevice }: SubnetConfiguration) {
         super();
         this.defaultSubnet = defaultSubnet;
         this.subnetPerMac = perMacDevice ?? {};

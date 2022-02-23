@@ -13,6 +13,7 @@ export enum State {
 }
 
 export type DeviceWithState = {
+    name: string,
     device: Device,
     state: State,
 }
@@ -26,4 +27,7 @@ export interface DaemonAPI {
 
     /** Ungates a device so restore its ability to reach the cloud. */
     ungateDevice(deviceMac: string): void,
+
+    /** Rename a local device. */
+    renameDevice(deviceMac: string, name: string): void,
 };

@@ -39,8 +39,20 @@ class SocketAPIHandler {
     private readonly reply = new Array<string>();
     private readonly commandParser = yargs([])
         .command("list", "List devices", {}, () => this.handleListDevices())
-        .command("gate <deviceMac>", "Gate device cloud connectivity", yargs => yargs.positional("deviceMac", {type: "string", describe: "Mac address"}), ({deviceMac}) => this.handleGateDevice(deviceMac as string))
-        .command("ungate <deviceMac>", "Ungate device cloud connectivity", yargs => yargs.positional("deviceMac", {type: "string", describe: "Mac address"}), ({deviceMac}) => this.handleUngateDevice(deviceMac as string))
+        .command("gate <deviceMac>",
+            "Gate device cloud connectivity",
+            yargs => yargs.positional("deviceMac", {type: "string", describe: "Mac address"}),
+            ({deviceMac}) => this.handleGateDevice(deviceMac as string))
+        .command("ungate <deviceMac>",
+            "Ungate device cloud connectivity",
+            yargs => yargs.positional("deviceMac", {type: "string", describe: "Mac address"}),
+            ({deviceMac}) => this.handleUngateDevice(deviceMac as string))
+        .command("rename <deviceMac> <name>",
+            "Rename a device",
+            yargs => yargs
+                .positional("deviceMac", {type: "string", describe: "Mac address"})
+                .positional("name", {type: "string", describe: "New name"}),
+            ({deviceMac, name}) => this.handleRenameDevice(deviceMac as string, name as string))
         .demandCommand();
 
     constructor(readonly daemonAPI: DaemonAPI, readonly socket: net.Socket) {
@@ -62,8 +74,9 @@ class SocketAPIHandler {
         try {
             const devices = this.daemonAPI.listDevices();
             this.reply.push(table([
-                ["IP Type", "IP", "MAC", "Hostname", "ClassId", "State", "Pending", "Last Seen"],
+                ["Name", "IP Type", "IP", "MAC", "Hostname", "ClassId", "State", "Pending", "Last Seen"],
                 ...devices.map(({
+                    name,
                     device: {
                         ip = "<none>",
                         ipType,
@@ -76,6 +89,7 @@ class SocketAPIHandler {
                     },
                     state
                 }) => [
+                    name,
                     ipType,
                     ip,
                     `${mac} (${vendor})`,
@@ -102,6 +116,15 @@ class SocketAPIHandler {
     private handleUngateDevice(mac: string) {
         try {
             this.daemonAPI.ungateDevice(mac);
+            this.reply.push("Done");
+        } catch (error) {
+            this.handleError(error as Error);
+        }
+    }
+    
+    private handleRenameDevice(mac: string, name: string) {
+        try {
+            this.daemonAPI.renameDevice(mac, name);
             this.reply.push("Done");
         } catch (error) {
             this.handleError(error as Error);
