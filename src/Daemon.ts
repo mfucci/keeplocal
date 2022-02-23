@@ -14,11 +14,12 @@ import * as ip from "ip";
 import * as gateway from "default-gateway";
 import yargs from "yargs";
 
-import { DHCPServer, DHCP_SERVER_EVENTS, Subnet } from "./dhcp/DHCPServer";
+import { DHCPServer, DHCP_SERVER_EVENTS } from "./dhcp/DHCPServer";
 import { SocketApi } from "./DaemonSocketAPI";
 import { DaemonAPI, DeviceWithState, State } from "./DaemonAPI";
 import { Settings } from "./utils/Settings";
 import { recordMap } from "./utils/ObjectUtils";
+import { getSubnet, Subnet } from "./subnet/Subnet";
 
 const { router: routerIp, dhcp: dhcpIp } = yargs(process.argv.slice(2))
     .option({
@@ -38,12 +39,8 @@ if (!ip.subnet(routerIp, SUBNET_MASK).contains(dhcpIp)) {
     throw new Error("The router and the DHCP server should be on the same subnet");
 }
 
-const UNGATED_SUBNET: Subnet = {mask: SUBNET_MASK, dhcp: dhcpIp, router: routerIp, dns: routerIp};
-const GATED_SUBNET: Subnet = {mask: SUBNET_MASK, dhcp: dhcpIp, router: dhcpIp, dns: routerIp};
-
-function subnetEqual(subnet1: Subnet, subnet2: Subnet) {
-    return subnet1.mask ==  subnet2.mask && subnet1.dhcp == subnet2.dhcp && subnet1.router == subnet2.router && subnet1.dns == subnet2.dns;
-}
+const UNGATED_SUBNET: Subnet = getSubnet({mask: SUBNET_MASK, dhcp: dhcpIp, router: routerIp, dns: routerIp});
+const GATED_SUBNET: Subnet = getSubnet({mask: SUBNET_MASK, dhcp: dhcpIp, router: dhcpIp, dns: routerIp});
 
 class Daemon implements DaemonAPI {
     private readonly settings = new Settings("daemon");
@@ -65,7 +62,7 @@ class Daemon implements DaemonAPI {
     }
 
     listDevices(): DeviceWithState[] {
-        return this.dhcpServer.getDevices().map(device => ({device, state: subnetEqual(device.subnet, UNGATED_SUBNET) ? State.UNGATED : State.GATED}));
+        return this.dhcpServer.getDevices().map(device => ({device, state: device.subnet == UNGATED_SUBNET ? State.UNGATED : State.GATED}));
     }
 
     gateDevice(deviceMac: string): void {

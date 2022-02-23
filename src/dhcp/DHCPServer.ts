@@ -17,17 +17,11 @@ import * as ipUtil from "ip";
 import { DHCPServerMessenger, Request } from "./DHCPMessenger";
 import { Settings } from "../utils/Settings";
 import { vendorForMac } from "../utils/MacUtils";
+import { Subnet, getSubnet } from "../subnet/Subnet";
 
 export const LOCAL_DOMAIN = "local";
 export const LEASE_TIME = 5 * 60 /* 5 minutes */;
 export const UNASSIGNED_IP = "<unassigned>";
-
-export type Subnet = {
-    readonly mask: string;
-    readonly dhcp: string;
-    readonly router: string;
-    readonly dns: string;
-}
 
 export enum IpType {
     STATIC = "STATIC",
@@ -103,7 +97,7 @@ export class DHCPServer extends EventEmitter {
     private loadSettings() {
         for (var key in this.deviceSettings) {
             const { mac, ip, ipType, subnet } = this.deviceSettings[key];
-            const device: Device = { mac, ip, ipType, subnet, pendingChanges: ipType == IpType.DYNAMIC ? true : false, vendor: vendorForMac(mac) };
+            const device: Device = { mac, ip, ipType, subnet: getSubnet(subnet), pendingChanges: ipType == IpType.DYNAMIC ? true : false, vendor: vendorForMac(mac) };
             if (this.deviceByMac.has(mac)) {
                 throw new Error(`Cannot add ${JSON.stringify(device)}: there is already another device with this MAC address`);
             }
