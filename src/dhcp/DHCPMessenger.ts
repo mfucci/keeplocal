@@ -1,10 +1,12 @@
 /**
  * Messenger for serializing / deserializing inbounding and outbouding DHCP protocol messages.
+ * It isolates the higher logic from the underlying library used for messages serialization / deserialization.
  * 
  * @license
  * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
  * SPDX-License-Identifier: Apache-2.0
  */
+
 import EventEmitter from "events";
 import { BOOTMessageType, DHCPMessageType, DHCPOptions, Packet, ParameterListOption, BroadcastAddressOption, Socket, AddressRequestOption, HostnameOption, ClassIdOption, DHCPMessageTypeOption, DHCPServerIdOption, SubnetMaskOption, DomainNameOption, AddressTimeOption, GatewaysOption, SocketType, DomainServerOption } from "@network-utils/dhcp";
 
@@ -33,27 +35,29 @@ export class DHCPServerMessenger extends EventEmitter {
     constructor(protocol: SocketType = "udp4") {
         super();
         this.socket = new Socket(protocol);
-
-        this.socket.on("dhcp", ({packet}) => {
-            if (packet.op !== BOOTMessageType.request) return;
-            const request = toDHCPMessage(packet);
-            switch (packet.type) {
-                case DHCPMessageType.discover:
-                    this.emit("discover", request);
-                    break;
-                case DHCPMessageType.request:
-                    this.emit("request", request);
-                    break;
-            }
-        });
+        this.socket.on("dhcp", ({packet}) => this.handlePacket(packet));
     }
 
     listen() {
+        // TODO: bind only on one interface otherwise packets might be received multiple times
         this.socket.bind();
     }
 
     close() {
         this.socket.close();
+    }
+
+    private handlePacket(packet: Packet) {
+        if (packet.op !== BOOTMessageType.request) return;
+        const request = toDHCPMessage(packet);
+        switch (packet.type) {
+            case DHCPMessageType.discover:
+                this.emit("discover", request);
+                break;
+            case DHCPMessageType.request:
+                this.emit("request", request);
+                break;
+        }
     }
 
     sendOffer(request: Request, device: Device) {

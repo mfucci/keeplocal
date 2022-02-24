@@ -85,6 +85,7 @@ export class DHCPServer extends EventEmitter {
         const { router: routerIp, dhcp: dhcpIp } = this.defaultSubnet;
         const routerMac = (await arp.toMAC(routerIp))?.toUpperCase();
         if (routerMac === undefined) throw new Error("Cannot find the router");
+        // TODO: support assigning IP to itself (need to enable socket local loopback)
         const dhcpMac = (await macAddressHelper.one()).toUpperCase();
         if (!this.deviceByMac.has(routerMac)) {
             this.createDevice({ mac: routerMac, hostname: "router", staticIp: routerIp});
