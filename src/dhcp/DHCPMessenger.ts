@@ -109,8 +109,13 @@ function toDHCPMessage(packet: Packet) {
 }
 
 function addParameters(request: Request, packet: Packet, subnet: Subnet) {
-    packet.options.push(new DHCPServerIdOption(subnet.dns));
+    packet.options.push(new DHCPServerIdOption(subnet.dhcp));
     packet.options.push(new AddressTimeOption(LEASE_TIME));
+
+    // TODO: reply hostname
+    /*if (request.hostname) {
+        packet.options.push(new HostnameOption(request.hostname));
+    }*/
 
     request.parameterRequestList?.forEach(parameter => {
         switch (parameter) {
@@ -120,7 +125,6 @@ function addParameters(request: Request, packet: Packet, subnet: Subnet) {
             case DHCPOptions.Gateways: packet.options.push(new GatewaysOption([subnet.router])); break;
             case DHCPOptions.DomainServer: packet.options.push(new DomainServerOption([subnet.dns])); break;
             case DHCPOptions.BroadcastAddress: packet.options.push(new BroadcastAddressOption(getBroadcastAddress(subnet))); break;
-            // TODO: reply hostname
         }
     });
 }
