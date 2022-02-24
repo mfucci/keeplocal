@@ -48,6 +48,11 @@ List all the devices connected on your network:
 keeplocal list
 ```
 
+Rename a device to identify it better:
+```bash
+keeplocal rename <device_mac> <name>
+```
+
 Prevent a device to access the cloud:
 ```bash
 keeplocal gate <device_mac>

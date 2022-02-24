@@ -1,6 +1,6 @@
 {
   "name": "keeplocal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Allows to control how local devices can data are shared with the cloud",
   "keywords": [
     "privacy",
