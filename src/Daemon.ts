@@ -15,11 +15,11 @@ import * as gateway from "default-gateway";
 import yargs from "yargs";
 
 import { Device, DHCPServer, DHCP_SERVER_EVENTS } from "./dhcp/DHCPServer";
-import { SocketApi } from "./DaemonSocketAPI";
-import { DaemonAPI, DeviceWithState as DeviceInfo, State } from "./DaemonAPI";
 import { Settings } from "./utils/Settings";
 import { recordMap } from "./utils/ObjectUtils";
 import { getSubnet, Subnet } from "./subnet/Subnet";
+import { WebsocketDatabaseServer } from "./database/remote/WebsocketDatabaseServer";
+import { NetworkDevice, NetworkDevicesDatabase, State } from "./NetworkDevices";
 
 const { router: routerIp, dhcp: dhcpIp } = yargs(process.argv.slice(2))
     .option({
@@ -48,58 +48,78 @@ type DeviceConf = {
     state: State,
 };
 
-class Daemon implements DaemonAPI {
+class Daemon {
     private readonly settings = new Settings("daemon");
     private readonly devices = this.settings.getSetting<Record<string, DeviceConf>>("devices");
     private readonly dhcpServer = new DHCPServer({
         defaultSubnet: UNGATED_SUBNET,
         subnetPerMac: recordMap(this.devices, ({state}) => state === State.GATED ? GATED_SUBNET : UNGATED_SUBNET),
     });
-    private readonly socketApi = new SocketApi(this);
+    private readonly database = new NetworkDevicesDatabase();
+    private readonly databaseServer = new WebsocketDatabaseServer(this.database, 3432);
 
     constructor() {
         this.dhcpServer.on(DHCP_SERVER_EVENTS.NEW_DEVICE, device => this.handleNewDevice(device));
         this.dhcpServer.on(DHCP_SERVER_EVENTS.UPDATE_DEVICE, device => this.handleDeviceUpdate(device));
+        this.database.on("name_update", (deviceId, name) => this.renameDevice(deviceId, name));
+        this.database.on("state_update", (deviceId, state) => this.updateState(deviceId, state));
     }
 
     start() {
         this.dhcpServer.start();
-        this.socketApi.start();
+        this.database.setDevices(this.dhcpServer.getDevices().map(device => this.toNetworkDevice(device)));
     }
 
-    listDevices(): DeviceInfo[] {
-        return this.dhcpServer.getDevices().map(device => ({
-            name: this.devices[device.mac].name,
-            device,
-            state: device.subnet == UNGATED_SUBNET ? State.UNGATED : State.GATED}));
+    private updateState(deviceId: string, state: State) {
+        switch (state) {
+            case State.GATED:
+                this.gateDevice(deviceId);
+                break;
+            case State.UNGATED:
+                this.ungateDevice(deviceId);
+                break;
+        }
     }
 
-    gateDevice(deviceMac: string): void {
-        this.dhcpServer.switchSubnet(deviceMac, GATED_SUBNET);
-        this.devices[deviceMac].state = State.GATED;
+    gateDevice(id: string): void {
+        console.log(`gateDevice ${id}`);
+        this.dhcpServer.switchSubnet(id, GATED_SUBNET);
+        this.devices[id].state = State.GATED;
         this.settings.save();
     }
 
-    ungateDevice(deviceMac: string): void {
-        this.dhcpServer.switchSubnet(deviceMac, UNGATED_SUBNET);
-        this.devices[deviceMac].state = State.UNGATED;
+    ungateDevice(id: string): void {
+        console.log(`ungateDevice ${id}`);
+        this.dhcpServer.switchSubnet(id, UNGATED_SUBNET);
+        this.devices[id].state = State.UNGATED;
         this.settings.save();
     }
 
-    renameDevice(deviceMac: string, newName: string): void {
-        this.devices[deviceMac].name = newName;
+    renameDevice(id: string, name: string): void {
+        console.log(`renameDevice ${id} ${name}`);
+        this.devices[id].name = name;
         this.settings.save();
     }
 
     private handleNewDevice(device: Device) {
-        console.log(`New device joined the network: ${JSON.stringify(device)}`)
+        console.log(`New device joined the network: ${JSON.stringify(device)}`);
         const { mac, hostname } = device;
         this.devices[mac] = { mac, name: hostname ?? mac, state: State.UNGATED };
+        this.database.updateDevice(this.toNetworkDevice(device));
         this.settings.save();
     }
 
     private handleDeviceUpdate(device: Device) {
         console.log(`Device info updated: ${JSON.stringify(device)}`)
+        this.database.updateDevice(this.toNetworkDevice(device));
+    }
+
+    private toNetworkDevice({ip, ipType, mac, pendingChanges, vendor, classId, hostname, lastSeen}: Device): NetworkDevice {
+        const deviceId = mac;
+        const deviceConf = this.devices[deviceId];
+        if (deviceConf === undefined) throw new Error(`Missing device conf for ${deviceId}`);
+        const { state, name } = deviceConf;
+        return { mac, state, name, ip, ipType, pendingChanges, vendor, classId, hostname, lastSeen };
     }
 }
 

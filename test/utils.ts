@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import { vendorForMac } from "../src/utils/MacUtils";
-import { recordMap } from "../src/utils/ObjectUtils";
+import { deepCopy, diff, recordMap } from "../src/utils/ObjectUtils";
 
 describe("MacUtils", () => {
     context("vendorForMac", () => {
@@ -28,6 +28,87 @@ describe("ObjectUtils", () => {
             const record:Record<string, number> = {"a": 1, "b": 3};
             const mapFunction = (value: number) => value + 1;
             assert.deepEqual(recordMap(record, mapFunction), {"a": 2, "b": 4});
+        });
+    });
+
+    context("deepCopy", () => {
+        it("deep copies an object", () => {
+            const object = {
+                e: 22,
+                a: 'ddd',
+                rt: [
+                    "2",
+                    {
+                        da: new Date(),
+                    },
+                ],
+                bla: {
+                    blabla: true,
+                },
+            };
+
+            const result = deepCopy(object);
+
+            assert.deepEqual(result, object);
+        });
+    });
+
+
+    context("diff", () => {
+        it("detects added values", () => {
+            const oldObject = {
+                e: 22,
+                a: 'ddd',
+            };
+            const newObject = { new: 24, ...oldObject};
+
+            const result = diff(oldObject, newObject);
+
+            assert.deepEqual(result, {new: 24});
+        });
+
+        it("detects removed values", () => {
+            const oldObject = {
+                e: 22,
+                a: 'ddd',
+            };
+            const newObject = {
+                e: 22
+            };
+
+            const result = diff(oldObject, newObject);
+
+            assert.deepEqual(result, {a: undefined});
+        });
+
+        it("detects modified values", () => {
+            const oldObject = {
+                e: 22,
+                a: 'ddd',
+            };
+            const newObject = {
+                e: 22,
+                a: 'ww',
+            };
+
+            const result = diff(oldObject, newObject);
+
+            assert.deepEqual(result, {a: "ww"});
+        });
+
+        it("detects diff in dates", () => {
+            const oldObject = {
+                e: new Date(1),
+                a: new Date(2),
+            };
+            const newObject = {
+                e: new Date(1),
+                a: new Date(3),
+            };
+
+            const result = diff(oldObject, newObject);
+
+            assert.deepEqual(result, {a: new Date(3)});
         });
     });
 });
