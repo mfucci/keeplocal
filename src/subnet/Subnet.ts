@@ -24,3 +24,5 @@ export function getSubnet({mask, dhcp, router, dns}: Subnet) {
     }
     return result;
 }
+
+export const SUBNET_MASK = "255.255.255.0";

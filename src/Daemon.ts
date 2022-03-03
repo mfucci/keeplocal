@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * keeplocal deamon to control local device connectivity.
  * 
@@ -10,37 +8,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import * as ip from "ip";
-import * as gateway from "default-gateway";
-import yargs from "yargs";
-
-import { Device, DHCPServer, DHCP_SERVER_EVENTS } from "./dhcp/DHCPServer";
-import { Settings } from "./utils/Settings";
-import { recordMap } from "./utils/ObjectUtils";
-import { getSubnet, Subnet } from "./subnet/Subnet";
 import { WebsocketDatabaseServer } from "./database/remote/WebsocketDatabaseServer";
+import { Device, DHCPServer, DHCP_SERVER_EVENTS } from "./dhcp/DHCPServer";
 import { NetworkDevice, NetworkDevicesDatabase, State } from "./NetworkDevices";
-
-const { router: routerIp, dhcp: dhcpIp } = yargs(process.argv.slice(2))
-    .option({
-        router: {desc: "IP of the router", type: "string", default: gateway.v4.sync().gateway, demandOption: true},
-        dhcp: {desc: "IP of the DHCP server", type: "string", default: ip.address()},
-    }).parseSync();
-
-const SUBNET_MASK = "255.255.255.0";
-
-if (!ip.isV4Format(routerIp)) {
-    throw new Error("The router IP should be a v4 IP.");
-}
-if (!ip.isV4Format(dhcpIp)) {
-    throw new Error("The DHCP server IP should be a v4 IP.");
-}
-if (!ip.subnet(routerIp, SUBNET_MASK).contains(dhcpIp)) {
-    throw new Error("The router and the DHCP server should be on the same subnet");
-}
-
-const UNGATED_SUBNET: Subnet = getSubnet({mask: SUBNET_MASK, dhcp: dhcpIp, router: routerIp, dns: routerIp});
-const GATED_SUBNET: Subnet = getSubnet({mask: SUBNET_MASK, dhcp: dhcpIp, router: dhcpIp, dns: routerIp});
+import { getSubnet, Subnet, SUBNET_MASK } from "./subnet/Subnet";
+import { recordMap } from "./utils/ObjectUtils";
+import { Settings } from "./utils/Settings";
 
 type DeviceConf = {
     mac: string,
@@ -48,24 +21,30 @@ type DeviceConf = {
     state: State,
 };
 
-class Daemon {
+export class Daemon {
+    private readonly ungatedSubnet: Subnet;
+    private readonly gatedSubnet: Subnet;
     private readonly settings = new Settings("daemon");
     private readonly devices = this.settings.getSetting<Record<string, DeviceConf>>("devices");
-    private readonly dhcpServer = new DHCPServer({
-        defaultSubnet: UNGATED_SUBNET,
-        subnetPerMac: recordMap(this.devices, ({state}) => state === State.GATED ? GATED_SUBNET : UNGATED_SUBNET),
-    });
+    private readonly dhcpServer: DHCPServer;
     private readonly database = new NetworkDevicesDatabase();
     private readonly databaseServer = new WebsocketDatabaseServer(this.database, 3432);
 
-    constructor() {
-        this.dhcpServer.on(DHCP_SERVER_EVENTS.NEW_DEVICE, device => this.handleNewDevice(device));
-        this.dhcpServer.on(DHCP_SERVER_EVENTS.UPDATE_DEVICE, device => this.handleDeviceUpdate(device));
+    constructor(routerIp: string, dhcpIp: string) {
         this.database.on("name_update", (deviceId, name) => this.renameDevice(deviceId, name));
         this.database.on("state_update", (deviceId, state) => this.updateState(deviceId, state));
+        this.ungatedSubnet = getSubnet({mask: SUBNET_MASK, dhcp: dhcpIp, router: routerIp, dns: routerIp});
+        this.gatedSubnet = getSubnet({mask: SUBNET_MASK, dhcp: dhcpIp, router: dhcpIp, dns: routerIp});
+        this.dhcpServer = new DHCPServer({
+            defaultSubnet: this.ungatedSubnet,
+            subnetPerMac: recordMap(this.devices, ({state}) => state === State.GATED ? this.gatedSubnet : this.ungatedSubnet),
+        });
+        this.dhcpServer.on(DHCP_SERVER_EVENTS.NEW_DEVICE, device => this.handleNewDevice(device));
+        this.dhcpServer.on(DHCP_SERVER_EVENTS.UPDATE_DEVICE, device => this.handleDeviceUpdate(device));
     }
 
     start() {
+        console.log(`Starting DHCP server for the subnet ${JSON.stringify(this.ungatedSubnet)}`);
         this.dhcpServer.start();
         this.database.setDevices(this.dhcpServer.getDevices().map(device => this.toNetworkDevice(device)));
     }
@@ -83,14 +62,14 @@ class Daemon {
 
     gateDevice(id: string): void {
         console.log(`gateDevice ${id}`);
-        this.dhcpServer.switchSubnet(id, GATED_SUBNET);
+        this.dhcpServer.switchSubnet(id, this.gatedSubnet);
         this.devices[id].state = State.GATED;
         this.settings.save();
     }
 
     ungateDevice(id: string): void {
         console.log(`ungateDevice ${id}`);
-        this.dhcpServer.switchSubnet(id, UNGATED_SUBNET);
+        this.dhcpServer.switchSubnet(id, this.ungatedSubnet);
         this.devices[id].state = State.UNGATED;
         this.settings.save();
     }
@@ -122,6 +101,3 @@ class Daemon {
         return { mac, state, name, ip, ipType, pendingChanges, vendor, classId, hostname, lastSeen };
     }
 }
-
-console.log(`Starting DHCP server for the subnet ${JSON.stringify(UNGATED_SUBNET)}`);
-new Daemon().start();

@@ -48,7 +48,7 @@
     "yargs": "^17.3.1"
   },
   "bin": {
-    "keeplocal-daemon": "./build/Daemon.js",
+    "keeplocal-daemon": "./build/Main.js",
     "keeplocal": "./build/api/CommandLineInterface.js"
   }
 }
