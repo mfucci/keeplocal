@@ -8,12 +8,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { WebsocketDatabaseServer } from "./database/remote/WebsocketDatabaseServer";
-import { Device, DHCPServer, DHCP_SERVER_EVENTS } from "./dhcp/DHCPServer";
+import { WebsocketDatabaseServer } from "../database/remote/WebsocketDatabaseServer";
+import { Device, DHCPServer, DHCP_SERVER_EVENTS } from "../dhcp/DHCPServer";
 import { NetworkDevice, NetworkDevicesDatabase, State } from "./NetworkDevices";
-import { getSubnet, Subnet, SUBNET_MASK } from "./subnet/Subnet";
-import { recordMap } from "./utils/ObjectUtils";
-import { Settings } from "./utils/Settings";
+import { getSubnet, Subnet, SUBNET_MASK } from "../subnet/Subnet";
+import { recordMap } from "../utils/ObjectUtils";
+import { Settings } from "../utils/Settings";
 
 type DeviceConf = {
     mac: string,

@@ -35,7 +35,7 @@ On your router:
 
 Start the daemon:
 ```bash
-sudo keeplocal-daemon
+sudo keeplocal daemon
 ```
 
 List all the devices connected on your network:
