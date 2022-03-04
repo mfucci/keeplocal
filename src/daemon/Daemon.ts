@@ -51,7 +51,7 @@ export class Daemon {
 
     start() {
         console.log(`Starting DHCP server for the subnet ${JSON.stringify(this.ungatedSubnet)}`);
-        //this.dhcpServer.start();
+        this.dhcpServer.start();
         this.httpServer.start();
         this.database.setDevices(this.dhcpServer.getDevices().map(device => this.toNetworkDevice(device)));
     }
