@@ -14,7 +14,7 @@ import { DatabaseContext } from "./DatabaseContext";
 type Props<T> = {
     id: string,
     onValue?: (value: T | undefined) => any,
-    render?: (value: T) => any,
+    render?: (value: T, updater: (update: Partial<T>) => void) => any,
 };
 
 type State<T> = {
@@ -45,6 +45,12 @@ export class Record<T> extends React.Component<Props<T>, State<T>> {
         this.setState({ value });
     }
 
+    private updateValue(update: Partial<T>) {
+        const { connection, value } = this.state;
+        if (connection === undefined || value === undefined) return;
+        connection.set({ ...value, ...update });
+    }
+
     componentWillUnmount() {
         const { connection } = this.state;
         connection?.close();
@@ -53,6 +59,6 @@ export class Record<T> extends React.Component<Props<T>, State<T>> {
     render() {
         const { value, render } = {...this.state, ...this.props};
         if (value === undefined || render === undefined) return null;
-        return render(value);
+        return render(value, update => this.updateValue(update));
     }
 }

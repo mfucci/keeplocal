@@ -1,18 +1,10 @@
-/** 
- * List the known devices on the network.
- * 
- * @license
- * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React from "react";
 
 import styles from "./DeviceList.css";
 import { DatabaseContext } from "../data/DatabaseContext";
 import { DatabaseManager } from "../data/DatabaseManager";
 import { Record } from "../data/Record";
-import { NetworkDevice } from "../../daemon/NetworkDevices";
+import { NetworkDevice, State as GateState } from "../../daemon/NetworkDevices";
 import { format } from "timeago.js";
 
 type Props = {};
@@ -38,21 +30,26 @@ export class DeviceList extends React.Component<Props, State> {
                     </tr>
                 </thead>
                 <tbody>
-                    <Record<string[]> id="/devices" render={deviceIds => {deviceIds.map(id => 
-                        <Record<NetworkDevice> key={id} id={`/device/${id}`} render={ ({ name, ip, ipType, mac, pendingChanges, state, vendor, classId, hostname, lastSeen }) =>
+                    <Record<string[]> id="/devices" render={deviceIds => deviceIds.map(id => 
+                        <Record<NetworkDevice> key={id} id={`/device/${id}`} render={ ({ name, ip, ipType, mac, pendingChanges, state, vendor, classId, hostname, lastSeen }, updater) =>
                             <tr>
-                                <td>{name}</td>
+                                <td><input type="text" value={name} onChange={({target: {value: name}}) => updater({name})} /></td>
                                 <td>{hostname}</td>
                                 <td>{classId}</td>
                                 <td>{ip}</td>
                                 <td>{ipType}</td>
                                 <td>{`${mac} (${vendor})`}</td>
-                                <td>{state}</td>
+                                <td>
+                                    <select value={state} onChange={({target: {value: stateString}}) => updater({state: GateState[stateString as GateState]})}>
+                                        <option value={GateState.GATED}>Gated</option>
+                                        <option value={GateState.UNGATED}>Ungated</option>
+                                    </select>
+                                </td>
                                 <td>{pendingChanges}</td>
                                 <td>{lastSeen ? format(lastSeen) : "N/A"}</td>
                             </tr>
                         } />
-                    )}} />
+                    )} />
                 </tbody>
             </table>
         </DatabaseContext.Provider>;
