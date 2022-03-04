@@ -17,15 +17,32 @@ type RecordValue = { readonly value: any };
 type RecordKeyValue = RecordKey & RecordValue;
 type ResponseCode = { readonly code: RESPONSE_CODE };
 
-export interface CLIENT_MESSAGE_MAP {
-   "connect": RecordKey,
-   "update": RecordKeyValue,
-   "disconnect": RecordKey,
+export interface RPC_MAPS {
+   [key: string]: { request: any, response: any},
+   "connect": { request: RecordKey, response: RecordValue },
+   "update": { request: RecordKey, response: RecordValue },
+   "disconnect": { request: RecordKey, response: {} },
 }
 
-export interface SERVER_MESSAGE_MAP {
-   "connect": ResponseCode & RecordValue,
-   "update": ResponseCode & RecordValue,
-   "disconnect": ResponseCode,
-   "remote_update": RecordKeyValue,
+export interface DATABASE_RPC {
+   connect(parameters: RecordKey): RecordValue,
+   update(parameters: RecordKeyValue): RecordValue,
+   disconnect(parameters: RecordKey): {},
 }
+
+export type DATABASE_REQUEST_MAP = {
+   [RPC_NAME in keyof DATABASE_RPC]: Parameters<DATABASE_RPC[RPC_NAME]>[0];
+};
+
+export type DATABASE_RESPONSE_MAP = {
+   [RPC_NAME in keyof DATABASE_RPC]: ReturnType<DATABASE_RPC[RPC_NAME]> & ResponseCode;
+};
+
+export type CLIENT_MESSAGE_MAP = {
+   [RPC_NAME in keyof DATABASE_RPC]: DATABASE_REQUEST_MAP[RPC_NAME];
+};
+
+export type SERVER_MESSAGE_MAP = {
+   [RPC_NAME in keyof DATABASE_RPC]: DATABASE_RESPONSE_MAP[RPC_NAME] } & {
+   "remote_update": RecordKeyValue,
+};

@@ -1,0 +1,14 @@
+/** 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+.DeviceList td {
+    text-align: center;
+    border: solid 1px;
+}
+
+.DeviceList th {
+    min-width: 200px;
+}

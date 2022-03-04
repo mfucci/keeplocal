@@ -10,7 +10,7 @@
 
 import EventEmitter from "events";
 import { MessageStream } from "../../stream/MessageStream";
-import { CLIENT_MESSAGE_MAP, SERVER_MESSAGE_MAP, RESPONSE_CODE } from "./Messages";
+import { CLIENT_MESSAGE_MAP, SERVER_MESSAGE_MAP, RESPONSE_CODE, DATABASE_RPC, DATABASE_REQUEST_MAP, DATABASE_RESPONSE_MAP } from "./Messages";
 
 export interface ClientMessengerEventMap {
     "remote_update": [key: string, value: any],
@@ -31,25 +31,24 @@ export class ClientMessenger extends EventEmitter {
     }
 
     async requestConnect<T>(key: string): Promise<T | undefined> {
-        return (await this.send("connect", { key })).value;
+        return (await this.request("connect", { key })).value;
     }
 
     async requestUpdate<T>(key: string, value?: T): Promise<T | undefined> {
-        return (await this.send("update", { key, value })).value;
+        return (await this.request("update", { key, value })).value;
     }
 
     async requestDisconnect(key: string): Promise<void> {
-        await this.send("disconnect", { key });
+        await this.request("disconnect", { key });
     }
 
     async close() {
         await this.stream.close();
     }
 
-    private async send<REQUEST_T extends keyof CLIENT_MESSAGE_MAP>(requestType: REQUEST_T, request: CLIENT_MESSAGE_MAP[REQUEST_T]): Promise<SERVER_MESSAGE_MAP[REQUEST_T]> {
-        await this.stream.write(requestType, request);
-        const response = await this.stream.read(requestType);
-        if (response.code !== RESPONSE_CODE.OK){
+    private async request<RPC extends keyof DATABASE_RPC>(rpc: RPC, request: DATABASE_REQUEST_MAP[RPC]): Promise<DATABASE_RESPONSE_MAP[RPC]> {
+        const response = await this.stream.request(rpc, request, rpc);
+        if (response.code !== RESPONSE_CODE.OK) {
             throw new Error(`Reponse error: ${response.code}`);
         }
         return response;

@@ -11,11 +11,23 @@ import { Stream } from "./Stream";
 
 export class WebsocketStream extends Stream<string> {
     private receiveQueue = new Queue<string>();
-    private socket: WebSocket;
 
-    constructor(url: string) {
+    static async fromUrl(url: string) {
+        return new Promise<WebsocketStream>((resolve, reject) => {
+            const socket = new WebSocket(url);
+            const onError = (error: Event) => reject(error);
+            const onOpen = () => {
+                socket.removeEventListener("error", onError);
+                socket.removeEventListener("open", onOpen);
+                resolve(new WebsocketStream(socket));
+            };
+            socket.addEventListener("error", onError);
+            socket.addEventListener("open", onOpen);
+        });
+    }
+
+    constructor(private readonly socket: WebSocket) {
         super();
-        this.socket = new WebSocket(url);
         this.socket.addEventListener("message", ({data}) => this.receiveQueue.write(data));
         this.socket.addEventListener("close", () => this.close());
     }

@@ -20,9 +20,9 @@ export interface ServerMessengerProvider {
 }
 
 interface ServerMessengerEventMap {
-    "connect_record": [key: string],
-    "update_record": [key: string, value: any],
-    "disconnect_record": [key: string],
+    "connect_record": [requestId: number, key: string],
+    "update_record": [requestId: number, key: string, value: any],
+    "disconnect_record": [requestId: number, key: string],
     "disconnection": [],
 }
 
@@ -34,22 +34,22 @@ export declare interface ServerMessenger {
 export class ServerMessenger extends EventEmitter {
     constructor(readonly stream: MessageStream<CLIENT_MESSAGE_MAP, SERVER_MESSAGE_MAP>) {
         super();
-        this.stream.on("connect", ({key}) => this.emit("connect_record", key));
-        this.stream.on("update", ({key, value}) => this.emit("update_record", key, value));
-        this.stream.on("disconnect", ({key}) => this.emit("disconnect_record", key));
+        this.stream.on("connect_request", ({key}, requestId) => this.emit("connect_record", requestId, key));
+        this.stream.on("update_request", ({key, value}, requestId) => this.emit("update_record", requestId, key, value));
+        this.stream.on("disconnect_request", ({key}, requestId) => this.emit("disconnect_record", requestId, key));
         this.stream.on("closed", () => this.handleStreamClosed());
     }
 
-    async sendConnectResponse(code: RESPONSE_CODE, value?: any) {
-        await this.stream.write("connect", { code, value });
+    async sendConnectResponse(requestId: number, code: RESPONSE_CODE, value?: any) {
+        await this.stream.respond("connect", requestId, { code, value });
     }
 
-    async sendUpdateResponse(code: RESPONSE_CODE, value?: any) {
-        await this.stream.write("update", { code, value });
+    async sendUpdateResponse(requestId: number, code: RESPONSE_CODE, value?: any) {
+        await this.stream.respond("update", requestId, { code, value });
     }
 
-    async sendDisconnectResponse(code: RESPONSE_CODE) {
-        await this.stream.write("disconnect", { code });
+    async sendDisconnectResponse(requestId: number, code: RESPONSE_CODE) {
+        await this.stream.respond("disconnect", requestId, { code });
     }
 
     async sendUpdate(key: string, value?: any) {

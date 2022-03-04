@@ -77,11 +77,11 @@ export class DHCPServer extends EventEmitter {
         this.subnetPerMac = perMacDevice ?? {};
         this.messenger.on("discover", request => this.handleDiscover(request));
         this.messenger.on("request", request => this.handleRequest(request));
+        this.loadSettings();
         // TODO: support decline messages
     }
 
     async start() {
-        this.loadSettings();
         const { router: routerIp, dhcp: dhcpIp } = this.defaultSubnet;
         const routerMac = (await arp.toMAC(routerIp))?.toUpperCase();
         if (routerMac === undefined) throw new Error("Cannot find the router");
