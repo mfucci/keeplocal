@@ -70,6 +70,10 @@ export class DeviceRecord extends InternalRecord<NetworkDevice> {
             super.set(device);
         }
     }
+
+    setDevice(device: NetworkDevice) {
+        super.set(device);
+    }
 }
 
 interface NetworkDevicesDatabaseEventMap {
@@ -97,7 +101,7 @@ export class NetworkDevicesDatabase extends RecordDatabase {
     updateDevice(device: NetworkDevice) {
         const deviceId = device.mac;
         const key = DEVICE_RECORD_PREFIX + deviceId;
-        const record = this.getInternalRecord(key);
+        const record = this.getInternalRecord(key) as DeviceRecord;
         if (record === undefined) {
             this.createDeviceRecord(device);
             const devicesRecord = this.getInternalRecord(DEVICES_RECORD);
@@ -105,7 +109,7 @@ export class NetworkDevicesDatabase extends RecordDatabase {
             deviceIds.push(deviceId);
             devicesRecord?.set(deviceIds);
         } else {
-            record.set(device);
+            record.setDevice(device);
         }
     }
 
