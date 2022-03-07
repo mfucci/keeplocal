@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from "react";
+import React, { KeyboardEvent } from "react";
 
 import styles from "./EditableText.css";
 
@@ -36,11 +36,17 @@ export class EditableText extends React.Component<Props, State> {
         onChange(value);
     }
 
+    private handleKeyPressedEvent(event: KeyboardEvent) {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        this.handleValueChanged((event.target as HTMLInputElement).value);
+    }
+
     render() {
         const { edit, value } = this.state;
         if (edit) {
             return (
-                <input autoFocus className={styles.EditInput} type="text"  defaultValue={value} onBlur={({target: { value }}) => this.handleValueChanged(value)} />
+                <input autoFocus className={styles.EditInput} type="text" defaultValue={value} onBlur={({target: { value }}) => this.handleValueChanged(value)} onKeyPress={event => this.handleKeyPressedEvent(event)}/>
             );
         } else {
             return (
