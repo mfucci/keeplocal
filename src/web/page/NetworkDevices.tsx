@@ -38,8 +38,8 @@ export class NetworkDevices extends React.Component<Props, State> {
                                 <Card.Subtitle className="mb-2 text-muted"><small>{ip} / {mac}</small></Card.Subtitle>
                             </Card.Body>
                             <ListGroup className="list-group-flush">
-                                <ListGroupItem>Vendor: {vendor}</ListGroupItem>
-                                <ListGroupItem>Hostname: {hostname}</ListGroupItem>
+                                <ListGroupItem className={styles.EllipsedText}>Vendor: {vendor}</ListGroupItem>
+                                <ListGroupItem className={styles.EllipsedText}>Hostname: {hostname}</ListGroupItem>
                             </ListGroup>
                             <Card.Footer>
                                 {ipType === IpType.STATIC ?

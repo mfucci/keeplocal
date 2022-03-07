@@ -18,3 +18,9 @@
     float: left;
     margin: 8px;
 }
+
+.EllipsedText {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
