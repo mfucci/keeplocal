@@ -7,7 +7,12 @@
  */
 
 import { InternalRecord, RecordDatabase } from "../database/RecordDatabase";
-import { IpType } from "../dhcp/DHCPServer";
+
+
+export enum IpType {
+    STATIC = "STATIC",
+    DYNAMIC = "DYNAMIC",
+}
 
 export enum State {
     UNGATED = "UNGATED",

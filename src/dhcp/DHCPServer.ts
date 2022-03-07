@@ -18,15 +18,11 @@ import { DHCPServerMessenger, Request } from "./DHCPMessenger";
 import { Settings } from "../utils/Settings";
 import { vendorForMac } from "../utils/MacUtils";
 import { Subnet, getSubnet } from "../subnet/Subnet";
+import { IpType } from "../daemon/NetworkDevices";
 
 export const LOCAL_DOMAIN = "local";
 export const LEASE_TIME = 5 * 60 /* 5 minutes */;
 export const UNASSIGNED_IP = "<unassigned>";
-
-export enum IpType {
-    STATIC = "STATIC",
-    DYNAMIC = "DYNAMIC",
-}
 
 export type StoredDevice = {
     readonly ipType: IpType;

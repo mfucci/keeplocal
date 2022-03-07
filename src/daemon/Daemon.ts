@@ -69,14 +69,14 @@ export class Daemon {
 
     gateDevice(id: string): void {
         console.log(`gateDevice ${id}`);
-        //this.dhcpServer.switchSubnet(id, this.gatedSubnet);
+        this.dhcpServer.switchSubnet(id, this.gatedSubnet);
         this.devices[id].state = State.GATED;
         this.settings.save();
     }
 
     ungateDevice(id: string): void {
         console.log(`ungateDevice ${id}`);
-        //this.dhcpServer.switchSubnet(id, this.ungatedSubnet);
+        this.dhcpServer.switchSubnet(id, this.ungatedSubnet);
         this.devices[id].state = State.UNGATED;
         this.settings.save();
     }

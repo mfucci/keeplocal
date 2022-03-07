@@ -4,6 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-.Container {
-    padding: 60px 15px 0;
-}
+ .EditIcon {
+     font-size: .7em;
+ }
+
+ .EditInput {
+     width: 100%;
+ }

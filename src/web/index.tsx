@@ -8,20 +8,37 @@
 
 import React from "react";
 import ReactDom from "react-dom";
-
-import { DeviceList } from "./deviceList/DeviceList";
+import { Route, Routes } from "react-router";
 
 import "./index.html";
-import "./index.css";
+import styles from "./index.css";
 import "./icons/favicon.svg";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.js";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
-type Props = {};
-type State = {};
+import { Header } from "./Header";
+import { Footer } from "./Footer";
+import { NetworkDevices } from "./page/NetworkDevices";
 
-class Index extends React.Component<Props, State> {
-    render() {
-        return <DeviceList/>
-    }
+import { BrowserRouter } from "react-router-dom";
+
+export class Index extends React.Component { render = () =>
+    <BrowserRouter>
+        <Header/>
+
+        <main className="flex-shrink-0">
+            <div className={styles.Container}>
+                <Routes>
+                    <Route path="/" element={
+                        <NetworkDevices />
+                    }/>
+                </Routes>
+            </div>
+        </main>
+
+        <Footer/>
+    </BrowserRouter>
 }
 
 ReactDom.render(

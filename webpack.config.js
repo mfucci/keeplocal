@@ -19,7 +19,17 @@ module.exports = {
                   }
                 }
             ],
-            include: [path.resolve(__dirname, 'src/')],
+            include: [
+              path.resolve(__dirname, 'src/web/'),
+            ],
+        },
+        {
+            test: /\.css$/,
+            use: ['style-loader', 'css-loader'],
+            include: [
+              path.resolve(__dirname, 'node_modules/bootstrap/dist/css/'),
+              path.resolve(__dirname, 'node_modules/bootstrap-icons/font/'),
+            ],
         },
         {
             test: /\.tsx?$/,
@@ -35,13 +45,13 @@ module.exports = {
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
           type: "asset/resource",
           generator: { filename: 'img/[name][ext]' },
-          include: [path.resolve(__dirname, 'src/')],
+          include: [path.resolve(__dirname, 'src/web/')],
         },
         {
           test: /\.(html)$/i,
           type: "asset/resource",
           generator: { filename: '[name][ext]' },
-          include: [path.resolve(__dirname, 'src/')],
+          include: [path.resolve(__dirname, 'src/web/')],
         },
     ],
   },
