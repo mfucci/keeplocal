@@ -7,7 +7,6 @@
  */
 
 import React from "react";
-import { format } from "timeago.js";
 import { Container, Card, ListGroup, ListGroupItem, Nav } from "react-bootstrap";
 
 import { DatabaseContext } from "../data/DatabaseContext";
@@ -17,6 +16,7 @@ import { IpType, NetworkDevice, State as GateState } from "../../daemon/NetworkD
 
 import styles from "./NetworkDevices.css";
 import { EditableText } from "../components/EditableText";
+import { TimeAgo } from "../components/TimeAgo";
 
 type Props = {};
 type State = {};
@@ -31,7 +31,7 @@ export class NetworkDevices extends React.Component<Props, State> {
                     <Record<NetworkDevice> key={id} id={`/device/${id}`} render={({ name, ip, ipType, mac, pendingChanges, state, vendor, classId, hostname, lastSeen }, updater) =>
                         <Card className={styles.Card}>
                             <Card.Header className="text-muted">
-                                {lastSeen ? format(lastSeen) : ""}&nbsp;{pendingChanges ? "- pending changes" : ""}
+                                <TimeAgo time={lastSeen} />&nbsp;{pendingChanges ? "- pending changes" : ""}
                             </Card.Header>
                             <Card.Body>
                                 <Card.Title><EditableText initialValue={name} onChange={name => updater({ name })}/></Card.Title>
