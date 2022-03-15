@@ -4,7 +4,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 module.exports = {
   entry: './src/web/index.tsx',
   mode: 'development',
-  devtool: 'source-map',
+  devtool: 'eval',
   module: {
     rules: [
         {
@@ -29,6 +29,7 @@ module.exports = {
             include: [
               path.resolve(__dirname, 'node_modules/bootstrap/dist/css/'),
               path.resolve(__dirname, 'node_modules/bootstrap-icons/font/'),
+              path.resolve(__dirname, 'node_modules/@fontsource/roboto/'),
             ],
         },
         {
@@ -46,6 +47,15 @@ module.exports = {
           type: "asset/resource",
           generator: { filename: 'img/[name][ext]' },
           include: [path.resolve(__dirname, 'src/web/')],
+        },
+        {
+          test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
+          type: "asset/resource",
+          generator: { filename: 'font/[name][ext]' },
+          include: [
+            path.resolve(__dirname, 'node_modules/bootstrap-icons/font/'),
+            path.resolve(__dirname, 'node_modules/@fontsource/roboto/'),
+          ],
         },
         {
           test: /\.(html)$/i,

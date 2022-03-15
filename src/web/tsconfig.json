@@ -6,8 +6,7 @@
     "removeComments": true,
     "esModuleInterop": true,
     "strict": true,
-    "jsx": "react",
-    "sourceMap": true
+    "jsx": "react"
   },
   "include": ["**/*.tsx", "*.d.ts"]
 }
