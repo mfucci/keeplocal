@@ -1,14 +1,14 @@
 import React from "react";
-import { Box, Container, Divider, Grid, IconButton, Paper, Typography } from "@mui/material";
+import { Divider, Grid, IconButton, Paper, Typography } from "@mui/material";
 
 import Unknown from '@mui/icons-material/DeviceUnknown';
 import { Link } from "react-router-dom";
-import { ICONS, ICONS_MAP, OS, VENDOR } from "./DeviceView";
+import { ICONS, ICONS_MAP, OS } from "./DeviceView";
 
 type Props = {};
 type State = {
     groups: {name: string, devices: string[]}[],
-    devices: {[id: string]: {name: string, icon?: ICONS, os?: OS, vendor?: VENDOR, online?: boolean}},
+    devices: {[id: string]: {name: string, icon?: ICONS, os?: OS, vendor?: string, online?: boolean}},
 };
 
 const GroupLabel = ({label}: {label: string}) => <Typography sx={{ mt: 0.5, ml: 2, mb: 1 }} color="text.secondary" display="block" variant="subtitle1">{label}</Typography>;
@@ -33,14 +33,14 @@ export class Network extends React.Component<Props, State> {
                 "6": {name: "Pixel", icon: ICONS.PHONE, os: OS.ANDROID, online: true},
                 "7": {name: "HP", icon: ICONS.LAPTOP, os: OS.UBUNTU, online: false},
                 "8": {name: "Workstation", icon: ICONS.WORKSTATION, os: OS.UBUNTU, online: true},
-                "9": {name: "iPhone", icon: ICONS.PHONE, vendor: VENDOR.APPLE, online: true},
-                "10": {name: "MacBook", icon: ICONS.LAPTOP, vendor: VENDOR.APPLE, online: false},
-                "11": {name: "iPad", icon: ICONS.TABLET, vendor: VENDOR.APPLE, online: true},
+                "9": {name: "iPhone", icon: ICONS.PHONE, vendor: "Apple", online: true},
+                "10": {name: "MacBook", icon: ICONS.LAPTOP, vendor: "Apple", online: false},
+                "11": {name: "iPad", icon: ICONS.TABLET, vendor: "Apple", online: true},
                 "12": {name: "TV Room", icon: ICONS.TV, os: OS.ANDROID, online: true},
                 "13": {name: "Ohana", icon: ICONS.TV, os: OS.ANDROID, online: true},
-                "14": {name: "Kitchen", icon: ICONS.SMART_SPEAKER, vendor: VENDOR.GOOGLE, online: true},
-                "15": {name: "BaseStation", icon: ICONS.HUB, vendor: VENDOR.RING, online: true},
-                "16": {name: "Gate", icon: ICONS.CAMERA, vendor: VENDOR.RING, online: true},
+                "14": {name: "Kitchen", icon: ICONS.SMART_SPEAKER, vendor: "Google", online: true},
+                "15": {name: "BaseStation", icon: ICONS.HUB, vendor: "Ring", online: true},
+                "16": {name: "Gate", icon: ICONS.CAMERA, vendor: "Ring", online: true},
                 "17": {name: "56:12:34:13:12", online: true},
             },
         };
