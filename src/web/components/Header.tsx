@@ -4,7 +4,9 @@ import { AppBar, Box, Button, Container, Toolbar, Typography } from "@mui/materi
 
 import { PopupMenu } from "../components/PopupMenu";
 
-const Logo = (props: {sx: any}) => <Typography variant="h6" noWrap component="div" sx={props.sx}>KEEPLOCAL</Typography>;
+import packageJson from "../../../package.json";
+
+const Logo = (props: {sx: any}) => <Typography variant="h6" noWrap component="div" sx={props.sx}>KEEPLOCAL (v{packageJson.version})</Typography>;
 
 const NARROW_SCREEN_ONLY = { xs: "flex", md: "none" }
 const WIDE_SCREEN_ONLY = { xs: "none", md: "flex" }

@@ -53,12 +53,11 @@ module.exports = {
           type: "asset/resource",
           generator: { filename: 'font/[name][ext]' },
           include: [
-            path.resolve(__dirname, 'node_modules/bootstrap-icons/font/'),
             path.resolve(__dirname, 'node_modules/@fontsource/roboto/'),
           ],
         },
         {
-          test: /\.(html)$/i,
+          test: /\.(html|js)$/i,
           type: "asset/resource",
           generator: { filename: '[name][ext]' },
           include: [path.resolve(__dirname, 'src/web/')],

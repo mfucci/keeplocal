@@ -3,12 +3,12 @@ import { Divider, Grid, IconButton, Paper, Typography } from "@mui/material";
 
 import Unknown from '@mui/icons-material/DeviceUnknown';
 import { Link } from "react-router-dom";
-import { ICONS, ICONS_MAP, OS } from "./DeviceView";
+import { CATEGORIES, CATEGORY_ICONS } from "../views/DeviceView";
 
 type Props = {};
 type State = {
     groups: {name: string, devices: string[]}[],
-    devices: {[id: string]: {name: string, icon?: ICONS, os?: OS, vendor?: string, online?: boolean}},
+    devices: {[id: string]: {name: string, icon?: CATEGORIES, vendor?: string, online?: boolean}},
 };
 
 const GroupLabel = ({label}: {label: string}) => <Typography sx={{ mt: 0.5, ml: 2, mb: 1 }} color="text.secondary" display="block" variant="subtitle1">{label}</Typography>;
@@ -25,22 +25,22 @@ export class Network extends React.Component<Props, State> {
                 {name: "Security", devices: ["15", "16"]},
             ],
             devices: {
-                "1": {name: "Gateway", icon: ICONS.ROUTER, online: true},
-                "2": {name: "Kitchen", icon: ICONS.ROUTER_WIFI, online: true},
-                "3": {name: "Downstairs", icon: ICONS.ROUTER_WIFI, online: true},
-                "4": {name: "Ohana", icon: ICONS.ROUTER_WIFI, online: true},
-                "5": {name: "SafeGate", icon: ICONS.ROUTER, online: true},
-                "6": {name: "Pixel", icon: ICONS.PHONE, os: OS.ANDROID, online: true},
-                "7": {name: "HP", icon: ICONS.LAPTOP, os: OS.UBUNTU, online: false},
-                "8": {name: "Workstation", icon: ICONS.WORKSTATION, os: OS.UBUNTU, online: true},
-                "9": {name: "iPhone", icon: ICONS.PHONE, vendor: "Apple", online: true},
-                "10": {name: "MacBook", icon: ICONS.LAPTOP, vendor: "Apple", online: false},
-                "11": {name: "iPad", icon: ICONS.TABLET, vendor: "Apple", online: true},
-                "12": {name: "TV Room", icon: ICONS.TV, os: OS.ANDROID, online: true},
-                "13": {name: "Ohana", icon: ICONS.TV, os: OS.ANDROID, online: true},
-                "14": {name: "Kitchen", icon: ICONS.SMART_SPEAKER, vendor: "Google", online: true},
-                "15": {name: "BaseStation", icon: ICONS.HUB, vendor: "Ring", online: true},
-                "16": {name: "Gate", icon: ICONS.CAMERA, vendor: "Ring", online: true},
+                "1": {name: "Gateway", icon: CATEGORIES.ROUTER, online: true},
+                "2": {name: "Kitchen", icon: CATEGORIES.ROUTER_WIFI, online: true},
+                "3": {name: "Downstairs", icon: CATEGORIES.ROUTER_WIFI, online: true},
+                "4": {name: "Ohana", icon: CATEGORIES.ROUTER_WIFI, online: true},
+                "5": {name: "SafeGate", icon: CATEGORIES.ROUTER, online: true},
+                "6": {name: "Pixel", icon: CATEGORIES.PHONE, online: true},
+                "7": {name: "HP", icon: CATEGORIES.LAPTOP, online: false},
+                "8": {name: "Workstation", icon: CATEGORIES.WORKSTATION, online: true},
+                "9": {name: "iPhone", icon: CATEGORIES.PHONE, vendor: "Apple", online: true},
+                "10": {name: "MacBook", icon: CATEGORIES.LAPTOP, vendor: "Apple", online: false},
+                "11": {name: "iPad", icon: CATEGORIES.TABLET, vendor: "Apple", online: true},
+                "12": {name: "TV Room", icon: CATEGORIES.TV, online: true},
+                "13": {name: "Ohana", icon: CATEGORIES.TV, online: true},
+                "14": {name: "Kitchen", icon: CATEGORIES.SMART_SPEAKER, vendor: "Google", online: true},
+                "15": {name: "BaseStation", icon: CATEGORIES.HUB, vendor: "Ring", online: true},
+                "16": {name: "Gate", icon: CATEGORIES.CAMERA, vendor: "Ring", online: true},
                 "17": {name: "56:12:34:13:12", online: true},
             },
         };
@@ -64,11 +64,11 @@ export class Network extends React.Component<Props, State> {
                                 <GroupLabel label={name} />
                                 <Grid container spacing={3} sx={{ mb: 1 }} columns={{ xs: 2, sm: 4, md: 8, lg: 10 }}>
                                     {groupDevices.map(id => {
-                                        const {name, icon = ICONS.UNKNWON} = devices[id];
+                                        const {name, icon = CATEGORIES.UNKNWON} = devices[id];
                                         return (
                                             <Grid item xs={1} key={id} sx={{ width: 80, display: "flex", flexDirection: "column", alignItems: "center" }}>
                                                 <IconButton color="warning" sx={{ width: 60, height: 60 }} component={Link} to={`/device/${id}`}>
-                                                    {React.createElement(ICONS_MAP.get(icon) ?? Unknown, { sx: { width: 40, height: 40 } })}
+                                                    {React.createElement(CATEGORY_ICONS[icon], { sx: { width: 40, height: 40 } })}
                                                 </IconButton>
                                                 {name}
                                             </Grid>

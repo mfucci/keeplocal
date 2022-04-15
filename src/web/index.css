@@ -4,6 +4,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-.Container {
-    padding: 60px 15px 0;
+html {
+    overflow: hidden;
+    height: 100%;
+}
+
+body {
+    height: 100%;
+}
+
+body > div {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }

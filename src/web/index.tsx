@@ -8,42 +8,67 @@
 
 import React from "react";
 import ReactDom from "react-dom";
-import { BrowserRouter } from "react-router-dom";
 import { Route, Routes } from "react-router";
 
+import "./index.css";
 import "./index.html";
-import styles from "./index.css";
 import "./icons/favicon.svg";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.js";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
 
-import { Header } from "./Header";
-import { Footer } from "./Footer";
-import { NetworkDevices } from "./page/NetworkDevices";
+import { BrowserRouter } from "react-router-dom";
 
-import "./index2";
+import { Network } from "./views/NetworkView";
+import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
+import { DeviceViewRouter } from "./views/DeviceView";
+import { Box, Container } from "@mui/material";
 
-export class Index extends React.Component { render = () =>
-    <BrowserRouter>
-        <Header/>
+import "./service-worker.js";
 
-        <main className="flex-shrink-0">
-            <div className={styles.Container}>
+const Index = () => {
+    return (<BrowserRouter>
+        <Header />
+
+        <Box
+            component="main"
+            sx={{
+                backgroundColor: (theme) =>
+                    theme.palette.mode === "light"
+                    ? theme.palette.grey[100]
+                    : theme.palette.grey[900],
+                flexGrow: 0,
+                flexShrink: 1,
+                flexBasis: "auto",
+                overflow: "auto",
+                height: "100vh",
+            }} >
+
+            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
                 <Routes>
-                    <Route path="/" element={
-                        <NetworkDevices />
+                    <Route path="/device/:id" element={
+                        <DeviceViewRouter />
+                    }/>
+                    <Route path="*" element={
+                        <Network />
                     }/>
                 </Routes>
-            </div>
-        </main>
 
-        <Footer/>
+                <Footer />
+            </Container>
+        </Box>
     </BrowserRouter>
+    );
 }
 
 const root = document.getElementById("root");
 if (root !== null) {
     ReactDom.render(<Index />, root);
+    
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => navigator.serviceWorker.register("/service-worker.js"));
+    }
 }
