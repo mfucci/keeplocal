@@ -1,5 +1,5 @@
 /** 
- * Holds the DatabaseManager singleton for rusing the same database connection everywhere.
+ * Holds the DatabaseManager singleton for reusing the same database connection everywhere.
  * 
  * @license
  * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)

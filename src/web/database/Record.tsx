@@ -7,17 +7,18 @@
  */
 
 import React from "react";
+import { Database } from "../../database/Database";
 import { Record as RecordConnection } from "../../database/Record";
 
 import { DatabaseContext } from "./DatabaseContext";
 
 type Props<T> = {
     id: string,
-    onValue?: (value: T | undefined) => any,
-    render?: (value: T, updater: (update: Partial<T>) => void) => any,
+    render: (value: T, updater: (update: Partial<T>) => void, database: Database) => any,
 };
 
 type State<T> = {
+    database?: Database,
     connection?: RecordConnection<T>;
     value?: T,
 };
@@ -33,15 +34,14 @@ export class Record<T> extends React.Component<Props<T>, State<T>> {
 
     async componentDidMount() {
         const { databaseManager, id } = {...this.props, ...this.context};
-        const connection = await (await databaseManager.getDatabase()).getRecord<T>(id);
+        const database = await databaseManager.getDatabase();
+        const connection = await database.getRecord<T>(id);
         connection.on("update", value => this.handleValueUpdate(value));
         this.handleValueUpdate(connection.get());
-        this.setState({ connection });
+        this.setState({ database, connection });
     }
 
     private handleValueUpdate(value?: T) {
-        const { onValue } = this.props;
-        onValue?.(value);
         this.setState({ value });
     }
 
@@ -57,8 +57,8 @@ export class Record<T> extends React.Component<Props<T>, State<T>> {
     }
 
     render() {
-        const { value, render } = {...this.state, ...this.props};
-        if (value === undefined || render === undefined) return null;
-        return render(value, update => this.updateValue(update));
+        const { value, render, database } = {...this.state, ...this.props};
+        if (database === undefined || value === undefined) return null;
+        return render(value, update => this.updateValue(update), database);
     }
 }

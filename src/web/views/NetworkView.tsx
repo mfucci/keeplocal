@@ -1,84 +1,220 @@
-import React from "react";
-import { Divider, Grid, IconButton, Paper, Typography } from "@mui/material";
+import React, { ReactChild } from "react";
+import { Button, Divider, Grid, IconButton, Paper, Typography } from "@mui/material";
 
-import Unknown from '@mui/icons-material/DeviceUnknown';
 import { Link } from "react-router-dom";
-import { CATEGORIES, CATEGORY_ICONS } from "../views/DeviceView";
+import { DEVICE_CATEGORY_ICONS } from "../components/DeviceCategoryIcons";
+import { DEVICE_CATEGORIES } from "../models/DeviceCategories";
+import { Device } from "../models/Device";
+import { DeviceGroup } from "../models/DeviceGroup";
+import { Record } from "../database/Record";
+import { RecordArray } from "../database/RecordArray";
+import { ArrayMap } from "../components/ArrayMap";
+import { With } from "../components/With";
+import { RenderIf } from "../components/RenderIf";
+import { ArrowBack, ArrowDownward, ArrowForward, ArrowUpward } from "@mui/icons-material";
+import { Database } from "../../database/Database";
 
 type Props = {};
 type State = {
-    groups: {name: string, devices: string[]}[],
-    devices: {[id: string]: {name: string, icon?: CATEGORIES, vendor?: string, online?: boolean}},
+    reorder: boolean
 };
 
-const GroupLabel = ({label}: {label: string}) => <Typography sx={{ mt: 0.5, ml: 2, mb: 1 }} color="text.secondary" display="block" variant="subtitle1">{label}</Typography>;
+const SectionCard = ({children}: {children: ReactChild[] | ReactChild}) => (
+    <Grid item xs={12}>
+        <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+             {children}
+        </Paper>
+    </Grid>
+);
+
+const GroupLabel = ({label, reorder}: {label: string, reorder: boolean}) => (
+    <Typography sx={{ mt: 0.5, ml: 2, mb: 1 }} color="text.secondary" display="block" variant="subtitle1">
+        {label}
+        <RenderIf condition={reorder} render={() =>
+            <React.Fragment>
+                <IconButton size="small">
+                    <ArrowUpward fontSize="inherit" />
+                </IconButton>
+                <IconButton size="small">
+                    <ArrowDownward fontSize="inherit" />
+                </IconButton>
+            </React.Fragment>
+        } />
+    </Typography>
+);
 
 export class Network extends React.Component<Props, State> {
+
     constructor(props: Props) {
         super(props);
         this.state = {
-            groups: [
-                {name: "Network", devices: ["1", "2", "3", "4", "5"]},
-                {name: "Marco's devices", devices: ["6", "7", "8"]},
-                {name: "Catherine's devices", devices: ["9", "10", "11"]},
-                {name: "Smart Home", devices: ["12", "13", "14"]},
-                {name: "Security", devices: ["15", "16"]},
-            ],
-            devices: {
-                "1": {name: "Gateway", icon: CATEGORIES.ROUTER, online: true},
-                "2": {name: "Kitchen", icon: CATEGORIES.ROUTER_WIFI, online: true},
-                "3": {name: "Downstairs", icon: CATEGORIES.ROUTER_WIFI, online: true},
-                "4": {name: "Ohana", icon: CATEGORIES.ROUTER_WIFI, online: true},
-                "5": {name: "SafeGate", icon: CATEGORIES.ROUTER, online: true},
-                "6": {name: "Pixel", icon: CATEGORIES.PHONE, online: true},
-                "7": {name: "HP", icon: CATEGORIES.LAPTOP, online: false},
-                "8": {name: "Workstation", icon: CATEGORIES.WORKSTATION, online: true},
-                "9": {name: "iPhone", icon: CATEGORIES.PHONE, vendor: "Apple", online: true},
-                "10": {name: "MacBook", icon: CATEGORIES.LAPTOP, vendor: "Apple", online: false},
-                "11": {name: "iPad", icon: CATEGORIES.TABLET, vendor: "Apple", online: true},
-                "12": {name: "TV Room", icon: CATEGORIES.TV, online: true},
-                "13": {name: "Ohana", icon: CATEGORIES.TV, online: true},
-                "14": {name: "Kitchen", icon: CATEGORIES.SMART_SPEAKER, vendor: "Google", online: true},
-                "15": {name: "BaseStation", icon: CATEGORIES.HUB, vendor: "Ring", online: true},
-                "16": {name: "Gate", icon: CATEGORIES.CAMERA, vendor: "Ring", online: true},
-                "17": {name: "56:12:34:13:12", online: true},
-            },
-        };
+            reorder: false,
+        }
+    }
+
+    private async moveCategoryUp(groupId: number, groups: DeviceGroup[], database: Database) {
+        const newGroups: DeviceGroup[] = [];
+        var toMoveGroup: DeviceGroup | undefined;
+        for (var i=groups.length-1; i >=0; i--) {
+            const group = groups[i];
+            if (group.id === groupId) {
+                toMoveGroup = group;
+            } else {
+                newGroups.unshift(group);
+                if (toMoveGroup !== undefined) {
+                    newGroups.unshift(toMoveGroup);
+                    toMoveGroup = undefined;
+                }
+            }
+        }
+
+        if (toMoveGroup !== undefined) {
+            newGroups.unshift(toMoveGroup);
+        }
+
+        await database.set("/groups", newGroups);
+    }
+
+    private async moveCategoryDown(groupId: number, groups: DeviceGroup[], database: Database) {
+        const newGroups: DeviceGroup[] = [];
+        var toMoveGroup: DeviceGroup | undefined;
+        for (var i=0; i < groups.length; i++) {
+            const group = groups[i];
+            if (group.id === groupId) {
+                toMoveGroup = group;
+            } else {
+                newGroups.push(group);
+                if (toMoveGroup !== undefined) {
+                    newGroups.push(toMoveGroup);
+                    toMoveGroup = undefined;
+                }
+            }
+        }
+
+        if (toMoveGroup !== undefined) {
+            newGroups.push(toMoveGroup);
+        }
+
+        await database.set("/groups", newGroups);
+    }
+
+    private async moveDeviceUp(groupId: number, deviceId: string, devices: Device[], database: Database) {
+        // Put the debice before the previous device in this group
+        const deviceIds: string[] = [];
+        var deviceFound = false;
+        var nextDeviceFound = false;
+        for (var i=devices.length-1; i >=0; i--) {
+            const {mac: id, groupId: deviceGroupId} = devices[i];
+            if (id === deviceId) {
+                deviceFound = true;
+            } else {
+                deviceIds.unshift(id);
+                if (deviceFound && !nextDeviceFound && deviceGroupId === groupId) {
+                    deviceIds.unshift(deviceId);
+                    nextDeviceFound = true;
+                }
+            }
+        }
+        if (deviceFound && !nextDeviceFound) {
+            // No previous device, insert at the beginning
+            deviceIds.unshift(deviceId);
+        }
+
+        await database.set("/devices", deviceIds);
+
+    }
+
+    private async moveDeviceDown(groupId: number, deviceId: string, devices: Device[], database: Database) {
+        // Put the debice after the next device in this group
+        const deviceIds: string[] = [];
+        var deviceFound = false;
+        var nextDeviceFound = false;
+        for (var i=0; i < devices.length; i++) {
+            const {mac: id, groupId: deviceGroupId} = devices[i];
+            if (id === deviceId) {
+                deviceFound = true;
+            } else {
+                deviceIds.push(id);
+                if (deviceFound && !nextDeviceFound && deviceGroupId === groupId) {
+                    deviceIds.push(deviceId);
+                    nextDeviceFound = true;
+                }
+            }
+        }
+        if (deviceFound && !nextDeviceFound) {
+            // No next device, insert at the end
+            deviceIds.push(deviceId);
+        }
+
+        await database.set("/devices", deviceIds);
     }
 
     render() {
-        const { groups, devices } = this.state;
-        return (
-            <Grid container spacing={3}>
-                <Grid item xs={12}>
-                    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                        {Object.keys(devices).length} devices, {Object.keys(devices).filter(id => devices[id].online === undefined ? false : devices[id].online).length} online
-                    </Paper>
-                </Grid>
+        const { reorder } = this.state;
 
-                <Grid item xs={12}>
-                    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                        {groups.map(({name, devices: groupDevices}, index) =>
-                            <React.Fragment key={name}>
-                                {index === 0 || <Divider />}
-                                <GroupLabel label={name} />
-                                <Grid container spacing={3} sx={{ mb: 1 }} columns={{ xs: 2, sm: 4, md: 8, lg: 10 }}>
-                                    {groupDevices.map(id => {
-                                        const {name, icon = CATEGORIES.UNKNWON} = devices[id];
-                                        return (
-                                            <Grid item xs={1} key={id} sx={{ width: 80, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                                <IconButton color="warning" sx={{ width: 60, height: 60 }} component={Link} to={`/device/${id}`}>
-                                                    {React.createElement(CATEGORY_ICONS[icon], { sx: { width: 40, height: 40 } })}
-                                                </IconButton>
+        return (
+            <RecordArray<Device> id="/devices" itemIdMapper={id => `/device/${id}`} render={devices => 
+                <Record<DeviceGroup[]> id="/groups" render={(groups, groupUpdater, database) => 
+                    <Grid container spacing={3}>
+                        <SectionCard>
+                            {devices.length} devices, {devices.filter(device => device.online).length} online
+                        </SectionCard>
+    
+                        <SectionCard>
+                            <ArrayMap array={groups} render={({id: groupId, name}, groupIndex) =>
+                                <With key={groupId} value={devices.filter(device => device.groupId === groupId)} render={devicesInGroup =>
+                                    <RenderIf condition={devicesInGroup.length > 0} render={() =>
+                                        <React.Fragment>
+                                            <RenderIf condition={groupIndex > 0} render={() => <Divider />} />
+                                            
+                                            <Typography sx={{ mt: 0.5, ml: 2, mb: 1 }} color="text.secondary" display="block" variant="subtitle1">
                                                 {name}
+                                                <RenderIf condition={reorder} render={() =>
+                                                    <React.Fragment>
+                                                        <IconButton size="small" disabled={groupIndex === 0} onClick={() => this.moveCategoryUp(groupId, groups, database)}>
+                                                            <ArrowUpward fontSize="inherit" />
+                                                        </IconButton>
+                                                        <IconButton size="small" disabled={groupIndex === groups.length - 1} onClick={() => this.moveCategoryDown(groupId, groups, database)}>
+                                                            <ArrowDownward fontSize="inherit" />
+                                                        </IconButton>
+                                                    </React.Fragment>
+                                                } />
+                                            </Typography>
+
+                                            <Grid container spacing={3} sx={{ mb: 1 }} columns={{ xs: 2, sm: 4, md: 8, lg: 10 }}>
+                                                <ArrayMap array={devicesInGroup} render={({mac: deviceId, name, category = DEVICE_CATEGORIES.UNKNOWN}, deviceIndex) => 
+                                                    <Grid key={deviceId} item xs={1} sx={{ width: 80, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                                        <IconButton color="warning" sx={{ width: 60, height: 60 }} component={Link} to={`/device/${deviceId}`}>
+                                                            {React.createElement(DEVICE_CATEGORY_ICONS[category], { sx: { width: 40, height: 40 } })}
+                                                        </IconButton>
+                                                        {name}
+                                                        <RenderIf condition={reorder} render={() =>
+                                                            <div>
+                                                                <IconButton size="small" disabled={deviceIndex === 0} onClick={() => this.moveDeviceUp(groupId, deviceId, devices, database)}>
+                                                                    <ArrowBack fontSize="inherit" />
+                                                                </IconButton>
+                                                                <IconButton size="small" disabled={deviceIndex === devicesInGroup.length - 1} onClick={() => this.moveDeviceDown(groupId, deviceId, devices, database)}>
+                                                                    <ArrowForward fontSize="inherit" />
+                                                                </IconButton>
+                                                            </div>
+                                                        } />
+                                                    </Grid>
+                                                } />
                                             </Grid>
-                                        )})}
-                                </Grid>
-                            </React.Fragment>
-                        )}
-                    </Paper>
-                </Grid>
-            </Grid>
+                                        </React.Fragment>
+                                    } />
+                                } />
+                            } />
+                        </SectionCard>
+
+                        <SectionCard>
+                            <Button variant="outlined" sx= {{ width: "fit-content" }} onClick={()=>this.setState({reorder: !reorder})}>
+                                {reorder ? "Done" : "Reorder"}
+                            </Button>
+                        </SectionCard>
+                    </Grid>
+                } />
+            } />
         );
     }
 }

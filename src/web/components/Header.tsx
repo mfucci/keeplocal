@@ -14,7 +14,7 @@ const WIDE_SCREEN_ONLY = { xs: "none", md: "flex" }
 export function Header() {
     const navigate = useNavigate();
     const pages = [
-        {label: "Dashboard", handler: () => navigate("/dashboard")},
+        {label: "Dashboard", handler: () => navigate("/")},
         {label: "About", handler: () => navigate("/about")},
     ];
 

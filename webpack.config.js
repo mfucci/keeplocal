@@ -62,6 +62,11 @@ module.exports = {
           generator: { filename: '[name][ext]' },
           include: [path.resolve(__dirname, 'src/web/')],
         },
+        {
+          test: /\.js$/,
+          enforce: 'pre',
+          use: ['source-map-loader'],
+        },
     ],
   },
   resolve: {
