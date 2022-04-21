@@ -1,5 +1,5 @@
 /** 
- * Binds to a Database record.
+ * Binds to multiple Database records.
  * 
  * @license
  * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)

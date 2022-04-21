@@ -1,7 +1,15 @@
+/**
+ * Local database for demonstratio and testing.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { DatabaseManager } from "./DatabaseManager";
 import { LocalDatabase } from "../../database/LocalDatabase";
-import { Device } from "../models/Device";
-import { DeviceGroup } from "../models/DeviceGroup";
+import { Device, DEVICE_KEY, DEVICE_LIST_KEY } from "../models/Device";
+import { DeviceGroup, DEVICE_GROUP_LIST_KEY } from "../models/DeviceGroup";
 import { DEVICE_CATEGORIES } from "../models/DeviceCategories";
 
 
@@ -283,11 +291,11 @@ export class DemoDatabaseManager extends DatabaseManager {
         const devices: string[] = [];
 
         await Promise.all(DEVICES.map(async device => {
-            await this.localDatabase.set(`/device/${device.mac}`, device);
+            await this.localDatabase.set(DEVICE_KEY(device.mac), device);
             devices.push(device.mac);
         }));
 
-        await this.localDatabase.set("/devices", devices);
-        await this.localDatabase.set("/groups", DEVICE_GROUPS);
+        await this.localDatabase.set(DEVICE_LIST_KEY, devices);
+        await this.localDatabase.set(DEVICE_GROUP_LIST_KEY, DEVICE_GROUPS);
     }
 }

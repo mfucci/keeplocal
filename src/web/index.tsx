@@ -22,8 +22,8 @@ import "@fontsource/roboto/700.css";
 import { BrowserRouter } from "react-router-dom";
 
 import { Network } from "./views/NetworkView";
-import { Header } from "./components/Header";
-import { Footer } from "./components/Footer";
+import { Header } from "./common/Header";
+import { Footer } from "./common/Footer";
 import { DeviceViewRouter } from "./views/DeviceView";
 import { Box, Container } from "@mui/material";
 

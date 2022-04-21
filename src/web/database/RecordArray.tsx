@@ -1,3 +1,11 @@
+/** 
+ * Binds to an array and all its elements.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React from "react";
 
 import { DatabaseContext } from "./DatabaseContext";

@@ -1,3 +1,11 @@
+/** 
+ * Service worker to allow offline and remote access.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 const CACHE_NAME = "v1";
 
 const URLS_TO_CACHE = [

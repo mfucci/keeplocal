@@ -1,5 +1,5 @@
 /** 
- * Displayed in time realtive to current time.
+ * Display time relative to current time.
  * 
  * @license
  * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)

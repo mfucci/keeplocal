@@ -1,16 +1,23 @@
+/** 
+ * Page to view / edit the local network.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React, { ReactChild } from "react";
 import { Button, Divider, Grid, IconButton, Paper, Typography } from "@mui/material";
 
 import { Link } from "react-router-dom";
-import { DEVICE_CATEGORY_ICONS } from "../components/DeviceCategoryIcons";
-import { DEVICE_CATEGORIES } from "../models/DeviceCategories";
+import { DeviceCategoryIcon } from "../components/DeviceCategoryUi";
 import { Device } from "../models/Device";
 import { DeviceGroup } from "../models/DeviceGroup";
 import { Record } from "../database/Record";
 import { RecordArray } from "../database/RecordArray";
-import { ArrayMap } from "../components/ArrayMap";
-import { With } from "../components/With";
-import { RenderIf } from "../components/RenderIf";
+import { Iterate } from "../react/Iterate";
+import { With } from "../react/With";
+import { If } from "../react/If";
 import { ArrowBack, ArrowDownward, ArrowForward, ArrowUpward } from "@mui/icons-material";
 import { Database } from "../../database/Database";
 
@@ -25,22 +32,6 @@ const SectionCard = ({children}: {children: ReactChild[] | ReactChild}) => (
              {children}
         </Paper>
     </Grid>
-);
-
-const GroupLabel = ({label, reorder}: {label: string, reorder: boolean}) => (
-    <Typography sx={{ mt: 0.5, ml: 2, mb: 1 }} color="text.secondary" display="block" variant="subtitle1">
-        {label}
-        <RenderIf condition={reorder} render={() =>
-            <React.Fragment>
-                <IconButton size="small">
-                    <ArrowUpward fontSize="inherit" />
-                </IconButton>
-                <IconButton size="small">
-                    <ArrowDownward fontSize="inherit" />
-                </IconButton>
-            </React.Fragment>
-        } />
-    </Typography>
 );
 
 export class Network extends React.Component<Props, State> {
@@ -161,50 +152,48 @@ export class Network extends React.Component<Props, State> {
                         </SectionCard>
     
                         <SectionCard>
-                            <ArrayMap array={groups} render={({id: groupId, name}, groupIndex) =>
-                                <With key={groupId} value={devices.filter(device => device.groupId === groupId)} render={devicesInGroup =>
-                                    <RenderIf condition={devicesInGroup.length > 0} render={() =>
-                                        <React.Fragment>
-                                            <RenderIf condition={groupIndex > 0} render={() => <Divider />} />
-                                            
-                                            <Typography sx={{ mt: 0.5, ml: 2, mb: 1 }} color="text.secondary" display="block" variant="subtitle1">
-                                                {name}
-                                                <RenderIf condition={reorder} render={() =>
-                                                    <React.Fragment>
-                                                        <IconButton size="small" disabled={groupIndex === 0} onClick={() => this.moveCategoryUp(groupId, groups, database)}>
-                                                            <ArrowUpward fontSize="inherit" />
-                                                        </IconButton>
-                                                        <IconButton size="small" disabled={groupIndex === groups.length - 1} onClick={() => this.moveCategoryDown(groupId, groups, database)}>
-                                                            <ArrowDownward fontSize="inherit" />
-                                                        </IconButton>
-                                                    </React.Fragment>
-                                                } />
-                                            </Typography>
+                            <Iterate array={groups}>{({id: groupId, name}, groupIndex) =>
+                                <With key={groupId} value={devices.filter(device => device.groupId === groupId)}>{devicesInGroup =>
+                                    <If condition={devicesInGroup.length > 0}>
+                                        <If condition={groupIndex > 0}>
+                                            <Divider />
+                                        </If>
+                                        
+                                        <Typography sx={{ mt: 0.5, ml: 2, mb: 1 }} color="text.secondary" display="block" variant="subtitle1">
+                                            {name}
+                                            <If condition={reorder}>
+                                                <IconButton size="small" disabled={groupIndex === 0} onClick={() => this.moveCategoryUp(groupId, groups, database)}>
+                                                    <ArrowUpward fontSize="inherit" />
+                                                </IconButton>
+                                                <IconButton size="small" disabled={groupIndex === groups.length - 1} onClick={() => this.moveCategoryDown(groupId, groups, database)}>
+                                                    <ArrowDownward fontSize="inherit" />
+                                                </IconButton>
+                                            </If>
+                                        </Typography>
 
-                                            <Grid container spacing={3} sx={{ mb: 1 }} columns={{ xs: 2, sm: 4, md: 8, lg: 10 }}>
-                                                <ArrayMap array={devicesInGroup} render={({mac: deviceId, name, category = DEVICE_CATEGORIES.UNKNOWN}, deviceIndex) => 
-                                                    <Grid key={deviceId} item xs={1} sx={{ width: 80, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                                        <IconButton color="warning" sx={{ width: 60, height: 60 }} component={Link} to={`/device/${deviceId}`}>
-                                                            {React.createElement(DEVICE_CATEGORY_ICONS[category], { sx: { width: 40, height: 40 } })}
-                                                        </IconButton>
-                                                        {name}
-                                                        <RenderIf condition={reorder} render={() =>
-                                                            <div>
-                                                                <IconButton size="small" disabled={deviceIndex === 0} onClick={() => this.moveDeviceUp(groupId, deviceId, devices, database)}>
-                                                                    <ArrowBack fontSize="inherit" />
-                                                                </IconButton>
-                                                                <IconButton size="small" disabled={deviceIndex === devicesInGroup.length - 1} onClick={() => this.moveDeviceDown(groupId, deviceId, devices, database)}>
-                                                                    <ArrowForward fontSize="inherit" />
-                                                                </IconButton>
-                                                            </div>
-                                                        } />
-                                                    </Grid>
-                                                } />
-                                            </Grid>
-                                        </React.Fragment>
-                                    } />
-                                } />
-                            } />
+                                        <Grid container spacing={3} sx={{ mb: 1 }} columns={{ xs: 2, sm: 4, md: 8, lg: 10 }}>
+                                            <Iterate array={devicesInGroup}>{({mac: deviceId, name, category }, deviceIndex) => 
+                                                <Grid key={deviceId} item xs={1} sx={{ width: 80, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                                    <IconButton color="warning" sx={{ width: 60, height: 60 }} component={Link} to={`/device/${deviceId}`}>
+                                                        <DeviceCategoryIcon category={category} sx={{ width: 40, height: 40 }} />
+                                                    </IconButton>
+                                                    {name}
+                                                    <If condition={reorder}>
+                                                        <div>
+                                                            <IconButton size="small" disabled={deviceIndex === 0} onClick={() => this.moveDeviceUp(groupId, deviceId, devices, database)}>
+                                                                <ArrowBack fontSize="inherit" />
+                                                            </IconButton>
+                                                            <IconButton size="small" disabled={deviceIndex === devicesInGroup.length - 1} onClick={() => this.moveDeviceDown(groupId, deviceId, devices, database)}>
+                                                                <ArrowForward fontSize="inherit" />
+                                                            </IconButton>
+                                                        </div>
+                                                    </If>
+                                                </Grid>
+                                            }</Iterate>
+                                        </Grid>
+                                    </If>
+                                }</With>
+                            }</Iterate>
                         </SectionCard>
 
                         <SectionCard>

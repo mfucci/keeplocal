@@ -1,5 +1,13 @@
+/** 
+ * Holds device data.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { DEVICE_CATEGORIES } from "./DeviceCategories";
-import { PERMISSIONS } from "./Permissions";
+import { DEVICE_PERMISSIONS } from "./DevicePermissions";
 
 export type Device = {
     name: string,
@@ -13,6 +21,9 @@ export type Device = {
     model?: string,
     hostname?: string,
     permissions: {
-        [permission in PERMISSIONS]?: boolean;
+        [permission in DEVICE_PERMISSIONS]?: boolean;
     }
 };
+
+export const DEVICE_LIST_KEY = "/devices";
+export const DEVICE_KEY = (id: string) => `/device/${id}`;
