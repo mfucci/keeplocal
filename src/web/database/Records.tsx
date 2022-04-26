@@ -13,7 +13,7 @@ import { DatabaseContext } from "./DatabaseContext";
 
 type Props<T> = {
     ids: string[],
-    render: (values: T[]) => any,
+    children: (values: T[]) => any,
 };
 
 type State<T> = {
@@ -50,8 +50,8 @@ export class Records<T> extends React.Component<Props<T>, State<T>> {
     }
 
     render() {
-        const { values, render } = {...this.state, ...this.props};
+        const { values, children } = {...this.state, ...this.props};
         if (values === undefined) return null;
-        return render(values);
+        return children(values);
     }
 }

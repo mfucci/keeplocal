@@ -1,7 +1,16 @@
+/**
+ * Add a new device group.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { DatabaseContext } from "../database/DatabaseContext";
-import { DeviceGroup, DEVICE_GROUP_LIST_KEY } from "../models/DeviceGroup";
+import { Group } from "../models/Group";
+import { DEVICE_GROUP_LIST_KEY } from "../models/Device";
 
 type Props = {
     onNewGroup: (groupId: number) => void,
@@ -36,7 +45,7 @@ export class AddGroupDialog extends React.Component<Props, State> {
         const { databaseManager, groupName, onNewGroup } = { ...this.context, ...this.state, ...this.props };
         if (groupName === "") return;
         const database = await databaseManager.getDatabase();
-        const groups = await database.get<DeviceGroup[]>(DEVICE_GROUP_LIST_KEY) ?? [];
+        const groups = await database.get<Group[]>(DEVICE_GROUP_LIST_KEY) ?? [];
         const groupIds = groups.map(group => group.id);
         
         // Find the first available group id

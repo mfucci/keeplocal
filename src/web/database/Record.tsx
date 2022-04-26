@@ -14,7 +14,7 @@ import { DatabaseContext } from "./DatabaseContext";
 
 type Props<T> = {
     id: string,
-    render: (value: T, updater: (update: Partial<T>) => void, database: Database) => any,
+    children: (value: T, updater: (update: Partial<T>) => void, database: Database) => any,
 };
 
 type State<T> = {
@@ -57,8 +57,8 @@ export class Record<T> extends React.Component<Props<T>, State<T>> {
     }
 
     render() {
-        const { value, render, database } = {...this.state, ...this.props};
+        const { value, children, database } = {...this.state, ...this.props};
         if (database === undefined || value === undefined) return null;
-        return render(value, update => this.updateValue(update), database);
+        return children(value, update => this.updateValue(update), database);
     }
 }

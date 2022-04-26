@@ -25,7 +25,9 @@ export class Header extends React.Component {
     render() {
         const { navigate } = this.context;
         const pages = [
-            {label: "Dashboard", handler: () => navigate("/")},
+            {label: "Devices", handler: () => navigate("/")},
+            {label: "Apps", handler: () => navigate("/apps")},
+            {label: "Settings", handler: () => navigate("/settings")},
             {label: "About", handler: () => navigate("/about")},
         ];
         return (

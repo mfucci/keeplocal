@@ -9,7 +9,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 
-import { Button, Card, CardActions, CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, FormControlLabel, FormGroup, Grid, Icon, MenuItem, Select, Switch, TextField, Typography } from "@mui/material";
+import { Button, Card, CardActions, CardContent, FormControl, FormControlLabel, FormGroup, Grid, Icon, MenuItem, Select, Switch, Typography } from "@mui/material";
 
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -18,8 +18,8 @@ import { PERMISSION_LABELS } from "../components/PermissionLabels";
 import { EditableLabel } from "../components/EditableLabel";
 import { NavigateContext } from "../components/NavigateContext";
 
-import { Device } from "../models/Device";
-import { DeviceGroup } from "../models/DeviceGroup";
+import { Device, DEVICE_KEY_BY_ID, DEVICE_GROUP_LIST_KEY } from "../models/Device";
+import { Group } from "../models/Group";
 import { DEVICE_CATEGORIES } from "../models/DeviceCategories";
 import { DEVICE_PERMISSIONS } from "../models/DevicePermissions";
 
@@ -29,29 +29,31 @@ import { Database } from "../../database/Database";
 import { Iterate, IterateObject } from "../react/Iterate";
 import { If } from "../react/If";
 import { AddGroupDialog } from "../common/AddGroupDialog";
+import { ConfirmDialog } from "../components/ConfirmDialog";
 
 type Props = {
     id: string,
 };
 type State = {
-    confirmDelete: boolean,
-    newGroupName?: string,
 };
 
 const GroupLabel = ({label}: {label: string}) => <Typography sx={{ mt: 0.5, ml: 2, mb: 1 }} color="text.secondary" display="block" variant="subtitle1">{label}</Typography>;
+const SectionCard = ({children}: {children: any}) => (
+    <Grid item xs={12}>
+        <Card>
+            <CardContent>
+                {children}
+            </CardContent>
+        </Card>
+    </Grid>
+);
 
-export class DeviceView extends React.Component<Props, State> {
+export class DeviceDetailView extends React.Component<Props, State> {
     static contextType = NavigateContext;
     declare context: React.ContextType<typeof NavigateContext>;
 
     private addGroupDialog = React.createRef<AddGroupDialog>();
-
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            confirmDelete: false,
-        };
-    }
+    private deleteDeviceConfirmDialog = React.createRef<ConfirmDialog>();
 
     private async deleteDevice(database: Database) {
         const { id, navigate } = { ...this.props, ...this.context };
@@ -72,15 +74,15 @@ export class DeviceView extends React.Component<Props, State> {
             await database.set(key, device);
         }));
 
-        const groups = await database.get<DeviceGroup[]>("/groups");
+        const groups = await database.get<Group[]>("/groups");
         const newGroups = groups?.filter(group => group.id !== groupId);
         await database.set("/groups", newGroups);
     }
 
     render() {
-        const { confirmDelete, id } = { ...this.props, ...this.state };
+        const { id } = { ...this.props, ...this.state };
         return (
-            <Record<Device> id={`/device/${id}`} render={({ name, category = DEVICE_CATEGORIES.UNKNOWN, vendor, model, mac, ip, online, hostname, permissions, groupId = 0 }, updater, database) => 
+            <Record<Device> id={DEVICE_KEY_BY_ID(id)}>{({ name, category = DEVICE_CATEGORIES.UNKNOWN, vendor, model, mac, ip, online, hostname, permissions, groupId = 0 }, updater, database) => 
                 <Grid container spacing={3} columns={{ xs: 6, md: 12 }}>
                     <Grid item xs={12}>
                         <Card>
@@ -101,7 +103,7 @@ export class DeviceView extends React.Component<Props, State> {
                                     </FormControl>
                                 </div>
                                 <div style={{lineHeight: "36px"}}>Group:
-                                    <Record<DeviceGroup[]> id="/groups" render={groups => 
+                                    <Record<Group[]> id={DEVICE_GROUP_LIST_KEY}>{groups => 
                                         <FormControl variant="standard" sx={{ marginLeft: "5px" }}>
                                             <Select value={groupId} label="Group" onChange={({target: {value}}) => updater({groupId: value as number})}>
                                                 <Iterate array={groups}>
@@ -109,27 +111,17 @@ export class DeviceView extends React.Component<Props, State> {
                                                 </Iterate>
                                             </Select>
                                         </FormControl>
-                                    } />
+                                    }</Record>
                                     <Button onClick={() => this.addGroupDialog.current?.open()}>Add group</Button>
                                     <AddGroupDialog ref={this.addGroupDialog} onNewGroup={groupId => updater({groupId})} />
                                     <Button disabled={groupId === 0} onClick={() => this.deleteGroup(groupId, database)}>Delete group</Button>
                                 </div>
                             </CardContent>
                             <CardActions>
-                                <Button variant="outlined" startIcon={<DeleteIcon />} color="error" onClick={()=>this.setState({confirmDelete: true})}>Delete</Button>
-                                <Dialog open={confirmDelete} onClose={()=>this.setState({confirmDelete: false})} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
-                                    <DialogTitle>Are you sure you want to delete this device?</DialogTitle>
-                                    <DialogContent>
-                                        <DialogContentText>
-                                            Deleting the device will delete all data associated with this device.
-                                            If this device requests to join the network again, it will have a default configuration.
-                                        </DialogContentText>
-                                    </DialogContent>
-                                    <DialogActions>
-                                        <Button onClick={()=>this.deleteDevice(database)}>Yes</Button>
-                                        <Button onClick={()=>this.setState({confirmDelete: false})} autoFocus>No</Button>
-                                    </DialogActions>
-                                </Dialog>
+                                <Button variant="outlined" startIcon={<DeleteIcon />} color="error" onClick={()=>this.deleteDeviceConfirmDialog.current?.open()}>Delete</Button>
+                                <ConfirmDialog ref={this.deleteDeviceConfirmDialog} title="Are you sure you want to delete this device?"
+                                    message="Deleting the device will delete all data associated with this device.\nIf this device requests to join the network again, it will have a default configuration." 
+                                    onConfirm={()=>this.deleteDevice(database)}/>
                             </CardActions>
                         </Card>
                     </Grid>
@@ -165,13 +157,13 @@ export class DeviceView extends React.Component<Props, State> {
                         </Card>
                     </Grid>
                 </Grid>
-            } />
+            }</Record>
         );
     }
 }
 
-export const DeviceViewRouter = () => {
+export const DeviceDetailViewRouter = () => {
     const { id } = useParams();
     if (id === undefined) throw new Error("Missing device id");
-    return <DeviceView id={id} />
+    return <DeviceDetailView id={id} />
 }

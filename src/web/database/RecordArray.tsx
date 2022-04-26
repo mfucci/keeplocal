@@ -15,7 +15,7 @@ import { Database } from "../../database/Database";
 type Props<T> = {
     id: string,
     itemIdMapper: (id: string) => string,
-    render: (values: T[]) => any,
+    children: (values: T[]) => any,
 };
 
 type State<T> = {
@@ -84,8 +84,8 @@ export class RecordArray<T> extends React.Component<Props<T>, State<T>> {
     }
 
     render() {
-        const { values, render, database } = {...this.state, ...this.props};
+        const { values, children, database } = {...this.state, ...this.props};
         if (database === undefined || values === undefined) return null;
-        return render(values);
+        return children(values);
     }
 }

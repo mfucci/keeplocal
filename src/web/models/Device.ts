@@ -10,6 +10,7 @@ import { DEVICE_CATEGORIES } from "./DeviceCategories";
 import { DEVICE_PERMISSIONS } from "./DevicePermissions";
 
 export type Device = {
+    id: string,
     name: string,
     groupId: number,
     category?: DEVICE_CATEGORIES,
@@ -26,4 +27,5 @@ export type Device = {
 };
 
 export const DEVICE_LIST_KEY = "/devices";
-export const DEVICE_KEY = (id: string) => `/device/${id}`;
+export const DEVICE_GROUP_LIST_KEY = "/devices/groups";
+export const DEVICE_KEY_BY_ID = (id: string) => `/device/${id}`;

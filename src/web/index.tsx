@@ -21,16 +21,35 @@ import "@fontsource/roboto/700.css";
 
 import { BrowserRouter } from "react-router-dom";
 
-import { Network } from "./views/NetworkView";
+import { DevicesView } from "./views/DevicesView";
 import { Header } from "./common/Header";
 import { Footer } from "./common/Footer";
-import { DeviceViewRouter } from "./views/DeviceView";
+import { DeviceDetailViewRouter } from "./views/DeviceDetailView";
 import { Box, Container } from "@mui/material";
 
 import "./service-worker.js";
 import { DemoDatabaseManager } from "./database/DemoDatabaseManager";
 import { DatabaseContext } from "./database/DatabaseContext";
 import { NavigateContext } from "./components/NavigateContext";
+import { NotFoundView } from "./views/NotFoundView";
+import { AboutView } from "./views/AboutView";
+import { AppsView } from "./views/AppsView";
+import { SettingsView } from "./views/SettingsView";
+import { AdBlocker } from "./apps/AdBlocker";
+import { FileStorage } from "./apps/FileStorage";
+import { HomeSecurity } from "./apps/HomeSecurity";
+import { Router } from "./apps/Router";
+import { NetworkSecurity } from "./apps/NetworkSecurity";
+import { ParentalControl } from "./apps/ParentalControl";
+import { VoiceAssistant } from "./apps/VoiceAssistant";
+import { Email } from "./apps/Email";
+import { MediaServer } from "./apps/MediaServer";
+import { PrintScan } from "./apps/PrintScan";
+import { HomeAutomation } from "./apps/HomeAutomation";
+import { Passwords } from "./apps/Passwords";
+import { DhcpServer } from "./apps/DhcpServer";
+import { CreateApp } from "./apps/CreateApp";
+import { InstallApp } from "./apps/InstallApp";
 
 function NavigateProvider({children}: {children: ReactChild[]}) {
     const navigate = useNavigate();
@@ -67,12 +86,31 @@ export class Index extends React.Component {
     
                             <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
                                 <Routes>
-                                    <Route path="/device/:id" element={
-                                        <DeviceViewRouter />
-                                    }/>
-                                    <Route path="*" element={
-                                        <Network />
-                                    }/>
+                                    <Route path="/" element={<DevicesView />}/>
+                                    <Route path="/devices" element={<DevicesView />}/>
+                                    <Route path="/device/:id" element={<DeviceDetailViewRouter />}/>
+                                    <Route path="/apps" element={<AppsView />}/>
+                                    <Route path="/settings" element={<SettingsView />}/>
+
+                                    <Route path="/adblocker" element={<AdBlocker />}/>
+                                    <Route path="/dhcp_server" element={<DhcpServer />}/>
+                                    <Route path="/email" element={<Email />}/>
+                                    <Route path="/home_automation" element={<HomeAutomation />}/>
+                                    <Route path="/home_security" element={<HomeSecurity />}/>
+                                    <Route path="/file_storage" element={<FileStorage />}/>
+                                    <Route path="/media_server" element={<MediaServer />}/>
+                                    <Route path="/network_security" element={<NetworkSecurity />}/>
+                                    <Route path="/parental_control" element={<ParentalControl />}/>
+                                    <Route path="/passwords" element={<Passwords />}/>
+                                    <Route path="/print_scan" element={<PrintScan />}/>
+                                    <Route path="/router" element={<Router />}/>
+                                    <Route path="/voice_assistant" element={<VoiceAssistant />}/>
+
+                                    <Route path="/app/create" element={<CreateApp />}/>
+                                    <Route path="/app/install" element={<InstallApp />}/>
+
+                                    <Route path="/about" element={<AboutView />}/>
+                                    <Route path="*" element={<NotFoundView />}/>
                                 </Routes>
     
                                 <Footer />
