@@ -6,8 +6,10 @@
     "noImplicitAny": true,
     "removeComments": true,
     "esModuleInterop": true,
+    // Workaround for an incompatibility between @types/node and @type/pouchdb
+    "skipLibCheck": true,
     "strict": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "*.d.ts"],
   "exclude": ["src/web/**/*"]
 }
