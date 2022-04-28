@@ -10,8 +10,8 @@ import React from "react";
 import { Button, Grid } from "@mui/material";
 
 import { DeviceCategoryIcon } from "../components/DeviceCategoryUi";
-import { Device, DEVICE_KEY_BY_ID, DEVICE_LIST_KEY, DEVICE_GROUP_LIST_KEY } from "../models/Device";
-import { RecordArray } from "../database/RecordArray";
+import { Device, DEVICES_DATABASE, DEVICES_GROUPS_DATABASE } from "../models/Device";
+import { Records } from "../database/Records";
 import { GroupList } from "../components/GroupList";
 import { SectionCard } from "../components/SectionCard";
 
@@ -33,23 +33,28 @@ export class DevicesView extends React.Component<Props, State> {
         const { editOrder } = this.state;
 
         return (
-            <RecordArray<Device> id={DEVICE_LIST_KEY} itemIdMapper={DEVICE_KEY_BY_ID}>{devices => 
-                <Grid container spacing={3}>
+            <Grid container spacing={3}>
+                <Records<Device> dbName={DEVICES_DATABASE}>{devices => 
                     <SectionCard>
                         {devices.length} devices, {devices.filter(device => device.online).length} online
                     </SectionCard>
+                }</Records>
 
-                    <SectionCard>
-                        <GroupList groupsKey={DEVICE_GROUP_LIST_KEY} itemsKey={DEVICE_LIST_KEY} items={devices} editOrder={editOrder} iconRender={device => <DeviceCategoryIcon category={device.category} sx={{ width: 40, height: 40 }} />} />
-                    </SectionCard>
+                <SectionCard>
+                    <GroupList<Device>
+                        groupsDb={DEVICES_GROUPS_DATABASE}
+                        itemsDb={DEVICES_DATABASE}
+                        editOrder={editOrder}
+                        pathBuilder={device => `/device/${device._id}`}
+                        iconRender={device => <DeviceCategoryIcon category={device.category} sx={{ width: 40, height: 40 }} />} />
+                </SectionCard>
 
-                    <SectionCard>
-                        <Button variant="outlined" sx= {{ width: "fit-content" }} onClick={()=>this.setState({editOrder: !editOrder})}>
-                            {editOrder ? "Done" : "Reorder"}
-                        </Button>
-                    </SectionCard>
-                </Grid>
-            }</RecordArray>
+                <SectionCard>
+                    <Button variant="outlined" sx= {{ width: "fit-content" }} onClick={()=>this.setState({editOrder: !editOrder})}>
+                        {editOrder ? "Done" : "Reorder"}
+                    </Button>
+                </SectionCard>
+            </Grid>
         );
     }
 }

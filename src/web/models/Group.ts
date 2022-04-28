@@ -6,7 +6,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type Group = {
-    id: number,
+import { Ordered } from "./Ordered";
+
+export type GroupItem = Ordered & {
+    _id: string,
+    name: string,
+    groupId: string,
+}
+
+export type Group = Ordered & {
+    _id: string,
     name: string,
 };
+
+export const UNASSIGNED_GROUP_ID = "unassigned";

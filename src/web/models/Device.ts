@@ -8,11 +8,11 @@
 
 import { DEVICE_CATEGORIES } from "./DeviceCategories";
 import { DEVICE_PERMISSIONS } from "./DevicePermissions";
+import { GroupItem } from "./Group";
 
-export type Device = {
-    id: string,
+export type Device = GroupItem & {
+    _id: string,
     name: string,
-    groupId: number,
     category?: DEVICE_CATEGORIES,
     vendor?: string,
     online?: boolean,
@@ -26,6 +26,5 @@ export type Device = {
     }
 };
 
-export const DEVICE_LIST_KEY = "/devices";
-export const DEVICE_GROUP_LIST_KEY = "/devices/groups";
-export const DEVICE_KEY_BY_ID = (id: string) => `/device/${id}`;
+export const DEVICES_DATABASE = "devices";
+export const DEVICES_GROUPS_DATABASE = "devices_groups";

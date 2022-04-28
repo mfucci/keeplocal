@@ -28,7 +28,7 @@ import { DeviceDetailViewRouter } from "./views/DeviceDetailView";
 import { Box, Container } from "@mui/material";
 
 import "./service-worker.js";
-import { DemoDatabaseManager } from "./database/DemoDatabaseManager";
+import { DemoDatabaseManager, DemoDatabaseManagerProvider } from "./database/DemoDatabaseManager";
 import { DatabaseContext } from "./database/DatabaseContext";
 import { NavigateContext } from "./components/NavigateContext";
 import { NotFoundView } from "./views/NotFoundView";
@@ -61,64 +61,64 @@ function NavigateProvider({children}: {children: ReactChild[]}) {
 }
 
 export class Index extends React.Component {
-    private readonly databaseManager = new DemoDatabaseManager();
-
     render() {
         return (
-            <DatabaseContext.Provider value={ {databaseManager: this.databaseManager} }>
-                <BrowserRouter>
-                    <NavigateProvider>
-                        <Header />
-            
-                        <Box
-                            component="main"
-                            sx={{
-                                backgroundColor: (theme) =>
-                                    theme.palette.mode === "light"
-                                    ? theme.palette.grey[100]
-                                    : theme.palette.grey[900],
-                                flexGrow: 0,
-                                flexShrink: 1,
-                                flexBasis: "auto",
-                                overflow: "auto",
-                                height: "100vh",
-                            }} >
+            <DemoDatabaseManagerProvider>{databaseManager =>
+                <DatabaseContext.Provider value={{databaseManager}}>
+                    <BrowserRouter>
+                        <NavigateProvider>
+                            <Header />
+                
+                            <Box
+                                component="main"
+                                sx={{
+                                    backgroundColor: (theme) =>
+                                        theme.palette.mode === "light"
+                                        ? theme.palette.grey[100]
+                                        : theme.palette.grey[900],
+                                    flexGrow: 0,
+                                    flexShrink: 1,
+                                    flexBasis: "auto",
+                                    overflow: "auto",
+                                    height: "100vh",
+                                }} >
+        
+                                <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+                                    <Routes>
+                                        <Route path="/" element={<DevicesView />}/>
+                                        <Route path="/devices" element={<DevicesView />}/>
+                                        <Route path="/device/:id" element={<DeviceDetailViewRouter />}/>
+                                        <Route path="/apps" element={<AppsView />}/>
+                                        <Route path="/settings" element={<SettingsView />}/>
     
-                            <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-                                <Routes>
-                                    <Route path="/" element={<DevicesView />}/>
-                                    <Route path="/devices" element={<DevicesView />}/>
-                                    <Route path="/device/:id" element={<DeviceDetailViewRouter />}/>
-                                    <Route path="/apps" element={<AppsView />}/>
-                                    <Route path="/settings" element={<SettingsView />}/>
-
-                                    <Route path="/adblocker" element={<AdBlocker />}/>
-                                    <Route path="/dhcp_server" element={<DhcpServer />}/>
-                                    <Route path="/email" element={<Email />}/>
-                                    <Route path="/home_automation" element={<HomeAutomation />}/>
-                                    <Route path="/home_security" element={<HomeSecurity />}/>
-                                    <Route path="/file_storage" element={<FileStorage />}/>
-                                    <Route path="/media_server" element={<MediaServer />}/>
-                                    <Route path="/network_security" element={<NetworkSecurity />}/>
-                                    <Route path="/parental_control" element={<ParentalControl />}/>
-                                    <Route path="/passwords" element={<Passwords />}/>
-                                    <Route path="/print_scan" element={<PrintScan />}/>
-                                    <Route path="/router" element={<Router />}/>
-                                    <Route path="/voice_assistant" element={<VoiceAssistant />}/>
-
-                                    <Route path="/app/create" element={<CreateApp />}/>
-                                    <Route path="/app/install" element={<InstallApp />}/>
-
-                                    <Route path="/about" element={<AboutView />}/>
-                                    <Route path="*" element={<NotFoundView />}/>
-                                </Routes>
+                                        <Route path="/adblocker" element={<AdBlocker />}/>
+                                        <Route path="/dhcp_server" element={<DhcpServer />}/>
+                                        <Route path="/email" element={<Email />}/>
+                                        <Route path="/home_automation" element={<HomeAutomation />}/>
+                                        <Route path="/home_security" element={<HomeSecurity />}/>
+                                        <Route path="/file_storage" element={<FileStorage />}/>
+                                        <Route path="/media_server" element={<MediaServer />}/>
+                                        <Route path="/network_security" element={<NetworkSecurity />}/>
+                                        <Route path="/parental_control" element={<ParentalControl />}/>
+                                        <Route path="/passwords" element={<Passwords />}/>
+                                        <Route path="/print_scan" element={<PrintScan />}/>
+                                        <Route path="/router" element={<Router />}/>
+                                        <Route path="/voice_assistant" element={<VoiceAssistant />}/>
     
-                                <Footer />
-                            </Container>
-                        </Box>
-                    </NavigateProvider>
-                </BrowserRouter>
-            </DatabaseContext.Provider>
+                                        <Route path="/app/create" element={<CreateApp />}/>
+                                        <Route path="/app/install" element={<InstallApp />}/>
+    
+                                        <Route path="/about" element={<AboutView />}/>
+                                        <Route path="*" element={<NotFoundView />}/>
+                                    </Routes>
+        
+                                    <Footer />
+                                </Container>
+                            </Box>
+                        </NavigateProvider>
+                    </BrowserRouter>
+                </DatabaseContext.Provider>
+            }</DemoDatabaseManagerProvider>
         );
     }
 }

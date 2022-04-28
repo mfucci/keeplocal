@@ -18,18 +18,21 @@ import { PERMISSION_LABELS } from "../components/PermissionLabels";
 import { EditableLabel } from "../components/EditableLabel";
 import { NavigateContext } from "../components/NavigateContext";
 
-import { Device, DEVICE_KEY_BY_ID, DEVICE_GROUP_LIST_KEY } from "../models/Device";
+import { Device, DEVICES_DATABASE, DEVICES_GROUPS_DATABASE } from "../models/Device";
 import { Group } from "../models/Group";
 import { DEVICE_CATEGORIES } from "../models/DeviceCategories";
 import { DEVICE_PERMISSIONS } from "../models/DevicePermissions";
-
-import { Record } from "../database/Record";
-import { Database } from "../../database/Database";
 
 import { Iterate, IterateObject } from "../react/Iterate";
 import { If } from "../react/If";
 import { AddGroupDialog } from "../common/AddGroupDialog";
 import { ConfirmDialog } from "../components/ConfirmDialog";
+import { Record } from "../database/Record";
+import { UNASSIGNED_GROUP_ID } from "../models/Group";
+import { GroupController } from "../controllers/GroupController";
+import { Records } from "../database/Records";
+import { With } from "../react/With";
+import { SelectControl } from "../components/SelectControl";
 
 type Props = {
     id: string,
@@ -52,37 +55,13 @@ export class DeviceDetailView extends React.Component<Props, State> {
     static contextType = NavigateContext;
     declare context: React.ContextType<typeof NavigateContext>;
 
-    private addGroupDialog = React.createRef<AddGroupDialog>();
+    private addGroupDialog = React.createRef<AddGroupDialog<Device>>();
     private deleteDeviceConfirmDialog = React.createRef<ConfirmDialog>();
 
-    private async deleteDevice(database: Database) {
-        const { id, navigate } = { ...this.props, ...this.context };
-        const newDeviceIds = (await database.get<string[]>("/devices"))?.filter(deviceId => deviceId !== id);
-        await database.set("/devices", newDeviceIds);
-        await database.set(id, undefined);
-        navigate("/");
-    }
-
-    private async deleteGroup(groupId: number, database: Database) {
-        const deviceIds = await database.get<string[]>("/devices");
-        if (deviceIds === undefined) return;
-        await Promise.all(deviceIds.map(async id => {
-            const key = `/device/${id}`;
-            const device = await database.get<Device>(key);
-            if (device === undefined || device.groupId !== groupId) return;
-            device.groupId = 0;
-            await database.set(key, device);
-        }));
-
-        const groups = await database.get<Group[]>("/groups");
-        const newGroups = groups?.filter(group => group.id !== groupId);
-        await database.set("/groups", newGroups);
-    }
-
     render() {
-        const { id } = { ...this.props, ...this.state };
+        const { id, navigate } = { ...this.props, ...this.context, ...this.state };
         return (
-            <Record<Device> id={DEVICE_KEY_BY_ID(id)}>{({ name, category = DEVICE_CATEGORIES.UNKNOWN, vendor, model, mac, ip, online, hostname, permissions, groupId = 0 }, updater, database) => 
+            <Record<Device> dbName={DEVICES_DATABASE} id={id}>{({ name, category = DEVICE_CATEGORIES.UNKNOWN, vendor, model, mac, ip, online, hostname, permissions, groupId }, update, remove) => 
                 <Grid container spacing={3} columns={{ xs: 6, md: 12 }}>
                     <Grid item xs={12}>
                         <Card>
@@ -90,38 +69,37 @@ export class DeviceDetailView extends React.Component<Props, State> {
                                 <Icon color="warning" sx={{ width: 60, height: 60 }}>
                                     <DeviceCategoryIcon category={category} sx={{ width: 40, height: 40 }} />
                                 </Icon>
-                                <Typography gutterBottom variant="h4" component="div"><EditableLabel initialValue={name} onChange={name => updater({name})} /></Typography>
-                                <div style={{lineHeight: "36px"}}>Vendor: <EditableLabel initialValue={vendor} onChange={vendor => updater({vendor})} /></div>
-                                <div style={{lineHeight: "36px"}}>Model: <EditableLabel initialValue={model} onChange={model => updater({model})} /></div>
+                                <Typography gutterBottom variant="h4" component="div"><EditableLabel initialValue={name} onChange={name => update({name})} /></Typography>
+                                <div style={{lineHeight: "36px"}}>Vendor: <EditableLabel initialValue={vendor} onChange={vendor => update({vendor})} /></div>
+                                <div style={{lineHeight: "36px"}}>Model: <EditableLabel initialValue={model} onChange={model => update({model})} /></div>
                                 <div style={{lineHeight: "36px"}}>Category:
-                                    <FormControl variant="standard" sx={{ marginLeft: "5px" }}>
-                                        <Select value={category} label="Category" onChange={({target: {value}}) => updater({category: value as DEVICE_CATEGORIES})}>
-                                            <IterateObject<DEVICE_CATEGORIES, string> object={DEVICE_CATEGORIES_LABELS}>
-                                                {(category, label) => <MenuItem key={category} value={category}>{label}</MenuItem>}
-                                            </IterateObject>
-                                        </Select>
-                                    </FormControl>
+                                    <SelectControl<DEVICE_CATEGORIES> value={category} onChange={category => update({category})} sx={{ marginLeft: "5px" }}>
+                                        {Object.entries(DEVICE_CATEGORIES_LABELS).map(([key, label]) => ({key, label}))}
+                                    </SelectControl>
                                 </div>
                                 <div style={{lineHeight: "36px"}}>Group:
-                                    <Record<Group[]> id={DEVICE_GROUP_LIST_KEY}>{groups => 
-                                        <FormControl variant="standard" sx={{ marginLeft: "5px" }}>
-                                            <Select value={groupId} label="Group" onChange={({target: {value}}) => updater({groupId: value as number})}>
-                                                <Iterate array={groups}>
-                                                    {({id, name}) => <MenuItem key={id} value={id}>{name}</MenuItem>}
-                                                </Iterate>
-                                            </Select>
-                                        </FormControl>
-                                    }</Record>
-                                    <Button onClick={() => this.addGroupDialog.current?.open()}>Add group</Button>
-                                    <AddGroupDialog ref={this.addGroupDialog} onNewGroup={groupId => updater({groupId})} />
-                                    <Button disabled={groupId === 0} onClick={() => this.deleteGroup(groupId, database)}>Delete group</Button>
+                                    <Records<Group> dbName={DEVICES_GROUPS_DATABASE}>{groups =>
+                                        <React.Fragment>
+                                            <SelectControl value={groupId} onChange={groupId => update({groupId})} sx={{ marginLeft: "5px" }}>
+                                                {groups.map(({_id, name}) => ({key: _id, label: name}))}
+                                            </SelectControl>
+                                            <Button onClick={() => this.addGroupDialog.current?.open()}>Add group</Button>
+
+                                            <GroupController groupsDb={DEVICES_GROUPS_DATABASE} itemsDb={DEVICES_DATABASE}>{controller =>
+                                                <React.Fragment>
+                                                    <AddGroupDialog<Device> ref={this.addGroupDialog} onNewGroup={groupId => update({groupId})} controller={controller} />
+                                                    <Button disabled={groupId === UNASSIGNED_GROUP_ID} onClick={() => controller.removeGroup(groupId)}>Delete group</Button>
+                                                </React.Fragment>
+                                            }</GroupController>
+                                        </React.Fragment>
+                                    }</Records>
                                 </div>
                             </CardContent>
                             <CardActions>
                                 <Button variant="outlined" startIcon={<DeleteIcon />} color="error" onClick={()=>this.deleteDeviceConfirmDialog.current?.open()}>Delete</Button>
                                 <ConfirmDialog ref={this.deleteDeviceConfirmDialog} title="Are you sure you want to delete this device?"
                                     message="Deleting the device will delete all data associated with this device.\nIf this device requests to join the network again, it will have a default configuration." 
-                                    onConfirm={()=>this.deleteDevice(database)}/>
+                                    onConfirm={()=>{remove(); navigate("/");}}/>
                             </CardActions>
                         </Card>
                     </Grid>
@@ -130,16 +108,14 @@ export class DeviceDetailView extends React.Component<Props, State> {
                             <CardContent>
                                 <Typography gutterBottom variant="h5" component="div" color="primary">Permissions</Typography>
                                 <FormGroup>
-                                    <If condition={Object.entries(permissions).length === 0} otherwise="Permissions cannot be controlled on this device.">
-                                        <IterateObject<DEVICE_PERMISSIONS, string> object={PERMISSION_LABELS}>
-                                            {(permission, label) =>
-                                                <If condition={permissions[permission] !== undefined}>
-                                                    <FormControlLabel key={permission} control={
-                                                        <Switch checked={permissions[permission]} onChange={(event, checked) => updater({permissions: {...permissions, [permission]: checked}})}/>
-                                                    } label={label} />
-                                                </If>
-                                            }
-                                        </IterateObject>
+                                    <If condition={Object.entries(permissions).length !== 0} otherwise="Permissions cannot be controlled on this device.">
+                                        <IterateObject<DEVICE_PERMISSIONS, string> object={PERMISSION_LABELS}>{(permission, label) =>
+                                            <If key={permission} condition={permissions[permission] !== undefined}>
+                                                <FormControlLabel key={permission} control={
+                                                    <Switch checked={permissions[permission]} onChange={(event, checked) => update({permissions: {...permissions, [permission]: checked}})}/>
+                                                } label={label} />
+                                            </If>
+                                        }</IterateObject>
                                     </If>
                                 </FormGroup>
                             </CardContent>

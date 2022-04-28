@@ -8,23 +8,20 @@
 
 import React from "react";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
-import { DatabaseContext } from "../database/DatabaseContext";
-import { Group } from "../models/Group";
-import { DEVICE_GROUP_LIST_KEY } from "../models/Device";
+import { GroupController } from "../controllers/GroupController";
+import { GroupItem } from "../models/Group";
 
-type Props = {
-    onNewGroup: (groupId: number) => void,
+type Props<T extends GroupItem> = {
+    controller: GroupController<T>,
+    onNewGroup: (groupId: string) => void,
 };
 type State = {
     open: boolean,
     groupName: string,
 };
 
-export class AddGroupDialog extends React.Component<Props, State> {
-    static contextType = DatabaseContext;
-    declare context: React.ContextType<typeof DatabaseContext>;
-
-    constructor(props: Props) {
+export class AddGroupDialog<T extends GroupItem> extends React.Component<Props<T>, State> {
+    constructor(props: Props<T>) {
         super(props);
 
         this.state = {
@@ -37,31 +34,20 @@ export class AddGroupDialog extends React.Component<Props, State> {
         this.setState({open: true});
     }
 
-    handleCancel() {
+    private handleCancel() {
         this.setState({open: false});
     }
 
-    async handleAddGroup() {
-        const { databaseManager, groupName, onNewGroup } = { ...this.context, ...this.state, ...this.props };
+    private async handleAddGroup(controller: GroupController<T>) {
+        const { groupName, onNewGroup } = { ...this.state, ...this.props };
         if (groupName === "") return;
-        const database = await databaseManager.getDatabase();
-        const groups = await database.get<Group[]>(DEVICE_GROUP_LIST_KEY) ?? [];
-        const groupIds = groups.map(group => group.id);
-        
-        // Find the first available group id
-        var groupId = 1;
-        while (groupIds.indexOf(groupId) !== -1) {
-            groupId++;
-        }
-        groups.push({id: groupId, name: groupName});
-        await database.set(DEVICE_GROUP_LIST_KEY, groups);
-
+        const groupId = await controller.addGroup(groupName);
         this.setState({open: false});
         onNewGroup(groupId);
     }
     
     render() {
-        const { open, groupName, onNewGroup } = { ...this.props, ...this.state };
+        const { open, groupName, onNewGroup, controller } = { ...this.props, ...this.state };
         return (
             <Dialog open={open} onClose={()=>this.handleCancel()} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
                 <DialogTitle>Add a group</DialogTitle>
@@ -70,7 +56,7 @@ export class AddGroupDialog extends React.Component<Props, State> {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={()=>this.handleCancel()}>Cancel</Button>
-                    <Button onClick={()=>this.handleAddGroup()} autoFocus>Add</Button>
+                    <Button onClick={()=>this.handleAddGroup(controller)} autoFocus>Add</Button>
                 </DialogActions>
             </Dialog>
         );

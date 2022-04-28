@@ -7,20 +7,19 @@
  */
 
 import React from "react";
-import { Database } from "../../database/Database";
-import { Record as RecordConnection } from "../../database/Record";
 
 import { DatabaseContext } from "./DatabaseContext";
+import { Database, Entry } from "./DatabaseManager";
 
 type Props<T> = {
+    dbName: string,
     id: string,
-    children: (value: T, updater: (update: Partial<T>) => void, database: Database) => any,
+    children: (value: T, update: (update: Partial<T>) => void, remove: () => void) => any,
 };
 
 type State<T> = {
-    database?: Database,
-    connection?: RecordConnection<T>;
-    value?: T,
+    database?: Database<T>,
+    value?: Entry<T>,
 };
 
 export class Record<T> extends React.Component<Props<T>, State<T>> {
@@ -32,33 +31,38 @@ export class Record<T> extends React.Component<Props<T>, State<T>> {
         this.state = {};
     }
 
-    async componentDidMount() {
-        const { databaseManager, id } = {...this.props, ...this.context};
-        const database = await databaseManager.getDatabase();
-        const connection = await database.getRecord<T>(id);
-        connection.on("update", value => this.handleValueUpdate(value));
-        this.handleValueUpdate(connection.get());
-        this.setState({ database, connection });
+    componentDidMount() {
+        const { databaseManager, dbName, id } = {...this.props, ...this.context};
+        const database = databaseManager.getDatabase<T>(dbName);
+        database.onRecordChange(id, value => this.handleValueUpdate(value));
+        this.setState({ database });
     }
 
-    private handleValueUpdate(value?: T) {
+    private handleValueUpdate(value?: Entry<T>) {
+        const { dbName, id } = {...this.props, ...this.context};
         this.setState({ value });
     }
 
-    private updateValue(update: Partial<T>) {
-        const { connection, value } = this.state;
-        if (connection === undefined || value === undefined) return;
-        connection.set({ ...value, ...update });
+    private async update(update: Partial<T>) {
+        const { database, value } = this.state;
+        if (database === undefined || value === undefined) return;
+        await database.updateRecord({ ...value, ...update });
+    }
+
+    private async remove() {
+        const { database, id } = {...this.state, ...this.props};
+        if (database === undefined) return;
+        await database.remove(id);
     }
 
     componentWillUnmount() {
-        const { connection } = this.state;
-        connection?.close();
+        const { database } = this.state;
+        database?.close();
     }
 
     render() {
         const { value, children, database } = {...this.state, ...this.props};
         if (database === undefined || value === undefined) return null;
-        return children(value, update => this.updateValue(update), database);
+        return children(value, update => this.update(update), () => this.remove());
     }
 }
