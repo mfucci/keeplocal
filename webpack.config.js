@@ -1,10 +1,11 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   entry: './src/web/index.tsx',
   mode: 'development',
-  devtool: 'eval',
+  devtool: 'nosources-source-map',
   module: {
     rules: [
         {
@@ -37,7 +38,8 @@ module.exports = {
             use: [{
                 loader: 'ts-loader',
                 options: {
-                    configFile: "src/web/tsconfig.json"
+                    configFile: "src/web/tsconfig.json",
+                    transpileOnly: true
                 }
             }],
             include: [path.resolve(__dirname, 'src/')],
@@ -82,4 +84,12 @@ module.exports = {
         filename: 'index.css',
     }),
   ],
+  optimization: {
+    usedExports: true,
+    minimize: true,
+    minimizer: [new TerserPlugin({
+      minify: TerserPlugin.uglifyJsMinify,
+      terserOptions: {},
+    })],
+  },
 };

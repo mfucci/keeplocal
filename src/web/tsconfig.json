@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "commonjs",
+    "module": "ES2015",
     "noImplicitAny": true,
     "removeComments": true,
+    "moduleResolution": "Node",
     "esModuleInterop": true,
     "strict": true,
     "jsx": "react"
