@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "../../build",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "esModuleInterop": true,
+    // Workaround for an incompatibility between @types/node and @type/pouchdb
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "include": ["**/*.ts", "*.d.ts"],
+}

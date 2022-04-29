@@ -1,9 +1,8 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
-  entry: './src/web/index.tsx',
+  entry: './src/frontend/index.tsx',
   mode: 'development',
   devtool: 'nosources-source-map',
   module: {
@@ -21,7 +20,7 @@ module.exports = {
                 }
             ],
             include: [
-              path.resolve(__dirname, 'src/web/'),
+              path.resolve(__dirname, 'src/frontend/'),
             ],
         },
         {
@@ -38,7 +37,7 @@ module.exports = {
             use: [{
                 loader: 'ts-loader',
                 options: {
-                    configFile: "src/web/tsconfig.json",
+                    configFile: "src/frontend/tsconfig.json",
                     transpileOnly: true
                 }
             }],
@@ -48,7 +47,7 @@ module.exports = {
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
           type: "asset/resource",
           generator: { filename: 'img/[name][ext]' },
-          include: [path.resolve(__dirname, 'src/web/')],
+          include: [path.resolve(__dirname, 'src/frontend/')],
         },
         {
           test: /\.(woff(2)?|ttf|eot)(\?v=\d+\.\d+\.\d+)?$/,
@@ -62,13 +61,13 @@ module.exports = {
           test: /\.(html|js)$/i,
           type: "asset/resource",
           generator: { filename: '[name][ext]' },
-          include: [path.resolve(__dirname, 'src/web/')],
+          include: [path.resolve(__dirname, 'src/frontend/')],
         },
-        {
+        /*{
           test: /\.js$/,
           enforce: 'pre',
           use: ['source-map-loader'],
-        },
+        },*/
     ],
   },
   resolve: {
@@ -76,7 +75,7 @@ module.exports = {
   },
   output: {
     filename: 'index.js',
-    path: path.resolve(__dirname, 'build/http/public'),
+    path: path.resolve(__dirname, 'build/backend/services/frontend/public'),
     clean: true,
   },
   plugins: [
@@ -84,12 +83,4 @@ module.exports = {
         filename: 'index.css',
     }),
   ],
-  optimization: {
-    usedExports: true,
-    minimize: true,
-    minimizer: [new TerserPlugin({
-      minify: TerserPlugin.uglifyJsMinify,
-      terserOptions: {},
-    })],
-  },
 };
