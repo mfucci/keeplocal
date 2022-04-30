@@ -5,7 +5,6 @@ import { Divider, Grid, IconButton, Typography } from "@mui/material";
 import { If } from "../react/If";
 import { Iterate } from "../react/Iterate";
 import { Group, GroupItem } from "../../common/models/Group";
-import { Link } from "react-router-dom";
 import { ArrowBack, ArrowDownward, ArrowForward, ArrowUpward } from "@mui/icons-material";
 import { OrderController } from "../controllers/OrderController";
 import { Records } from "../database/Records";
@@ -39,9 +38,9 @@ export const GroupList = <T extends GroupItem>({iconRender, onClick, groupsDb, i
 
                     <Grid container spacing={3} sx={{ mb: 1 }} columns={{ xs: 2, sm: 4, md: 8 }}>
                         <Iterate array={items}>{(item, index) =>
-                            <Grid item key={item._id} xs={1} sx={{ width: 80, display: "flex", flexDirection: "column", alignItems: "center", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+                            <Grid item key={item._id} xs={1} sx={{ width: 80, display: "flex", flexDirection: "column", alignItems: "center" }}>
                                 <IconButton color="warning" sx={{ width: 60, height: 60 }} onClick={() => onClick(item)}>{iconRender(item)}</IconButton>
-                                {item.name}
+                                <Typography sx={{ overflow: "hidden", textOverflow: "ellipsis", textAlign: "center", width: 120 }} variant="caption">{item.name}</Typography>
                                 <If condition={editOrder}>
                                     <OrderController<T> dbName={itemsDb} filter={record => record.groupId === item.groupId}>{controller =>
                                         <div>
