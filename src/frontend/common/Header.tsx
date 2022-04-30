@@ -11,7 +11,7 @@ import { AppBar, Box, Button, Container, SxProps, Toolbar, Typography } from "@m
 
 import { Iterate } from "../react/Iterate";
 import { PopupMenu } from "../components/PopupMenu";
-import { NavigateContext } from "../components/NavigateContext";
+import { NavigateContext } from "../components/Navigate";
 
 import packageJson from "../../../package.json";
 

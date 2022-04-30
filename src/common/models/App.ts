@@ -8,10 +8,17 @@
 
 import { GroupItem } from "./Group"
 
+export enum AppType {
+    BuiltIn,
+    External,
+}
+
 export interface App extends GroupItem {
     _id: string,
     name: string,
     icon: string,
+    url: string,
+    type: AppType,
 };
 
 export const APPS_DATABASE = "apps";

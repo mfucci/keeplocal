@@ -9,9 +9,10 @@
 import React from "react";
 import { Grid } from "@mui/material";
 
-import { App, APPS_DATABASE, APPS_GROUPS_DATABASE } from "../../common/models/App";
+import { App, APPS_DATABASE, APPS_GROUPS_DATABASE, AppType } from "../../common/models/App";
 import { SectionCard } from "../components/SectionCard";
 import { GroupList } from "../components/GroupList";
+import { Navigate } from "../components/Navigate";
 
 type Props = {};
 type State = {};
@@ -22,11 +23,13 @@ export class AppsView extends React.Component<Props, State> {
         return (
             <Grid container spacing={3}>
                 <SectionCard>
-                    <GroupList<App>
-                        groupsDb={APPS_GROUPS_DATABASE}
-                        itemsDb={APPS_DATABASE}
-                        pathBuilder={app => `/${app._id}`}
-                        iconRender={app => <img width="50px" height="50px" src={`/img/${app.icon}`} />} />
+                    <Navigate>{navigate => 
+                        <GroupList<App>
+                            groupsDb={APPS_GROUPS_DATABASE}
+                            itemsDb={APPS_DATABASE}
+                            onClick={({ type, url }) => type === AppType.BuiltIn ? navigate(url) : location.assign(url)}
+                            iconRender={app => <img width="50px" height="50px" src={`/img/${app.icon}`} />} />
+                    }</Navigate>
                 </SectionCard>
             </Grid>
         );

@@ -11,13 +11,15 @@ import { DatabaseManager } from "../../../common/database/DatabaseManager";
 const NAME = "Database";
 
 export interface DatabaseSettings {
-    urlPath: string,
+    baseUrlPath: string,
+    dataUrlPath: string,
     logPath: string,
     configPath: string,
 }
 
 const DEFAULT_SETTINGS: DatabaseSettings = {
-    urlPath: "/database",
+    baseUrlPath: "/database",
+    dataUrlPath: "/data",
     logPath: getPersistentStorageDir("logs") + "database_http.log",
     configPath: getPersistentStorageDir("database") + "config.json",
 }
@@ -29,50 +31,62 @@ export class DatabaseService implements Service {
         name: "Database",
         dependencyBuilders: [HTTPService.Builder],
         build: async (http: HTTPService) => {
-            const { urlPath, logPath, configPath } = await new LocalDatabaseManager().getRecord(SETTINGS_DATABASE, NAME, () => DEFAULT_SETTINGS);
-            return new DatabaseService(urlPath, logPath, configPath, http);
+            const settings = await new LocalDatabaseManager().getRecord(SETTINGS_DATABASE, NAME, () => DEFAULT_SETTINGS);
+            return new DatabaseService(settings, http);
         },
     }
 
     private readonly databaseManager: DatabaseManager;
 
     constructor(
-        private readonly urlPath: string,
-        private readonly logPath: string,
-        private readonly configPath: string, 
+        private readonly settings: DatabaseSettings,
         private readonly httpService: HTTPService) {
-            this.databaseManager = new DatabaseManager(`${httpService.getUrl}${urlPath}`);
+            this.databaseManager = new DatabaseManager(this.getDatabaseUrl());
         }
 
     async start() {
-        const pouchDbApp = expressPouchDB(LocalPouchDb, { logPath: this.logPath, configPath: this.configPath });
+        const { baseUrlPath, dataUrlPath, logPath, configPath } = this.settings;
 
-        this.httpService.getServer().use(this.urlPath, (req, res, next) => {
-            if (req.url.endsWith(FAUXTON_BUNDLE_JS)) {
-                res.send(this.patchFauxtonJs(this.urlPath));
-            } else {
-                return pouchDbApp(req, res, next);
-            }
+        const server = this.httpService.getServer();
+        server.use(baseUrlPath, (req, res, next) => {
+            if (req.url.startsWith(dataUrlPath)) return next();
+            req.url = `${dataUrlPath}/_utils${req.url}`;
+            req.originalUrl = `${baseUrlPath}${req.url}`;
+            next();
         });
+        server.use(`${baseUrlPath}${dataUrlPath}/_utils/${FAUXTON_BUNDLE_JS}`, (req, res) => res.send(this.patchFauxtonJs(baseUrlPath, dataUrlPath)));
+        server.use(baseUrlPath + dataUrlPath, expressPouchDB(LocalPouchDb, { logPath, configPath }));
+
+        /// Make sure the HTTP database server is aware of settings database created without it
+        await this.getDatabaseManager().getDatabase(SETTINGS_DATABASE).getRecords();
         
-        console.log(`>> Serving database at ${this.urlPath}`);
+        console.log(`>> Serving database at ${baseUrlPath}`);
+    }
+
+    getUiUrl() {
+        return `${this.httpService.getUrl()}${this.settings.baseUrlPath}/`;
+    }
+
+    getDatabaseUrl() {
+        return `${this.httpService.getUrl()}${this.settings.baseUrlPath}${this.settings.dataUrlPath}`;
     }
 
     getDatabaseManager() {
         return this.databaseManager;
     }
 
-    private patchFauxtonJs(urlPath: string) {
+    private patchFauxtonJs(baseUrl: string, dataUrl: string) {
+        const databaseUrl = baseUrl + dataUrl;
         // Hot fix of pouchdb-fauxton@0.0.6 to fix issue https://github.com/pouchdb/pouchdb-fauxton/issues/19
         // If pouchdb-fauxton is updated to merge with upstream fixes in Fauxton, this patch won't be required anymore.
         const jsFile = fs.readFileSync(path.join(__dirname, `../../../../node_modules/pouchdb-fauxton/www/${FAUXTON_BUNDLE_JS}`)).toString();
         return jsFile
-            .replace("host:\"../..\"", "host:\"..\"")
-            .replace("root:\"/_utils\"", `root:"${urlPath}/_utils"`)
-            .replace(/url:\"\/_session/g, `url:"${urlPath}/_session`)
-            .replace(/url:\"\/_replicator/g, `url:"${urlPath}/_replicator`)
-            .replace(/window\.location\.origin\+\"\/_replicator/g, `window.location.origin+"${urlPath}/_replicator`)
-            .replace(/url:\"\/_users/g, `url:"${urlPath}/_users`)
-            .replace("window.location.origin+\"/\"+o.default.utils.safeURLName", `window.location.origin+"${urlPath}/"+o.default.utils.safeURLName`)
+            .replace("host:\"../..\"", `host:".${dataUrl}"`)
+            .replace("root:\"/_utils\"", `root:"${baseUrl}"`)
+            .replace(/url:\"\/_session/g, `url:"${databaseUrl}/_session`)
+            .replace(/url:\"\/_replicator/g, `url:"${databaseUrl}/_replicator`)
+            .replace(/window\.location\.origin\+\"\/_replicator/g, `window.location.origin+"${databaseUrl}/_replicator`)
+            .replace(/url:\"\/_users/g, `url:"${databaseUrl}/_users`)
+            .replace("window.location.origin+\"/\"+o.default.utils.safeURLName", `window.location.origin+"${databaseUrl}/"+o.default.utils.safeURLName`)
     }
 }

@@ -28,9 +28,10 @@ import { DeviceDetailViewRouter } from "./views/DeviceDetailView";
 import { Box, Container } from "@mui/material";
 
 //import "./service-worker.js";
-import { DemoDatabaseManagerProvider } from "./database/DemoDatabaseManager";
+import "./database.js";
+import { DatabaseManagerProvider } from "./database/DatabaseManagerProvider";
 import { DatabaseContext } from "./database/DatabaseContext";
-import { NavigateContext } from "./components/NavigateContext";
+import { NavigateContext } from "./components/Navigate";
 import { NotFoundView } from "./views/NotFoundView";
 import { AboutView } from "./views/AboutView";
 import { AppsView } from "./views/AppsView";
@@ -63,7 +64,7 @@ function NavigateProvider({children}: {children: ReactChild[]}) {
 export class Index extends React.Component {
     render() {
         return (
-            <DemoDatabaseManagerProvider>{databaseManager =>
+            <DatabaseManagerProvider databaseUrl={databaseUrl}>{databaseManager =>
                 <DatabaseContext.Provider value={{databaseManager}}>
                     <BrowserRouter>
                         <NavigateProvider>
@@ -118,7 +119,7 @@ export class Index extends React.Component {
                         </NavigateProvider>
                     </BrowserRouter>
                 </DatabaseContext.Provider>
-            }</DemoDatabaseManagerProvider>
+            }</DatabaseManagerProvider>
         );
     }
 }

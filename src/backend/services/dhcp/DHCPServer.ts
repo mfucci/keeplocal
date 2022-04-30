@@ -11,6 +11,7 @@
 
 import arp from "@network-utils/arp-lookup";
 import * as ipUtil from "ip";
+import * as macAddressHelper from "macaddress";
 
 import { DHCPServerMessenger, Request } from "./DHCPMessenger";
 import { Device, DEVICES_DATABASE, IpType } from "../../../common/models/Device";
@@ -70,6 +71,14 @@ export class DHCPServer {
             }
         }
 
+        // Add self if needed
+        const myIp = ipUtil.address();
+        if (!this.ipMap.has(myIp)) {
+            const myMac = (await macAddressHelper.one()).toUpperCase();
+            this.ipMap.set(myIp, myMac);
+            await this.deviceDatabase.addRecord({...createDevice(myMac, IpType.STATIC), name: "keeplocal", ip: myIp, lastSeen: Date.now()});
+        }
+
         // Create Device records for network equipments if they don't exist yet.
         const { dns_ip, dhcp_ip, gateway_ip } = this.settings;
         this.checkStaticDeviceRecord(gateway_ip, "router");
@@ -82,7 +91,7 @@ export class DHCPServer {
         if (ipRecord !== undefined) return;
 
         const mac = (await arp.toMAC(ip))?.toUpperCase();
-        if (mac === undefined) throw new Error("Cannot find network equipment with IP ${ip}");
+        if (mac === undefined) throw new Error(`Cannot find network equipment with IP ${ip}`);
         this.ipMap.set(ip, mac);
         await this.deviceDatabase.addRecord({...createDevice(mac, IpType.STATIC), name, ip, lastSeen: Date.now()});
     }
@@ -95,7 +104,7 @@ export class DHCPServer {
 
     private async handleDiscover(request: Request) {
         const device = await this.getDevice(request);
-        this.messenger.sendOffer(request, this.settings, device.ip as string, this.getRouter(device.permissions.internet));
+        this.messenger.sendOffer(request, this.settings, device.ip as string, this.getRouter(device.permissions?.internet));
     }
 
     private async handleRequest(request: Request) {
@@ -104,7 +113,7 @@ export class DHCPServer {
         if (addressRequested !== device.ip || device.ip === undefined) {
             this.messenger.sendNak(request, this.settings);
         } else {
-            this.messenger.sendAck(request, this.settings, device.ip, this.getRouter(device.permissions.internet));
+            this.messenger.sendAck(request, this.settings, device.ip, this.getRouter(device.permissions?.internet));
         }
     }
 
@@ -114,7 +123,7 @@ export class DHCPServer {
 
     private async getDevice(request: Request) {
         const { mac, hostname, classId } = request;
-        const device = await this.deviceDatabase.getRecord(mac, () => createDevice(mac, IpType.DYNAMIC));
+        const device = await this.deviceDatabase.getRecord(mac, () => createDevice(mac, IpType.DYNAMIC, {internet: true}));
         if (device.ip === undefined) device.ip = await this.assignNewIp(mac);
         await this.deviceDatabase.updateRecord({...device, lastSeen: Date.now(), hostname, classId });
         return device;

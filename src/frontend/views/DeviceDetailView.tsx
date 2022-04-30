@@ -16,7 +16,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { DeviceCategoryIcon, DEVICE_CATEGORIES_LABELS } from "../components/DeviceCategoryUi";
 import { PERMISSION_LABELS } from "../components/PermissionLabels";
 import { EditableLabel } from "../components/EditableLabel";
-import { NavigateContext } from "../components/NavigateContext";
+import { NavigateContext } from "../components/Navigate";
 
 import { Device, DEVICES_DATABASE, DEVICES_GROUPS_DATABASE, DEVICE_CATEGORIES, DEVICE_PERMISSIONS } from "../../common/models/Device";
 import { Group } from "../../common/models/Group";
@@ -98,7 +98,7 @@ export class DeviceDetailView extends React.Component<Props, State> {
 
                     <Grid item xs={6}>
                         <Card style={{height: "100%"}}>
-                            <With value={device}>{({ permissions, pending }) =>
+                            <With value={device}>{({ permissions }) =>
                                 <CardContent>
                                     <Typography gutterBottom variant="h5" component="div" color="primary">Permissions</Typography>
                                     <FormGroup>
@@ -108,7 +108,6 @@ export class DeviceDetailView extends React.Component<Props, State> {
                                                     <FormControlLabel key={permission} control={
                                                         <Switch checked={permissions[permission]} onChange={(event, checked) => update({permissions: {...permissions, [permission]: checked}})}/>
                                                     } label={label} />
-                                                    <If condition={permission in pending}>Update pending</If>
                                                 </If>
                                             }</IterateObject>
                                         </If>

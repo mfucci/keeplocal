@@ -1,17 +1,16 @@
-import { Device, DEVICE_CATEGORIES, IpType } from "../../common/models/Device";
+import { Device, DEVICE_CATEGORIES, IpType, Permissions } from "../../common/models/Device";
 import { UNASSIGNED_GROUP_ID } from "../../common/models/Group";
 import { vendorForMac } from "../utils/MacUtils";
 
-export function createDevice(mac: string, ipType: IpType): Device {
+export function createDevice(mac: string, ipType: IpType, permissions: Permissions = {}): Device {
     return {
         _id: mac,
         name: mac,
         category: DEVICE_CATEGORIES.UNKNOWN,
         vendor: vendorForMac(mac),
         mac,
-        permissions: {},
-        pending: [],
         ipType,
+        permissions,
         groupId: UNASSIGNED_GROUP_ID,
         order: 0,
     };

@@ -42,6 +42,6 @@ export class HTTPService implements Service {
     }
 
     getUrl() {
-        return `http://localhost:${this.port}/`;
+        return `http://localhost:${this.port}`;
     }
 }

@@ -15,11 +15,11 @@ type Props<T extends GroupItem> = {
     groupsDb: string,
     itemsDb: string,
     iconRender: (item: T) => any,
-    pathBuilder: (item: T) => string,
+    onClick: (item: T) => void,
     editOrder?: boolean,
 }
 
-export const GroupList = <T extends GroupItem>({iconRender, pathBuilder: itemPath, groupsDb, itemsDb, editOrder = false}: Props<T>) => (
+export const GroupList = <T extends GroupItem>({iconRender, onClick, groupsDb, itemsDb, editOrder = false}: Props<T>) => (
     <Records<Group> dbName={groupsDb}>{groups =>
         <Records<T> dbName={itemsDb}>{allItems =>
             <Iterate array={groups.sort(sortByOrder).map(group => ({group, items: allItems.filter(item => item.groupId === group._id).sort(sortByOrder)})).filter(({items}) => items.length > 0)}>{({group: {name, _id}, items}, index) =>
@@ -40,7 +40,7 @@ export const GroupList = <T extends GroupItem>({iconRender, pathBuilder: itemPat
                     <Grid container spacing={3} sx={{ mb: 1 }} columns={{ xs: 2, sm: 4, md: 8, lg: 10 }}>
                         <Iterate array={items}>{(item, index) =>
                             <Grid item key={item._id} xs={1} sx={{ width: 80, display: "flex", flexDirection: "column", alignItems: "center", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
-                                <IconButton color="warning" sx={{ width: 60, height: 60 }} component={Link} to={itemPath(item)}>{iconRender(item)}</IconButton>
+                                <IconButton color="warning" sx={{ width: 60, height: 60 }} onClick={() => onClick(item)}>{iconRender(item)}</IconButton>
                                 {item.name}
                                 <If condition={editOrder}>
                                     <OrderController<T> dbName={itemsDb} filter={record => record.groupId === item.groupId}>{controller =>

@@ -32,16 +32,17 @@ export const enum DEVICE_CATEGORIES {
     UNKNOWN = "unknown",
 }
 
+export type Permissions = {
+    [permission in DEVICE_PERMISSIONS]?: boolean;
+};
+
 export interface Device extends GroupItem {
     _id: string,
     name: string,
     category: DEVICE_CATEGORIES,
     vendor: string,
     mac: string,
-    permissions: {
-        [permission in DEVICE_PERMISSIONS]?: boolean;
-    }
-    pending: DEVICE_PERMISSIONS[],
+    permissions: Permissions,
     ipType: IpType,
     lastSeen?: number,
     ip?: string,

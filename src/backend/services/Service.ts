@@ -1,6 +1,6 @@
 
 export interface Service {
-    start(): Promise<void>;
+    start(postLaunchHooks: CallableFunction[]): Promise<void>;
 }
 
 export interface ServiceBuilder<T extends Service> {

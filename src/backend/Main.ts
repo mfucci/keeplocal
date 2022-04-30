@@ -39,7 +39,7 @@ class CommandLineHandler {
         const httpSettings = await localDatabaseManager.getRecord<HTTPSettings>(SETTINGS_DATABASE, HTTPService.Builder.name);
         const databaseSettings = await localDatabaseManager.getRecord<DatabaseSettings>(SETTINGS_DATABASE, DatabaseService.Builder.name);
 
-        return new DatabaseManager(`http://localhost:${httpSettings.port}${databaseSettings.urlPath}`);
+        return new DatabaseManager(`http://localhost:${httpSettings.port}${databaseSettings.baseUrlPath}${databaseSettings.dataUrlPath}`);
     }
 
     async listDevices() {
@@ -52,7 +52,6 @@ class CommandLineHandler {
                 "State",
                 "Hostname",
                 "ClassID",
-                "Changes Pending",
                 "Last seen",
             ],
             ...devices.map(({
@@ -62,7 +61,6 @@ class CommandLineHandler {
                 mac,
                 vendor,
                 permissions,
-                pending,
                 classId,
                 hostname,
                 lastSeen,
@@ -73,7 +71,6 @@ class CommandLineHandler {
                 permissions[DEVICE_PERMISSIONS.INTERNET] ? "GATED" : "UNGATED",
                 hostname ?? "",
                 classId ?? "",
-                pending.length !== 0,
                 lastSeen ? format(lastSeen) : "N/A"
             ]
         )]));

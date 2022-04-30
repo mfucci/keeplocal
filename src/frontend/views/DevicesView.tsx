@@ -16,6 +16,7 @@ import { GroupList } from "../components/GroupList";
 import { SectionCard } from "../components/SectionCard";
 import { Now } from "../components/Now";
 import { isOnline } from "../components/Online";
+import { Navigate } from "../components/Navigate";
 
 type Props = {};
 type State = {
@@ -45,12 +46,14 @@ export class DevicesView extends React.Component<Props, State> {
                 }</Records>
 
                 <SectionCard>
-                    <GroupList<Device>
-                        groupsDb={DEVICES_GROUPS_DATABASE}
-                        itemsDb={DEVICES_DATABASE}
-                        editOrder={editOrder}
-                        pathBuilder={device => `/device/${device._id}`}
-                        iconRender={device => <DeviceCategoryIcon category={device.category} sx={{ width: 40, height: 40 }} />} />
+                    <Navigate>{navigate => 
+                        <GroupList<Device>
+                            groupsDb={DEVICES_GROUPS_DATABASE}
+                            itemsDb={DEVICES_DATABASE}
+                            editOrder={editOrder}
+                            onClick={device => navigate(`/device/${device._id}`)}
+                            iconRender={device => <DeviceCategoryIcon category={device.category} sx={{ width: 40, height: 40 }} />} />
+                    }</Navigate>
                 </SectionCard>
 
                 <SectionCard>

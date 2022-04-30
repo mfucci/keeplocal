@@ -9,11 +9,11 @@
 import PouchDb from "pouchdb";
 
 import { DatabaseManager } from "../../common/database/DatabaseManager";
-import { Device, DEVICES_DATABASE, DEVICES_GROUPS_DATABASE, DEVICE_CATEGORIES } from "../../common/models/Device";
+import { Device, DEVICES_DATABASE, DEVICES_GROUPS_DATABASE, DEVICE_CATEGORIES, IpType } from "../../common/models/Device";
 import { Group, UNASSIGNED_GROUP_ID } from "../../common/models/Group";
-import { App, APPS_DATABASE, APPS_GROUPS_DATABASE } from "../../common/models/App";
-import React from "react";
+import { App, APPS_DATABASE, APPS_GROUPS_DATABASE, AppType } from "../../common/models/App";
 
+const NOW = Date.now();
 
 const DEVICES: Device[] = [
     {
@@ -22,7 +22,8 @@ const DEVICES: Device[] = [
         groupId: "1",
         order: 0,
         category: DEVICE_CATEGORIES.ROUTER,
-        online: true,
+        lastSeen: NOW,
+        ipType: IpType.STATIC,
         ip: "192.168.200.1",
         mac: "26:05:3B:9A:7C:2E",
         vendor: "TP-LINK",
@@ -36,7 +37,8 @@ const DEVICES: Device[] = [
         groupId: "1",
         order: 1,
         category: DEVICE_CATEGORIES.ROUTER_WIFI,
-        online: true,
+        lastSeen: NOW,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.2",
         mac: "1A:D4:8D:53:9F:89",
         vendor: "Asus",
@@ -53,7 +55,8 @@ const DEVICES: Device[] = [
         groupId: "1",
         order: 2,
         category: DEVICE_CATEGORIES.ROUTER_WIFI,
-        online: true,
+        lastSeen: NOW,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.3",
         mac: "F6:E1:15:56:34:C6",
         vendor: "Asus",
@@ -70,7 +73,8 @@ const DEVICES: Device[] = [
         groupId: "1",
         order: 3,
         category: DEVICE_CATEGORIES.ROUTER_WIFI,
-        online: true,
+        lastSeen: NOW,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.4",
         mac: "77:43:4F:3C:49:13",
         vendor: "Asus",
@@ -87,7 +91,8 @@ const DEVICES: Device[] = [
         groupId: "1",
         order: 4,
         category: DEVICE_CATEGORIES.ROUTER,
-        online: true,
+        lastSeen: NOW,
+        ipType: IpType.STATIC,
         ip: "192.168.200.5",
         mac: "5B:10:7D:F4:A7:CB",
         vendor: "Uncloud",
@@ -107,7 +112,8 @@ const DEVICES: Device[] = [
         ip: "192.168.200.6",
         mac: "18:38:6A:7D:F3:85",
         vendor: "Google",
-        online: true,
+        lastSeen: NOW,
+        ipType: IpType.DYNAMIC,
         model: "Pixel 3",
         hostname: "pixel.local",
         permissions: {
@@ -121,7 +127,7 @@ const DEVICES: Device[] = [
         groupId: "2",
         order: 1,
         category: DEVICE_CATEGORIES.LAPTOP,
-        online: false,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.7",
         mac: "7A:0E:9A:B7:EF:51",
         vendor: "HP",
@@ -138,7 +144,8 @@ const DEVICES: Device[] = [
         groupId: "2",
         order: 2,
         category: DEVICE_CATEGORIES.WORKSTATION,
-        online: true,
+        lastSeen: NOW,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.8",
         mac: "72:AF:56:86:C6:F8",
         vendor: "Dell",
@@ -156,7 +163,7 @@ const DEVICES: Device[] = [
         order: 0,
         category: DEVICE_CATEGORIES.PHONE,
         vendor: "Apple",
-        online: true,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.9",
         mac: "4D:3B:AA:AE:9E:C3",
         model: "11",
@@ -173,7 +180,8 @@ const DEVICES: Device[] = [
         order: 1,
         category: DEVICE_CATEGORIES.LAPTOP,
         vendor: "Apple",
-        online: false,
+        lastSeen: NOW,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.10",
         mac: "07:9B:ED:1C:C0:DF",
         model: "MacBook Air",
@@ -190,7 +198,7 @@ const DEVICES: Device[] = [
         order: 2,
         category: DEVICE_CATEGORIES.TABLET,
         vendor: "Apple",
-        online: true,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.11",
         mac: "C3:64:EB:3E:31:F1",
         model: "iPad Pro",
@@ -206,7 +214,8 @@ const DEVICES: Device[] = [
         groupId: "4",
         order: 0,
         category: DEVICE_CATEGORIES.TV,
-        online: true,
+        lastSeen: NOW,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.12",
         mac: "BC:40:91:6A:65:B8",
         vendor: "Sony",
@@ -223,7 +232,8 @@ const DEVICES: Device[] = [
         groupId: "4",
         order: 1,
         category: DEVICE_CATEGORIES.TV,
-        online: true,
+        lastSeen: NOW,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.13",
         mac: "07:50:E0:B1:AF:00",
         vendor: "Sony",
@@ -241,7 +251,8 @@ const DEVICES: Device[] = [
         order: 2,
         category: DEVICE_CATEGORIES.SMART_SPEAKER,
         vendor: "Google",
-        online: true,
+        lastSeen: NOW,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.14",
         mac: "09:A8:49:65:16:13",
         model: "Home",
@@ -258,7 +269,8 @@ const DEVICES: Device[] = [
         order: 0,
         category: DEVICE_CATEGORIES.HUB,
         vendor: "Ring",
-        online: true,
+        lastSeen: NOW,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.15",
         mac: "2B:E7:BA:76:9B:A8",
         model: "Base station v3",
@@ -275,7 +287,8 @@ const DEVICES: Device[] = [
         order: 1,
         category: DEVICE_CATEGORIES.CAMERA,
         vendor: "Ring",
-        online: true,
+        lastSeen: NOW,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.16",
         mac: "98:7D:68:48:67:80",
         model: "Outpro Pro 2",
@@ -288,9 +301,11 @@ const DEVICES: Device[] = [
     {
         _id: "8B:64:A7:51:D8:64",
         name: "8B:64:A7:51:D8:64",
+        category: DEVICE_CATEGORIES.UNKNOWN,
         groupId: UNASSIGNED_GROUP_ID,
         order: 0,
-        online: true,
+        lastSeen: NOW,
+        ipType: IpType.DYNAMIC,
         ip: "192.168.200.17",
         mac: "8B:64:A7:51:D8:64",
         vendor: "Roborock",
@@ -315,99 +330,127 @@ const APPS: App[] = [
         _id: "app/create",
         name: "Create",
         icon: "create.png",
+        url: "/app/create",
         groupId: "2",
         order: 0,
+        type: AppType.BuiltIn,
     },
     {
         _id: "app/install",
         name: "Install",
         icon: "install.png",
+        url: "/app/install",
         groupId: "2",
         order: 1,
+        type: AppType.BuiltIn,
     },
     {
         _id: "adblocker",
         name: "Ad Blocker",
         icon: "adblocker.svg",
+        url: "/adblocker",
         groupId: "1",
         order: 0,
+        type: AppType.BuiltIn,
     },
     {
         _id: "dhcp_server",
         name: "DHCP Server",
         icon: "dhcp_server.png",
+        url: "/dhcp_server",
         groupId: "0",
         order: 0,
+        type: AppType.BuiltIn,
     },
     {
         _id: "home_automation",
         name: "Home Automation",
         icon: "home_automation.png",
+        url: "/home_automation",
         groupId: "1",
         order: 1,
+        type: AppType.BuiltIn,
     },
     {
         _id: "home_security",
         name: "Home Security",
         icon: "home_security.png",
+        url: "/home_security",
         groupId: "1",
         order: 2,
+        type: AppType.BuiltIn,
     },
     {
         _id: "file_storage",
         name: "File Storage",
         icon: "file_storage.png",
+        url: "/file_storage",
         groupId: "1",
         order: 3,
+        type: AppType.BuiltIn,
     },
     {
         _id: "media_server",
         name: "Media Server",
         icon: "media_server.png",
+        url: "/media_server",
         groupId: "1",
         order: 4,
+        type: AppType.BuiltIn,
     },
     {
         _id: "router",
         name: "Router",
         icon: "router.png",
+        url: "/router",
         groupId: "0",
         order: 1,
+        type: AppType.BuiltIn,
     },
     {
         _id: "network_security",
         name: "Network Security",
         icon: "network_security.png",
+        url: "/network_security",
         groupId: "1",
         order: 5,
+        type: AppType.BuiltIn,
     },
     {
         _id: "parental_control",
         name: "Parental Control",
         icon: "parental_control.svg",
+        url: "/parental_control",
         groupId: "1",
         order: 6,
+        type: AppType.BuiltIn,
     },
     {
         _id: "passwords",
         name: "Passwords",
         icon: "passwords.png",
+        url: "/passwords",
         groupId: "1",
         order: 7,
+        type: AppType.BuiltIn,
     },
     {
         _id: "print_scan",
         name: "Print & Scan",
         icon: "print_scan.png",
+        url: "/print_scan",
         groupId: "1",
         order: 8,
+        type: AppType.BuiltIn,
     },
     {
         _id: "voice_assistant",
         name: "Voice Assistant",
         icon: "voice_assistant.jpg",
+        url: "/voice_assistant",
         groupId: "1",
         order: 9,
+        type: AppType.BuiltIn,
     },
 ];
 
@@ -439,34 +482,5 @@ export class DemoDatabaseManager extends DatabaseManager {
         await this.clearAndFillDb(DEVICES_GROUPS_DATABASE, DEVICES_GROUPS);
         await this.clearAndFillDb(APPS_DATABASE, APPS);
         await this.clearAndFillDb(APPS_GROUPS_DATABASE, APPS_GROUPS);
-    }
-}
-
-type Props = {
-    children: (manager: DemoDatabaseManager) => any,
-};
-
-type State = {
-    ready: boolean,
-}
-
-export class DemoDatabaseManagerProvider extends React.Component<Props, State> {
-    private manager: DemoDatabaseManager = new DemoDatabaseManager();
-
-    constructor(props: Props) {
-        super(props);
-        this.state = {ready: false};
-    }
-
-    async componentDidMount() {
-        await this.manager.init();
-        this.setState({ready: true});
-    }
-
-
-    render() {
-        const { ready, children } = { ...this.state, ...this.props };
-        if (!ready) return null;
-        return children(this.manager);
     }
 }

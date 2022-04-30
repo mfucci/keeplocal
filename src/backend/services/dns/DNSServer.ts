@@ -9,7 +9,6 @@
 import { EventEmitter } from "events";
 
 import { DHCPServer } from "../dhcp/DHCPServer";
-import { Settings } from "../../utils/Settings";
 import { DNSMessenger, Request } from "./DNSMessenger";
 import { DnsProxy } from "./DNSProxy";
 
@@ -17,8 +16,6 @@ const TTL = 30 * 60; // 30 mn
 const PORT = 53;
 
 export class DnsServer extends EventEmitter {
-  private readonly settings = new Settings("dhcp");
-  private readonly nameToMac = this.settings.getSetting<Record<string, string>>("devices");
   private readonly dnsMessenger: DNSMessenger = new DNSMessenger(PORT);
   private readonly dnsProxy: DnsProxy;
 
@@ -34,20 +31,11 @@ export class DnsServer extends EventEmitter {
       .catch(console.error);
   }
 
-  addName(name: string, mac: string) {
-    this.nameToMac[name] = mac;
-    this.settings.save();
-  }
-
   private async handleRequest(request: Request) {
     const { name, type } = request;
-    const resolvedMac = this.nameToMac[name];
 
-    if (resolvedMac === undefined) {
-      // no entry, proxy DNS request to downstream DNS server
-      this.dnsProxy.handleRequest(request);
-      return;
-    }
+    this.dnsProxy.handleRequest(request);
+    return;
 
     /*const device = this.dhcpServer.getDeviceByMac(resolvedMac);
     if (device === undefined) return;
