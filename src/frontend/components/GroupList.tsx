@@ -40,7 +40,7 @@ export const GroupList = <T extends GroupItem>({iconRender, onClick, groupsDb, i
                         <Iterate array={items}>{(item, index) =>
                             <Grid item key={item._id} xs={1} sx={{ width: 80, display: "flex", flexDirection: "column", alignItems: "center" }}>
                                 <IconButton color="warning" sx={{ width: 60, height: 60 }} onClick={() => onClick(item)}>{iconRender(item)}</IconButton>
-                                <Typography sx={{ overflow: "hidden", textOverflow: "ellipsis", textAlign: "center", width: 120 }} variant="caption">{item.name}</Typography>
+                                <Typography sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textAlign: "center", width: 120 }} variant="caption">{item.name}</Typography>
                                 <If condition={editOrder}>
                                     <OrderController<T> dbName={itemsDb} filter={record => record.groupId === item.groupId}>{controller =>
                                         <div>
