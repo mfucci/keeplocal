@@ -137,6 +137,7 @@ export class DHCPServer {
         while (true) {
             const proposedIp = prefix + ipAddress;
             if (!this.ipMap.has(proposedIp)) {
+                this.ipMap.set(proposedIp, mac);
                 return proposedIp;
             }
             ipAddress++;
