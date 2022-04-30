@@ -51,6 +51,21 @@ export class GroupController<T extends GroupItem> extends React.Component<Props<
         return groupId;
     }
 
+    async moveItemToGroup(groupId: string, itemId: string) {
+        const { databaseManager, groupsDb, itemsDb } = { ...this.context, ...this.state, ...this.props };
+
+        await databaseManager.withDatabase<T>(itemsDb, async database => {
+            const item = await database.getRecord(itemId);
+            const items = (await database.getRecords()).filter(item => item.groupId === groupId).sort(sortByOrder);
+            var order = 0;
+            items.forEach(item => item.order = order++);
+            item.order = order;
+            item.groupId = groupId;
+            items.push(item);
+            await database.updateRecords(items);
+        });
+    }
+
     render() {
         const { children } = this.props;
         return children(this);

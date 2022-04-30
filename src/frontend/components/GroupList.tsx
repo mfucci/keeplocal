@@ -37,7 +37,7 @@ export const GroupList = <T extends GroupItem>({iconRender, onClick, groupsDb, i
                         </If>
                     </Typography>
 
-                    <Grid container spacing={3} sx={{ mb: 1 }} columns={{ xs: 2, sm: 4, md: 8, lg: 10 }}>
+                    <Grid container spacing={3} sx={{ mb: 1 }} columns={{ xs: 2, sm: 4, md: 8 }}>
                         <Iterate array={items}>{(item, index) =>
                             <Grid item key={item._id} xs={1} sx={{ width: 80, display: "flex", flexDirection: "column", alignItems: "center", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
                                 <IconButton color="warning" sx={{ width: 60, height: 60 }} onClick={() => onClick(item)}>{iconRender(item)}</IconButton>

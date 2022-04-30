@@ -27,6 +27,14 @@ export class OrderController<T extends Ordered> extends React.Component<Props<T>
             // Swap order value between the two groups
             const item = records[index];
             const itemToSwap = records[index + offset];
+
+            if (itemToSwap.order == item.order) {
+                // We need to reassign all order index
+                var order = 0;
+                records.forEach(record => record.order = order++);
+                await database.updateRecords(records);
+            }
+
             const tempOrder = itemToSwap.order;
             itemToSwap.order = item.order;
             item.order = tempOrder;
