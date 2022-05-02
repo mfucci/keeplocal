@@ -114,6 +114,7 @@ function toDHCPMessage(packet: Packet) {
 }
 
 function addParameters(request: Request, packet: Packet, settings: DHCPSettings, routerIp: string) {
+    packet.siaddr = settings.dhcp_ip;
     packet.options.push(new DHCPServerIdOption(settings.dhcp_ip));
     packet.options.push(new AddressTimeOption(settings.ip_lease_time_s));
 
