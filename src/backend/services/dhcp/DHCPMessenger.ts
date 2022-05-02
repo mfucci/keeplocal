@@ -119,9 +119,9 @@ function addParameters(request: Request, packet: Packet, settings: DHCPSettings,
     packet.options.push(new AddressTimeOption(settings.ip_lease_time_s));
 
     // TODO: reply hostname
-    /*if (request.hostname) {
+    if (request.hostname) {
         packet.options.push(new HostnameOption(request.hostname));
-    }*/
+    }
 
     request.parameterRequestList?.forEach(parameter => {
         switch (parameter) {
