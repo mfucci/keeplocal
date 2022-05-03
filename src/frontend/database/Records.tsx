@@ -33,6 +33,15 @@ export class Records<T> extends React.Component<Props<T>, State<T>> {
         this.setState({ values: await database.getRecords() });
     }
 
+    componentDidUpdate({dbName: prevDbName}: Props<T>) {
+        const { dbName } = this.props;
+        if (prevDbName !== dbName) {
+            this.componentWillUnmount();
+            this.componentDidMount();
+            return;
+        }
+    }
+
     private async handleUpdate(id: string, value?: Entry<T>) {
         const { values } = this.state;
         if (values === undefined) return;

@@ -13,7 +13,7 @@ import { DatabaseContext } from "./DatabaseContext";
 
 type Props<T> = {
     dbName: string,
-    id: string,
+    id?: string,
     children: (value: T, update: (update: Partial<T>) => void, remove: () => void) => any,
 };
 
@@ -33,13 +33,22 @@ export class Record<T> extends React.Component<Props<T>, State<T>> {
 
     componentDidMount() {
         const { databaseManager, dbName, id } = {...this.props, ...this.context};
+        if (id === undefined) return;
         const database = databaseManager.getDatabase<T>(dbName);
         database.onRecordChange(id, value => this.handleValueUpdate(value));
         this.setState({ database });
     }
 
+    componentDidUpdate({dbName: prevDbName, id: prevId}: Props<T>) {
+        const { dbName, id } = this.props;
+        if (prevDbName !== dbName || prevId !== id) {
+            this.componentWillUnmount();
+            this.componentDidMount();
+            return;
+        }
+    }
+
     private handleValueUpdate(value?: Entry<T>) {
-        const { dbName, id } = {...this.props, ...this.context};
         this.setState({ value });
     }
 
@@ -51,7 +60,7 @@ export class Record<T> extends React.Component<Props<T>, State<T>> {
 
     private async remove() {
         const { database, id } = {...this.state, ...this.props};
-        if (database === undefined) return;
+        if (database === undefined || id === undefined) return;
         await database.remove(id);
     }
 
