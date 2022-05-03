@@ -9,5 +9,5 @@
     "strict": true,
     "jsx": "react"
   },
-  "include": ["**/*.tsx", "*.d.ts"]
+  "include": ["**/*.tsx", "dts/*.d.ts" ]
 }

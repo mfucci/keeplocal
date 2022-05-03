@@ -1,3 +1,11 @@
+/**
+ * Database API wrapper to provide high level fonctionalities wihtout relying on the database system.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { DatabaseManager } from "./DatabaseManager";
 
 export type Entry<T> = PouchDB.Core.ExistingDocument<T>;

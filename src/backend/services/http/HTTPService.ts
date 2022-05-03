@@ -1,3 +1,11 @@
+/**
+ * HTTP service that can be used to serve other services over HTTP.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { LocalDatabaseManager } from "../database/LocalDatabaseManager";
 import { Service, ServiceBuilder } from "../Service";
 import express from "express";

@@ -1,5 +1,5 @@
 /** 
- * Connects to a remote database.
+ * Connects to a remote or local database.
  * 
  * @license
  * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)

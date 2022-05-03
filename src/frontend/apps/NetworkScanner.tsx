@@ -74,4 +74,3 @@ export class NetworkScannerCard extends React.Component<Props, State> {
         );
     }
 }
- 

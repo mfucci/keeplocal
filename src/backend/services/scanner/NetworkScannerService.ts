@@ -1,3 +1,11 @@
+/**
+ * Network scanning service that can be used to discover all devices on the subnet.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { Service, ServiceBuilder } from "../Service";
 import { DatabaseService } from "../database/DatabaseService";
 import { ScanRequest as ScanRequest, NETWORK_SCAN_DATABASE as NETWORK_SCAN_DATABASE } from "../../../common/models/NetworkScan";
@@ -90,7 +98,7 @@ export class NetworkScannerService implements Service {
                 }
 
                 // Create a new device
-                const newDevice = await deviceDatabase.addRecord({...createDevice(mac, IpType.STATIC), ip});
+                const newDevice = await deviceDatabase.addRecord({...createDevice(mac, IpType.STATIC), ip, lastSeen: Date.now()});
                 devicesByIp.set(ip, newDevice);
                 devicesByMac.set(mac, newDevice);
             });

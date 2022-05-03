@@ -1,3 +1,11 @@
+/**
+ * Frontend service serving keeplocal UI.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { Service, ServiceBuilder } from "../Service";
 import { HTTPService } from "../http/HTTPService";
 import express from "express";
