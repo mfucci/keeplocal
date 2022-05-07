@@ -7,24 +7,34 @@
  */
 
 import { EventEmitter } from "events";
-
-import { DHCPServer } from "../dhcp/DHCPServer";
+import { DatabaseManager } from "../../../common/database/DatabaseManager";
+import { Device, DEVICES_DATABASE, IpType } from "../../../common/models/Device";
+import { LoggerService, NetworkEventLogger } from "../logger/LoggerService";
 import { DNSMessenger, Request } from "./DNSMessenger";
 import { DnsProxy } from "./DNSProxy";
 
 const TTL = 30 * 60; // 30 mn
-const PORT = 53;
+const PORT = 3000;
+
+export interface DNSEvent {
+  name: string; 
+  type: string;
+}
 
 export class DnsServer extends EventEmitter {
   private readonly dnsMessenger: DNSMessenger = new DNSMessenger(PORT);
   private readonly dnsProxy: DnsProxy;
-
-  constructor(downstreamDnsServer: string, readonly dhcpServer: DHCPServer) {
+  private readonly logger: NetworkEventLogger<DNSEvent>;
+  constructor(
+    downstreamDnsServer: string, 
+    readonly loggerService: LoggerService, 
+    readonly databaseManager: DatabaseManager
+  ) {
     super();
     this.dnsProxy = new DnsProxy(this.dnsMessenger, downstreamDnsServer);
     this.dnsMessenger.on("request", request => this.handleRequest(request));
+    this.logger = this.loggerService.getNetworkEventLogger('DNS');
   }
-
   start() {
     this.dnsMessenger.start()
       .then(server => console.log(`DNS server listening on ${server.address}:${server.port}...`))
@@ -32,8 +42,16 @@ export class DnsServer extends EventEmitter {
   }
 
   private async handleRequest(request: Request) {
-    const { name, type } = request;
-
+    const { name, type, query: { _client: {family, address} } } = request;
+    const devices = await this.databaseManager.withDatabase<Device, Device[]>(DEVICES_DATABASE, async database => await database.getRecords())
+    const device = devices.find((d) => d?.ip === address);
+    //TODO need arp.
+    if (device) {
+      this.loggerService.getNetworkEventLogger('DNS').log(Date.now(), device, {
+        name,
+        type
+      })
+    }
     this.dnsProxy.handleRequest(request);
     return;
 

@@ -15,7 +15,12 @@ import { DnsService } from "../dns/DnsService";
 export class DaemonService implements Service {
     static Builder: ServiceBuilder<DaemonService> = {
         name: "Daemon",
-        dependencyBuilders: [FrontService.Builder, /* DHCPService.Builder ,*/ NetworkScannerService.Builder, DnsService.Builder],
+        dependencyBuilders: [
+            FrontService.Builder, 
+            DHCPService.Builder, 
+            NetworkScannerService.Builder, 
+            DnsService.Builder
+        ],
         build: async () => new DaemonService(),
     }
 

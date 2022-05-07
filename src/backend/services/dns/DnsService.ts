@@ -12,6 +12,7 @@ import { DatabaseService } from "../database/DatabaseService";
 import { LoggerService } from "../logger/LoggerService";
 import { APPS_DATABASE, AppType } from "../../../common/models/App";
 import { INSTALLED_GROUP_ID } from "../frontend/FrontendService";
+import { DnsServer } from "./DNSServer";
 
 const NAME = "DNS";
 
@@ -25,20 +26,27 @@ const DEFAULT_SETTINGS: DnsSettings = {
 export class DnsService implements Service {
     static Builder: ServiceBuilder<DnsService> = {
         name: NAME,
-        dependencyBuilders: [DatabaseService.Builder, LoggerService.Builder],
+        dependencyBuilders: [
+            DatabaseService.Builder, 
+            LoggerService.Builder
+        ],
         build: async (databaseService: DatabaseService, loggerService: LoggerService) => new DnsService(databaseService, loggerService),
     }
 
     private readonly databaseManager;
+    private readonly server: DnsServer;
 
-    constructor(databaseService: DatabaseService,
-            private readonly loggerService: LoggerService) {
+    constructor(
+        databaseService: DatabaseService,
+        private readonly loggerService: LoggerService
+    ) {
         this.databaseManager = databaseService.getDatabaseManager();
+        this.server = new DnsServer('1.1.1.1', this.loggerService, this.databaseManager);
     }
 
     async start() {
         await this.databaseManager.getRecord(APPS_DATABASE, "dns", () => ({_id: "dns", name: "DNS", icon: "dns.png", type: AppType.External, url: "/dns", groupId: INSTALLED_GROUP_ID, order: 0}));
-
         console.log(">> DNS service started");
+        this.server.start();
     }
 }
