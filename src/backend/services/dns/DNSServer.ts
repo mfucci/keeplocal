@@ -14,7 +14,7 @@ import { DNSMessenger, Request } from "./DNSMessenger";
 import { DnsProxy } from "./DNSProxy";
 
 const TTL = 30 * 60; // 30 mn
-const PORT = 3000;
+const PORT = 53;
 
 export interface DNSEvent {
   name: string; 
