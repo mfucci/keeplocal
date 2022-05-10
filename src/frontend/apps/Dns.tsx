@@ -9,8 +9,11 @@
 import { Grid } from "@mui/material";
 import React from "react";
 import { SectionCard } from "../components/SectionCard";
+import { Records } from "../database/Records";
+import { NetworkEventLog, NETWORK_EVENT_DATABASE } from "../../common/models/NetworkEvent";
 
 import "./icons/dns.png";
+import { Iterate } from "../react/Iterate";
 
 type Props = {};
 type State = {};
@@ -25,7 +28,11 @@ export class Dns extends React.Component<Props, State> {
                 </SectionCard>
 
                 <SectionCard>
-                    TODO: add something here.
+                    <Records<NetworkEventLog<{}>> dbName={NETWORK_EVENT_DATABASE}>{events =>
+                        <Iterate array={events}>{event => 
+                            JSON.stringify(event)
+                        }</Iterate>
+                    }</Records>
                 </SectionCard>
             </Grid>
         );

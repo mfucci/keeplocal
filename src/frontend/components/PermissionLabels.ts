@@ -6,10 +6,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { DEVICE_PERMISSIONS } from "../../common/models/Device";
+import { DevicePermission } from "../../common/models/Device";
 
 // Note: this array defines the display order
-export const PERMISSION_LABELS: {[permission in DEVICE_PERMISSIONS]: string} = {
-    [DEVICE_PERMISSIONS.INTERNET]: "Internet",
-    [DEVICE_PERMISSIONS.LOCAL_NETWORK]: "Local network",
+export const PERMISSION_LABELS: {[permission in DevicePermission]: string} = {
+    [DevicePermission.INTERNET]: "Internet",
+    [DevicePermission.LOCAL_NETWORK]: "Local network",
 };

@@ -46,7 +46,7 @@ export class Database<T> {
     }
 
     async getRecords() {
-        return (await this.underlyingDatabase.allDocs({ include_docs: true })).rows.map(row => row.doc) as PouchDB.Core.ExistingDocument<T>[];
+        return (await this.underlyingDatabase.allDocs({ include_docs: true })).rows.map(row => row.doc) as Entry<T>[];
     }
 
     async addRecord(value: NewEntry<T>): Promise<Entry<T>> {
@@ -58,9 +58,21 @@ export class Database<T> {
         await this.underlyingDatabase.bulkDocs(values);
     }
 
-    async updateRecord(value: Entry<T>): Promise<Entry<T>> {
-        const response = await this.underlyingDatabase.put(value);
-        return {...value, _rev: response.rev};
+    async updateRecord(id: string, update: ((value: Entry<T>) => void) | Partial<T>): Promise<Entry<T>> {
+        while (true) {
+            try {
+                var value = await this.underlyingDatabase.get(id);
+                if (typeof update === "function") {
+                    update(value);
+                } else {
+                    value = { ...value, ...update};
+                }
+                const response = await this.underlyingDatabase.put(value);
+                return {...value, _rev: response.rev};
+            } catch (error: any) {
+                if (error.name !== "conflict") throw error;
+            }
+        }
     }
 
     async updateRecords(values: Entry<T>[]) {

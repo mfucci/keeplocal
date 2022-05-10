@@ -9,7 +9,7 @@
 import PouchDb from "pouchdb";
 
 import { DatabaseManager } from "../../common/database/DatabaseManager";
-import { Device, DEVICES_DATABASE, DEVICES_GROUPS_DATABASE, DEVICE_CATEGORIES, IpType } from "../../common/models/Device";
+import { Device, DEVICES_DATABASE, DEVICES_GROUPS_DATABASE, DeviceCategory, IpType } from "../../common/models/Device";
 import { Group, UNASSIGNED_GROUP_ID } from "../../common/models/Group";
 import { App, APPS_DATABASE, APPS_GROUPS_DATABASE, AppType } from "../../common/models/App";
 
@@ -21,7 +21,7 @@ const DEVICES: Device[] = [
         name: "Gateway",
         groupId: "1",
         order: 0,
-        category: DEVICE_CATEGORIES.ROUTER,
+        category: DeviceCategory.ROUTER,
         lastSeen: NOW,
         ipType: IpType.STATIC,
         ip: "192.168.200.1",
@@ -30,13 +30,14 @@ const DEVICES: Device[] = [
         model: "SRT-2375",
         hostname: "gateway.local",
         permissions: {},
+        services: [],
     },
     {
         _id: "1A:D4:8D:53:9F:89",
         name: "Kitchen",
         groupId: "1",
         order: 1,
-        category: DEVICE_CATEGORIES.ROUTER_WIFI,
+        category: DeviceCategory.ROUTER_WIFI,
         lastSeen: NOW,
         ipType: IpType.DYNAMIC,
         ip: "192.168.200.2",
@@ -47,14 +48,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: true,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "F6:E1:15:56:34:C6",
         name: "Downstairs",
         groupId: "1",
         order: 2,
-        category: DEVICE_CATEGORIES.ROUTER_WIFI,
+        category: DeviceCategory.ROUTER_WIFI,
         lastSeen: NOW,
         ipType: IpType.DYNAMIC,
         ip: "192.168.200.3",
@@ -65,14 +67,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: true,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "77:43:4F:3C:49:13",
         name: "In-law",
         groupId: "1",
         order: 3,
-        category: DEVICE_CATEGORIES.ROUTER_WIFI,
+        category: DeviceCategory.ROUTER_WIFI,
         lastSeen: NOW,
         ipType: IpType.DYNAMIC,
         ip: "192.168.200.4",
@@ -83,14 +86,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: true,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "5B:10:7D:F4:A7:CB",
         name: "SafeGate",
         groupId: "1",
         order: 4,
-        category: DEVICE_CATEGORIES.ROUTER,
+        category: DeviceCategory.ROUTER,
         lastSeen: NOW,
         ipType: IpType.STATIC,
         ip: "192.168.200.5",
@@ -101,14 +105,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: true,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "18:38:6A:7D:F3:85",
         name: "Pixel",
         groupId: "2",
         order: 0,
-        category: DEVICE_CATEGORIES.PHONE,
+        category: DeviceCategory.PHONE,
         ip: "192.168.200.6",
         mac: "18:38:6A:7D:F3:85",
         vendor: "Google",
@@ -119,14 +124,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: true,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "7A:0E:9A:B7:EF:51",
         name: "HP",
         groupId: "2",
         order: 1,
-        category: DEVICE_CATEGORIES.LAPTOP,
+        category: DeviceCategory.LAPTOP,
         ipType: IpType.DYNAMIC,
         ip: "192.168.200.7",
         mac: "7A:0E:9A:B7:EF:51",
@@ -136,14 +142,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: true,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "72:AF:56:86:C6:F8",
         name: "Workstation",
         groupId: "2",
         order: 2,
-        category: DEVICE_CATEGORIES.WORKSTATION,
+        category: DeviceCategory.WORKSTATION,
         lastSeen: NOW,
         ipType: IpType.DYNAMIC,
         ip: "192.168.200.8",
@@ -154,14 +161,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: true,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "4D:3B:AA:AE:9E:C3",
         name: "iPhone",
         groupId: "3",
         order: 0,
-        category: DEVICE_CATEGORIES.PHONE,
+        category: DeviceCategory.PHONE,
         vendor: "Apple",
         ipType: IpType.DYNAMIC,
         ip: "192.168.200.9",
@@ -171,14 +179,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: true,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "07:9B:ED:1C:C0:DF",
         name: "MacBook",
         groupId: "3",
         order: 1,
-        category: DEVICE_CATEGORIES.LAPTOP,
+        category: DeviceCategory.LAPTOP,
         vendor: "Apple",
         lastSeen: NOW,
         ipType: IpType.DYNAMIC,
@@ -189,14 +198,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: true,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "C3:64:EB:3E:31:F1",
         name: "iPad",
         groupId: "3",
         order: 2,
-        category: DEVICE_CATEGORIES.TABLET,
+        category: DeviceCategory.TABLET,
         vendor: "Apple",
         ipType: IpType.DYNAMIC,
         ip: "192.168.200.11",
@@ -206,14 +216,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: true,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "BC:40:91:6A:65:B8",
         name: "TV Room",
         groupId: "4",
         order: 0,
-        category: DEVICE_CATEGORIES.TV,
+        category: DeviceCategory.TV,
         lastSeen: NOW,
         ipType: IpType.DYNAMIC,
         ip: "192.168.200.12",
@@ -224,14 +235,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: false,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "07:50:E0:B1:AF:00",
         name: "In-law",
         groupId: "4",
         order: 1,
-        category: DEVICE_CATEGORIES.TV,
+        category: DeviceCategory.TV,
         lastSeen: NOW,
         ipType: IpType.DYNAMIC,
         ip: "192.168.200.13",
@@ -242,14 +254,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: false,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "09:A8:49:65:16:13",
         name: "Kitchen",
         groupId: "4",
         order: 2,
-        category: DEVICE_CATEGORIES.SMART_SPEAKER,
+        category: DeviceCategory.SMART_SPEAKER,
         vendor: "Google",
         lastSeen: NOW,
         ipType: IpType.DYNAMIC,
@@ -260,14 +273,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: true,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "2B:E7:BA:76:9B:A8",
         name: "BaseStation",
         groupId: "5",
         order: 0,
-        category: DEVICE_CATEGORIES.HUB,
+        category: DeviceCategory.HUB,
         vendor: "Ring",
         lastSeen: NOW,
         ipType: IpType.DYNAMIC,
@@ -278,14 +292,15 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: true,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "98:7D:68:48:67:80",
         name: "Gate",
         groupId: "5",
         order: 1,
-        category: DEVICE_CATEGORIES.CAMERA,
+        category: DeviceCategory.CAMERA,
         vendor: "Ring",
         lastSeen: NOW,
         ipType: IpType.DYNAMIC,
@@ -296,12 +311,13 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: true,
             internet: true,
-        }
+        },
+        services: [],
     },
     {
         _id: "8B:64:A7:51:D8:64",
         name: "8B:64:A7:51:D8:64",
-        category: DEVICE_CATEGORIES.UNKNOWN,
+        category: DeviceCategory.UNKNOWN,
         groupId: UNASSIGNED_GROUP_ID,
         order: 0,
         lastSeen: NOW,
@@ -312,7 +328,8 @@ const DEVICES: Device[] = [
         permissions: {
             local_network: false,
             internet: true,
-        }
+        },
+        services: [],
     },
 ];
 

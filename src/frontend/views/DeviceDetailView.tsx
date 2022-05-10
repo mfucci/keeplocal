@@ -18,7 +18,7 @@ import { PERMISSION_LABELS } from "../components/PermissionLabels";
 import { EditableLabel } from "../components/EditableLabel";
 import { NavigateContext } from "../components/Navigate";
 
-import { Device, DEVICES_DATABASE, DEVICES_GROUPS_DATABASE, DEVICE_CATEGORIES, DEVICE_PERMISSIONS } from "../../common/models/Device";
+import { Device, DEVICES_DATABASE, DEVICES_GROUPS_DATABASE, DeviceCategory, DevicePermission } from "../../common/models/Device";
 import { Group } from "../../common/models/Group";
 
 import { IterateObject } from "../react/Iterate";
@@ -63,7 +63,7 @@ export class DeviceDetailView extends React.Component<Props, State> {
                                     <div style={{lineHeight: "36px"}}>Vendor: <EditableLabel initialValue={vendor} onChange={vendor => update({vendor})} /></div>
                                     <div style={{lineHeight: "36px"}}>Model: <EditableLabel initialValue={model} onChange={model => update({model})} /></div>
                                     <div style={{lineHeight: "36px"}}>Category:
-                                        <SelectControl<DEVICE_CATEGORIES> value={category} onChange={category => update({category})} sx={{ marginLeft: "5px" }}>
+                                        <SelectControl<DeviceCategory> value={category} onChange={category => update({category})} sx={{ marginLeft: "5px" }}>
                                             {Object.entries(DEVICE_CATEGORIES_LABELS).map(([key, label]) => ({key, label}))}
                                         </SelectControl>
                                     </div>
@@ -103,7 +103,7 @@ export class DeviceDetailView extends React.Component<Props, State> {
                                     <Typography gutterBottom variant="h5" component="div" color="primary">Permissions</Typography>
                                     <FormGroup>
                                         <If condition={Object.entries(permissions).length !== 0} otherwise="Permissions cannot be controlled on this device.">
-                                            <IterateObject<DEVICE_PERMISSIONS, string> object={PERMISSION_LABELS}>{(permission, label) =>
+                                            <IterateObject<DevicePermission, string> object={PERMISSION_LABELS}>{(permission, label) =>
                                                 <If key={permission} condition={permissions[permission] !== undefined}>
                                                     <FormControlLabel key={permission} control={
                                                         <Switch checked={permissions[permission]} onChange={(event, checked) => update({permissions: {...permissions, [permission]: checked}})}/>

@@ -25,8 +25,16 @@ export class DatabaseManager {
         return await this.withDatabase<T, T>(name, database => database.getRecord(id, defaultProvider));
     }
 
+    async getRecords<T>(name: string) {
+        return await this.withDatabase<T, Entry<T>[]>(name, database => database.getRecords());
+    }
+
     async addRecord<T>(name: string, value: NewEntry<T>): Promise<Entry<T>> {
         return await this.withDatabase<T, Entry<T>>(name, database => database.addRecord(value));
+    }
+
+    async updateRecord<T>(name: string, id: string, update: ((value: Entry<T>) => void) | Partial<T>): Promise<Entry<T>> {
+        return await this.withDatabase<T, Entry<T>>(name, database => database.updateRecord(id, update));
     }
 
     async withDatabase<T, R = void>(name: string, operation: (database: Database<T>) => Promise<R>): Promise<R> {

@@ -19,7 +19,7 @@ import { DatabaseManager } from "../../../common/database/DatabaseManager";
 import { DHCPService, DHCPSettings } from "./DHCPService";
 import { Database } from "../../../common/database/Database";
 import { SETTINGS_DATABASE } from "../../../common/models/Setting";
-import { createDevice } from "../../common/DeviceCreator";
+import { createNew } from "../../common/DeviceUtils";
 
 export const SUBNET_MASK = "255.255.255.0";
 
@@ -64,7 +64,7 @@ export class DHCPServer {
                 if (ipType === IpType.STATIC) {
                     throw new Error(`IP ${ip} is assigned to 2 devices using static IPs`);
                 } else {
-                    await this.deviceDatabase.updateRecord({...device, ip: undefined});
+                    await this.deviceDatabase.updateRecord(device._id, {ip: undefined});
                 }
             } else {
                 this.ipMap.set(ip, mac);
@@ -76,7 +76,7 @@ export class DHCPServer {
         if (!this.ipMap.has(myIp)) {
             const myMac = (await macAddressHelper.one()).toUpperCase();
             this.ipMap.set(myIp, myMac);
-            await this.deviceDatabase.addRecord({...createDevice(myMac, IpType.STATIC), name: "keeplocal", ip: myIp, lastSeen: Date.now()});
+            await this.deviceDatabase.addRecord({...createNew(myMac, IpType.STATIC), name: "keeplocal", ip: myIp, lastSeen: Date.now()});
         }
 
         // Create Device records for network equipments if they don't exist yet.
@@ -93,7 +93,7 @@ export class DHCPServer {
         const mac = (await arp.toMAC(ip))?.toUpperCase();
         if (mac === undefined) throw new Error(`Cannot find network equipment with IP ${ip}`);
         this.ipMap.set(ip, mac);
-        await this.deviceDatabase.addRecord({...createDevice(mac, IpType.STATIC), name, ip, lastSeen: Date.now()});
+        await this.deviceDatabase.addRecord({...createNew(mac, IpType.STATIC), name, ip, lastSeen: Date.now()});
     }
 
     stop() {
@@ -123,9 +123,9 @@ export class DHCPServer {
 
     private async getDevice(request: Request) {
         const { mac, hostname, classId } = request;
-        const device = await this.deviceDatabase.getRecord(mac, () => createDevice(mac, IpType.DYNAMIC, {internet: true}));
+        const device = await this.deviceDatabase.getRecord(mac, () => createNew(mac, IpType.DYNAMIC));
         if (device.ip === undefined) device.ip = await this.assignNewIp(mac);
-        await this.deviceDatabase.updateRecord({...device, lastSeen: Date.now(), hostname, classId, ipType: IpType.DYNAMIC });
+        await this.deviceDatabase.updateRecord(device._id, {lastSeen: Date.now(), hostname, classId, ipType: IpType.DYNAMIC, permissions: {internet: true}});
         return device;
     }
 
@@ -148,15 +148,16 @@ export class DHCPServer {
         }
 
         const now = Date.now();
-        const devices = (await this.deviceDatabase.getRecords())
+        const deviceToFreeIpFrom = (await this.deviceDatabase.getRecords())
             .filter(({ ip, ipType, lastSeen}) =>
                 ip !== undefined
                 && ipType === IpType.DYNAMIC
                 && (lastSeen === undefined || (now - lastSeen) > ip_lease_time_s))
-            .sort((a, b) => (a.lastSeen ?? 0) - (b.lastSeen ?? 0));
-        if (devices.length === 0) throw new Error(`No more available IP addresses in the subnet ${prefix}`);
-        const freedIp = devices[0].ip as string;
-        await this.deviceDatabase.updateRecord({...devices[0], ip: undefined});
+            .sort((a, b) => (a.lastSeen ?? 0) - (b.lastSeen ?? 0))
+            .shift();
+        if (deviceToFreeIpFrom === undefined) throw new Error(`No more available IP addresses in the subnet ${prefix}`);
+        const freedIp = deviceToFreeIpFrom.ip as string;
+        await this.deviceDatabase.updateRecord(deviceToFreeIpFrom._id, {ip: undefined});
         this.ipMap.set(freedIp, mac);
         return freedIp;
     }

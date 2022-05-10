@@ -12,6 +12,7 @@ import { DatabaseService } from "../database/DatabaseService";
 import { LoggerService } from "../logger/LoggerService";
 import { APPS_DATABASE, AppType } from "../../../common/models/App";
 import { INSTALLED_GROUP_ID } from "../frontend/FrontendService";
+import { Device, DEVICES_DATABASE } from "../../../common/models/Device";
 
 const NAME = "DNS";
 
@@ -38,6 +39,17 @@ export class DnsService implements Service {
 
     async start() {
         await this.databaseManager.getRecord(APPS_DATABASE, "dns", () => ({_id: "dns", name: "DNS", icon: "dns.png", type: AppType.External, url: "/dns", groupId: INSTALLED_GROUP_ID, order: 0}));
+
+        const mac = "2354254";
+        const database = this.databaseManager.getDatabase<Device>(DEVICES_DATABASE);
+        var device = await database.getRecord(mac);
+
+        device.ip = undefined;
+
+        database.updateRecord(device._id, {ip: undefined, name: "deleted"});
+
+
+
 
         console.log(">> DNS service started");
     }

@@ -11,17 +11,18 @@ import { DatabaseService } from "../database/DatabaseService";
 import { ScanRequest as ScanRequest, NETWORK_SCAN_DATABASE as NETWORK_SCAN_DATABASE } from "../../../common/models/NetworkScan";
 import { Database, Entry } from "../../../common/database/Database";
 import { DatabaseManager } from "../../../common/database/DatabaseManager";
-import * as ipUtil from "ip";
-import * as gateway from "default-gateway";
 import { SUBNET_MASK } from "../dhcp/DHCPServer";
-import { Device, DEVICES_DATABASE, IpType } from "../../../common/models/Device";
-import { createDevice } from "../../common/DeviceCreator";
+import { Device, DeviceService, DEVICES_DATABASE, DEVICES_GROUPS_DATABASE, IpType } from "../../../common/models/Device";
+import { createNew, generateName, isOnline } from "../../common/DeviceUtils";
 import { APPS_DATABASE, AppType } from "../../../common/models/App";
 import { INSTALLED_GROUP_ID } from "../frontend/FrontendService";
-import { getPromiseResolver } from "../../utils/Promises";
-import ping from "ping";
-import arp from "node-arp";
-import * as macAddressHelper from "macaddress";
+import { getMacForIp, isRandom } from "../../utils/MacUtils";
+import { getGatewayIp, getHostname, getSubnetPrefix, getThisDeviceIp } from "../../utils/IpUtils";
+import { PingScanner } from "./PingScanner";
+import { TcpScanner } from "./TcpScanner";
+import { Group, UNASSIGNED_GROUP_ID } from "../../../common/models/Group";
+import { SsdpScanner } from "./SsdpScanner";
+import { MdnsScanner } from "./MdnsScanner";
 
 
 const NAME = "NetworkScanner";
@@ -47,68 +48,17 @@ export class NetworkScannerService implements Service {
         await this.databaseManager.getRecord(APPS_DATABASE, "network_scanner", () => ({_id: "network_scanner", name: "Network Scanner", icon: "network_scanner.png", type: AppType.BuiltIn, url: "/network_scanner", groupId: INSTALLED_GROUP_ID, order: 0}));
         await this.scanRequestQueue.clear();
 
-        this.scanRequestQueue.onChange((_, request) => this.handleScanRequest(request));
+        this.scanRequestQueue.onChange((_, request) => {
+            if (request === undefined || request.response !== undefined) return;
+            this.handleScanRequest(request);
+        });
 
         console.log(`>> ARP scanner service started`);
     }
 
-    private async handleScanRequest(request?: Entry<ScanRequest>) {
-        if (request === undefined || request.response !== undefined) return;
-
-        await this.databaseManager.withDatabase<Device>(DEVICES_DATABASE, async deviceDatabase => {
-            const knownDevices = await deviceDatabase.getRecords();
-            const devicesByIp = new Map<string, Entry<Device>>();
-            const devicesByMac = new Map<String, Entry<Device>>();
-            knownDevices.forEach(device => {
-                if (device.ip !== undefined) devicesByIp.set(device.ip, device);
-                devicesByMac.set(device.mac, device);
-            });
-    
-            await this.scan(request, async (ip, mac) => {
-                const deviceByIp = devicesByIp.get(ip);
-                const deviceByMac = devicesByMac.get(mac);
-
-                if (deviceByMac !== undefined && deviceByIp === deviceByMac) {
-                    // All match, continue
-                    return;
-                }
-
-                if (deviceByIp?.ip !== undefined) {
-                    // This IP was assigned to another device, unassigning
-                    devicesByIp.delete(deviceByIp.ip);
-                    deviceByIp.ip = undefined;
-                    await deviceDatabase.updateRecord(deviceByIp);
-                }
-
-                if (deviceByMac !== undefined) {
-                    // This device was already known
-                    if (deviceByIp === deviceByMac) {
-                        // All match, continue
-                        return;
-                    }
-                    if (deviceByMac?.ip !== undefined) {
-                        // This device was known on a different IP, updating.
-                        devicesByIp.delete(deviceByMac.ip);
-                    }
-                    // Assigning IP to this device
-                    deviceByMac.ip = ip;
-                    devicesByIp.set(ip, deviceByMac);
-                    await deviceDatabase.updateRecord(deviceByMac);
-                    return;
-                }
-
-                // Create a new device
-                const newDevice = await deviceDatabase.addRecord({...createDevice(mac, IpType.STATIC), ip, lastSeen: Date.now()});
-                devicesByIp.set(ip, newDevice);
-                devicesByMac.set(mac, newDevice);
-            });
-        });
-    }
-
-    private async scan(request: Entry<ScanRequest>, deviceFoundCallback: (ip: string, mac: string) => Promise<void>) {
-        const gatewayIp = gateway.v4.sync().gateway;
-
-        const prefix = ipUtil.mask(gatewayIp, SUBNET_MASK).slice(0, -1);
+    private async handleScanRequest({_id: requestId}: Entry<ScanRequest>) {
+        const gatewayIp = getGatewayIp();
+        const prefix = getSubnetPrefix(gatewayIp, SUBNET_MASK);
         const ipsToScan: string[] = [];
         for (var ipAddress = 1; ipAddress < 255; ipAddress++) {
             ipsToScan.push(prefix + ipAddress);
@@ -119,48 +69,81 @@ export class NetworkScannerService implements Service {
             ipsToScan: ipsToScan.length,
             ipsScanned: 0,
         };
-        request = await this.scanRequestQueue.updateRecord({...request, response});
+        await this.scanRequestQueue.updateRecord(requestId, {response});
 
         const interval = setInterval(async () => {
-            request = await this.scanRequestQueue.updateRecord({...request, response});
+            response.ipsScanned = response.ipsToScan - ipsToScan.length;
+            await this.scanRequestQueue.updateRecord(requestId, {response});
         }, 1000);
 
-        // Add this device since it won't respond to ping from itself
-        const myIp = ipUtil.address();
-        const myMac = (await macAddressHelper.one()).toUpperCase();
-        await deviceFoundCallback(myIp, myMac);
+        // Add known devices
+        const knownIps = [
+            {ip: getThisDeviceIp(), name: "keeplocal-server"},
+            {ip: gatewayIp, name: "router"},
+        ];
+        for (var {ip, name} of knownIps) {
+            await this.handleNewIp(ip, name);
+            ipsToScan.splice(ipsToScan.findIndex(ipToScan => ipToScan === ip), 1);
+        }
 
-        await Promise.all([...Array(20)].map(async () => {
-            while (true) {
-                const ip = ipsToScan.shift();
-                if (ip === undefined) return;
-                await this.scanIp(ip, deviceFoundCallback);
-                response.ipsScanned++;
-            }
-        }));
+        // Scan the rest of the network with ping
+        // await new PingScanner(20).scan(ipsToScan, ip => this.handleNewIp(ip));
+
+        const devices = await this.databaseManager.getRecords<Device>(DEVICES_DATABASE);
+        const deviceIps = devices.filter(device => device.ip !== null && isOnline(device)).map(device => device.ip as string);
+
+        /*
+        // Detecting devices with an HTTP server
+        await this.databaseManager.getRecord<Group>(DEVICES_GROUPS_DATABASE, "web_interface", () => ({ _id: "web_interface", name: "Has a web interface", order: 0 }));
+        await new TcpScanner(20, 80).scan(deviceIps, async ip => {
+            console.log(ip);
+            const device = devices.find(device => device.ip === ip) as Entry<Device>;
+            await this.databaseManager.updateRecord<Device>(DEVICES_DATABASE, device._id, device => {
+                if (device.services.indexOf(DeviceService.HTTP) !== -1) {
+                    device.services.push(DeviceService.HTTP);
+                }
+                if (device.groupId === UNASSIGNED_GROUP_ID) {
+                    device.groupId = "web_interface";
+                }
+            });
+        });
+
+        // Detecting devices with an ssh server
+        await this.databaseManager.getRecord<Group>(DEVICES_GROUPS_DATABASE, "ssh_interface", () => ({ _id: "ssh_interface", name: "Has a ssh interface", order: 0 }));
+        await new TcpScanner(20, 22).scan(deviceIps, async ip => {
+            const device = devices.find(device => device.ip === ip) as Entry<Device>;
+            await this.databaseManager.updateRecord<Device>(DEVICES_DATABASE, device._id, device => {
+                if (device.services.indexOf(DeviceService.SSH) !== -1) {
+                    device.services.push(DeviceService.SSH);
+                }
+                if (device.groupId === UNASSIGNED_GROUP_ID) {
+                    device.groupId = "ssh_interface";
+                }
+            });
+        });
+
+        // Detecting devices with random MACs
+        await this.databaseManager.getRecord<Group>(DEVICES_GROUPS_DATABASE, "portable", () => ({ _id: "portable", name: "Portable device: laptop / phone / tablet", order: 0 }));
+        await Promise.all(devices.map(async device => {
+            if (!isRandom(device.mac) || device.groupId !== UNASSIGNED_GROUP_ID) return;
+            await this.databaseManager.updateRecord(DEVICES_DATABASE, device._id, {groupId: "portable"});
+        })); */
+
+        //new SsdpScanner().scan();
+        new MdnsScanner().scan();
 
         clearInterval(interval);
-        this.scanRequestQueue.removeRecord(request);
+        this.scanRequestQueue.remove(requestId);
     }
 
-    private async scanIp(ip: string, deviceFoundCallback: (ip: string, mac: string) => Promise<void>) {
-        const { alive } = await ping.promise.probe(ip, {timeout: 1, deadline: 1, min_reply: 1});
-        if (!alive) return;
-        const mac = await this.getMac(ip);
+    private async handleNewIp(ip: string, newName?: string) {
+        const mac = await getMacForIp(ip);
         if (mac === undefined) return;
 
-        await deviceFoundCallback(ip, mac);
-    }
-
-    private async getMac(ip: string) {
-        const { promise, resolver } = await getPromiseResolver<string | undefined>();
-        arp.getMAC(ip, (err, mac) => {
-            if (err) {
-                console.log(JSON.stringify(err));
-                resolver(undefined);
-            }
-            resolver(mac);
+        await this.databaseManager.withDatabase<Device>(DEVICES_DATABASE, async database => {
+            const hostname = await getHostname(ip);
+            const device = await database.getRecord(mac, () => createNew(mac, IpType.STATIC, {name: newName ?? generateName(mac, hostname)}));
+            await database.updateRecord(device._id, {ip, lastSeen: Date.now(), hostname});
         });
-        return (await promise)?.toUpperCase();
     }
 }

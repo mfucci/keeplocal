@@ -20,37 +20,37 @@ import Hub from '@mui/icons-material/Hub';
 import Camera from '@mui/icons-material/VideoCameraFront';
 import Speaker from '@mui/icons-material/Speaker';
 import Unknown from '@mui/icons-material/DeviceUnknown';
-import { DEVICE_CATEGORIES } from "../../common/models/Device";
+import { DeviceCategory } from "../../common/models/Device";
 
-const ICONS: {[permission in DEVICE_CATEGORIES]: FunctionComponent<any>} = {
-    [DEVICE_CATEGORIES.ROUTER]: Router,
-    [DEVICE_CATEGORIES.ROUTER_WIFI]: RouterWifi,
-    [DEVICE_CATEGORIES.PHONE]: Phone,
-    [DEVICE_CATEGORIES.LAPTOP]: Laptop,
-    [DEVICE_CATEGORIES.WORKSTATION]: Desktop,
-    [DEVICE_CATEGORIES.TABLET]: Tablet,
-    [DEVICE_CATEGORIES.TV]: Tv,
-    [DEVICE_CATEGORIES.HUB]: Hub,
-    [DEVICE_CATEGORIES.CAMERA]: Camera,
-    [DEVICE_CATEGORIES.SMART_SPEAKER]: Speaker,
-    [DEVICE_CATEGORIES.UNKNOWN]: Unknown,
+const ICONS: {[permission in DeviceCategory]: FunctionComponent<any>} = {
+    [DeviceCategory.ROUTER]: Router,
+    [DeviceCategory.ROUTER_WIFI]: RouterWifi,
+    [DeviceCategory.PHONE]: Phone,
+    [DeviceCategory.LAPTOP]: Laptop,
+    [DeviceCategory.WORKSTATION]: Desktop,
+    [DeviceCategory.TABLET]: Tablet,
+    [DeviceCategory.TV]: Tv,
+    [DeviceCategory.HUB]: Hub,
+    [DeviceCategory.CAMERA]: Camera,
+    [DeviceCategory.SMART_SPEAKER]: Speaker,
+    [DeviceCategory.UNKNOWN]: Unknown,
 };
 
 // Note: this array defines the display order
-export const DEVICE_CATEGORIES_LABELS: {[permission in DEVICE_CATEGORIES]: string} = {
-    [DEVICE_CATEGORIES.ROUTER]: "Router",
-    [DEVICE_CATEGORIES.ROUTER_WIFI]: "WiFi router",
-    [DEVICE_CATEGORIES.PHONE]: "Phone",
-    [DEVICE_CATEGORIES.LAPTOP]: "Laptop",
-    [DEVICE_CATEGORIES.WORKSTATION]: "Desktop",
-    [DEVICE_CATEGORIES.TABLET]: "Tablet",
-    [DEVICE_CATEGORIES.TV]: "Tv",
-    [DEVICE_CATEGORIES.HUB]: "Hub",
-    [DEVICE_CATEGORIES.CAMERA]: "Camera",
-    [DEVICE_CATEGORIES.SMART_SPEAKER]: "Speaker",
-    [DEVICE_CATEGORIES.UNKNOWN]: "Unknown",
+export const DEVICE_CATEGORIES_LABELS: {[permission in DeviceCategory]: string} = {
+    [DeviceCategory.ROUTER]: "Router",
+    [DeviceCategory.ROUTER_WIFI]: "WiFi router",
+    [DeviceCategory.PHONE]: "Phone",
+    [DeviceCategory.LAPTOP]: "Laptop",
+    [DeviceCategory.WORKSTATION]: "Desktop",
+    [DeviceCategory.TABLET]: "Tablet",
+    [DeviceCategory.TV]: "Tv",
+    [DeviceCategory.HUB]: "Hub",
+    [DeviceCategory.CAMERA]: "Camera",
+    [DeviceCategory.SMART_SPEAKER]: "Speaker",
+    [DeviceCategory.UNKNOWN]: "Unknown",
 };
 
-export function DeviceCategoryIcon({category = DEVICE_CATEGORIES.UNKNOWN, sx}: {category?: DEVICE_CATEGORIES, sx: SxProps<any>}) {
+export function DeviceCategoryIcon({category = DeviceCategory.UNKNOWN, sx}: {category?: DeviceCategory, sx: SxProps<any>}) {
     return React.createElement(ICONS[category], { sx });
 };

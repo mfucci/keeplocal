@@ -13,7 +13,7 @@ import table from "text-table";
 import { format } from "timeago.js";
 
 import { DatabaseManager } from "../common/database/DatabaseManager";
-import { Device, DEVICES_DATABASE, DEVICE_PERMISSIONS } from "../common/models/Device";
+import { Device, DEVICES_DATABASE, DevicePermission } from "../common/models/Device";
 import { Launcher } from "./services/Launcher";
 import { DaemonService } from "./services/daemon/DaemonService";
 import { DatabaseService, DatabaseSettings } from "./services/database/DatabaseService";
@@ -68,7 +68,7 @@ class CommandLineHandler {
                 name,
                 `${ip} (${ipType})`,
                 `${mac} (${vendor})`,
-                permissions[DEVICE_PERMISSIONS.INTERNET] ? "GATED" : "UNGATED",
+                permissions[DevicePermission.INTERNET] ? "GATED" : "UNGATED",
                 hostname ?? "",
                 classId ?? "",
                 lastSeen ? format(lastSeen) : "N/A"
@@ -77,26 +77,18 @@ class CommandLineHandler {
     }
     
     async gateDevice(id: string) {
-        await (await this.getDatabaseManager()).withDatabase<Device>(DEVICES_DATABASE, async database => {
-            const device = await database.getRecord(id);
-            device.permissions[DEVICE_PERMISSIONS.INTERNET] = false;
-            await database.updateRecord(device);
-        });
+        const databaseManager = await this.getDatabaseManager();
+        await databaseManager.updateRecord<Device>(DEVICES_DATABASE, id, device => device.permissions[DevicePermission.INTERNET] = false);
     }
     
     async ungateDevice(id: string) {
-        await (await this.getDatabaseManager()).withDatabase<Device>(DEVICES_DATABASE, async database => {
-            const device = await database.getRecord(id);
-            device.permissions[DEVICE_PERMISSIONS.INTERNET] = true;
-            await database.updateRecord(device);
-        });
+        const databaseManager = await this.getDatabaseManager();
+        await databaseManager.updateRecord<Device>(DEVICES_DATABASE, id, device => device.permissions[DevicePermission.INTERNET] = true);
     }
     
     async renameDevice(id: string, name: string) {
-        await (await this.getDatabaseManager()).withDatabase<Device>(DEVICES_DATABASE, async database => {
-            const device = await database.getRecord(id);
-            await database.updateRecord({ ...device, name });
-        });
+        const databaseManager = await this.getDatabaseManager();
+        await databaseManager.updateRecord<Device>(DEVICES_DATABASE, id, {name});
     }
 
     startDaemon() {
