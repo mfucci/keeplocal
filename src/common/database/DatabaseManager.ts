@@ -37,6 +37,10 @@ export class DatabaseManager {
         return await this.withDatabase<T, Entry<T>>(name, database => database.updateRecord(id, update));
     }
 
+    async updateRecords<T>(name: string, update: (values: Entry<T>[]) => (NewEntry<T> | Entry<T>)[]): Promise<void> {
+        return await this.withDatabase<T, void>(name, database => database.updateRecords(update));
+    }
+
     async withDatabase<T, R = void>(name: string, operation: (database: Database<T>) => Promise<R>): Promise<R> {
         const database = this.getDatabase<T>(name);
         try {

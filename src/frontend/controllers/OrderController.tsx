@@ -17,37 +17,41 @@ type Props<T extends Ordered> = {
 };
 type State = {};
 
+function swapItems<T>(array: T[], x: number, y: number) {
+    array[x] = array.splice(y, 1, array[x])[0];
+}
+
 export class OrderController<T extends Ordered> extends React.Component<Props<T>, State> {
     static contextType = DatabaseContext;
     declare context: React.ContextType<typeof DatabaseContext>;
 
     private async move(id: string, offset: number) {
         const { databaseManager, dbName, filter } = { ...this.props, ...this.context };
-        await databaseManager.withDatabase<T>(dbName, async database => {
-            var records = await database.getRecords();
+        await databaseManager.updateRecords<T>(dbName, records => {
             if (filter !== undefined) {
                 records = records.filter(record => filter(record));
             }
             records.sort(sortByOrder);
             const index = records.findIndex(record => record._id === id);
-            if (index === -1 || index + offset < 0 || index + offset >= records.length) return;
+            if (index === -1 || index + offset < 0 || index + offset >= records.length) return [];
     
             // Swap order value between the two groups
             const item = records[index];
             const itemToSwap = records[index + offset];
 
-            if (itemToSwap.order == item.order) {
+            if (itemToSwap.order === item.order) {
                 // We need to reassign all order index
                 var order = 0;
+                swapItems(records, index, index + offset);
                 records.forEach(record => record.order = order++);
-                await database.updateRecords(records);
+                return records;
             }
 
             const tempOrder = itemToSwap.order;
             itemToSwap.order = item.order;
             item.order = tempOrder;
     
-            await database.updateRecords([item, itemToSwap]);
+            return [item, itemToSwap];
         });
     }
 

@@ -63,11 +63,9 @@ export class Records<T> extends React.Component<Props<T>, State<T>> {
     }
 
     private async update(id: string, update: Partial<T>) {
-        const { database, values } = this.state;
-        if (database === undefined || values === undefined) return;
-        const value = values.find(value => value._id === id);
-        if (value === undefined) return;
-        await database.updateRecord({ ...value, ...update });
+        const { database } = this.state;
+        if (database === undefined) return;
+        await database.updateRecord(id, update);
     }
 
     private async remove(id: string) {

@@ -75,8 +75,15 @@ export class Database<T> {
         }
     }
 
-    async updateRecords(values: Entry<T>[]) {
-        await this.underlyingDatabase.bulkDocs(values);
+    async updateRecords(update: (values: Entry<T>[]) => (NewEntry<T> | Entry<T>)[]) {
+        while (true) {
+            try {
+                const values = await this.getRecords();
+                await this.underlyingDatabase.bulkDocs(update(values));
+            } catch (error: any) {
+                if (error.name !== "conflict") throw error;
+            }
+        }
     }
 
     async removeRecord(value: Entry<T>) {

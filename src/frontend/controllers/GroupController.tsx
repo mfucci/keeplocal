@@ -10,6 +10,7 @@ import React from "react";
 import { DatabaseContext } from "../database/DatabaseContext";
 import { Group, GroupItem, UNASSIGNED_GROUP_ID } from "../../common/models/Group";
 import { sortByOrder } from "../../common/models/Ordered";
+import { Entry, NewEntry } from "../../common/database/Database";
 
 type Props<T extends GroupItem> = {
     groupsDb: string,
@@ -25,8 +26,7 @@ export class GroupController<T extends GroupItem> extends React.Component<Props<
     async removeGroup(id: string) {
         const { databaseManager, groupsDb, itemsDb } = { ...this.context, ...this.state, ...this.props };
 
-        await databaseManager.withDatabase<T>(itemsDb, async database => {
-            const items = await database.getRecords();
+        await databaseManager.updateRecords<T>(itemsDb, items => {
             const unassignedItems = items.filter(item => item.groupId === UNASSIGNED_GROUP_ID).sort(sortByOrder);
 
             items.filter(item => item.groupId === id)
@@ -39,7 +39,7 @@ export class GroupController<T extends GroupItem> extends React.Component<Props<
             var order = 0;
             unassignedItems.forEach(item => item.order = order++);
     
-            await database.updateRecords(unassignedItems);
+            return unassignedItems;
         });
 
         await databaseManager.withDatabase<Group>(groupsDb, database => database.remove(id));
@@ -49,28 +49,30 @@ export class GroupController<T extends GroupItem> extends React.Component<Props<
         const { databaseManager, groupsDb } = { ...this.context, ...this.state, ...this.props };
        
         const groupId = name + new Date().getTime();
-        await databaseManager.withDatabase<Group>(groupsDb, async database => {
+        await databaseManager.updateRecords<Group>(groupsDb, groups => {
+            const updatedGroups: (Entry<Group> | NewEntry<Group>)[] = groups.sort(sortByOrder);
             var order = 0;
-            const groups = (await database.getRecords()).sort(sortByOrder);
-            groups.forEach(group => group.order = order++);
-            await database.updateRecords(groups);
-            await database.addRecord({ _id: groupId, name, order });
+            updatedGroups.forEach(group => group.order = order++);
+            updatedGroups.push({ _id: groupId, name, order });
+            return updatedGroups;
         });
         return groupId;
     }
 
     async moveItemToGroup(groupId: string, itemId: string) {
-        const { databaseManager, groupsDb, itemsDb } = { ...this.context, ...this.state, ...this.props };
+        const { databaseManager, itemsDb } = { ...this.context, ...this.state, ...this.props };
 
         await databaseManager.withDatabase<T>(itemsDb, async database => {
             const item = await database.getRecord(itemId);
-            const items = (await database.getRecords()).filter(item => item.groupId === groupId).sort(sortByOrder);
-            var order = 0;
-            items.forEach(item => item.order = order++);
-            item.order = order;
-            item.groupId = groupId;
-            items.push(item);
-            await database.updateRecords(items);
+            await database.updateRecords(items => {
+                const itemsInGroup = items.filter(item => item.groupId === groupId).sort(sortByOrder);
+                var order = 0;
+                itemsInGroup.forEach(item => item.order = order++);
+                item.order = order;
+                item.groupId = groupId;
+                itemsInGroup.push(item);
+                return items;
+            });
         });
     }
 
