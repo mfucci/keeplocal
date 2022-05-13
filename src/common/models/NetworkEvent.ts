@@ -14,4 +14,9 @@ export interface NetworkEventLog<T> {
     event: T,
 }
 
+export interface DnsEvent {
+    name: string;
+    type: string;
+}
+
 export const NETWORK_EVENT_DATABASE = "network_events";
