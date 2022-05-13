@@ -10,7 +10,7 @@ import React from "react";
  
 type Props = {
     onMount?: () => void,
-    onUmount?: () => void,
+    onUnmount?: () => void,
     children: any,
 };
 type State = {};
@@ -22,7 +22,7 @@ export class Lifecycle extends React.Component<Props, State> {
     }
 
     componentWillUnmount() {
-        this.props.onUmount?.();
+        this.props.onUnmount?.();
     }
  
     render() {
