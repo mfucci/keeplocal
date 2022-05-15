@@ -1,3 +1,11 @@
+/** 
+ * Controller to update the order of elements.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React from "react";
 import { DatabaseContext } from "../database/DatabaseContext";
 import { Ordered, sortByOrder } from "../../common/models/Ordered";

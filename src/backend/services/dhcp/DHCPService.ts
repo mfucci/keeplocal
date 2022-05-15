@@ -1,3 +1,11 @@
+/**
+ * DHCP service.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import * as gateway from "default-gateway";
 import * as ip from "ip";
 import { Service, ServiceBuilder } from "../Service";
