@@ -13,6 +13,7 @@ import { LoggerService } from "../logger/LoggerService";
 import { APPS_DATABASE, AppType } from "../../../common/models/App";
 import { INSTALLED_GROUP_ID } from "../frontend/FrontendService";
 import { DnsServer } from "./DNSServer";
+import * as gateway from "default-gateway";
 
 const NAME = "DNS";
 
@@ -41,7 +42,7 @@ export class DnsService implements Service {
         private readonly loggerService: LoggerService
     ) {
         this.databaseManager = databaseService.getDatabaseManager();
-        this.server = new DnsServer('1.1.1.1', this.loggerService, this.databaseManager);
+        this.server = new DnsServer(gateway.v4.sync().gateway, this.loggerService, this.databaseManager);
     }
 
     async start() {

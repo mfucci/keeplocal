@@ -45,7 +45,7 @@ export class DnsServer extends EventEmitter {
   private async handleRequest(request: Request) {
     const { name, type, query: { _client: {family, address} } } = request;
     const devices = await this.databaseManager.withDatabase<Device, Device[]>(DEVICES_DATABASE, async database => await database.getRecords())
-    const device = devices.find((d) => d?.ip === address);
+    const device = devices.find(device => device.ip === address);
     //TODO need arp.
     if (device) {
       this.logger.log(Date.now(), device, {
