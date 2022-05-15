@@ -50,7 +50,7 @@ export class DnsServer extends EventEmitter {
     if (device) {
       this.logger.log(Date.now(), device, {
         name,
-        type
+        type,
       })
     }
     this.dnsProxy.handleRequest(request);
