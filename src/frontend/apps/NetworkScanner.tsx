@@ -62,7 +62,7 @@ export class NetworkScannerCard extends React.Component<Props, State> {
                 </Button>
 
                 <Record<ScanRequest> dbName={NETWORK_SCAN_DATABASE} id={requestId}>{request =>
-                    <Lifecycle onUmount={() => this.setState({requestId: undefined})}>
+                    <Lifecycle onUnmount={() => this.setState({requestId: undefined})}>
                         <IfDefined value={request.response}>{response => 
                             <React.Fragment>
                                 <LinearProgressWithLabel value={response.ipsScanned*100 / response.ipsToScan} />
