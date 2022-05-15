@@ -12,6 +12,7 @@ import { Device, DEVICES_DATABASE, IpType } from "../../../common/models/Device"
 import { LoggerService, NetworkEventLogger } from "../logger/LoggerService";
 import { DNSMessenger, Request } from "./DNSMessenger";
 import { DnsProxy } from "./DNSProxy";
+import { DnsService } from "./DnsService";
 
 const TTL = 30 * 60; // 30 mn
 const PORT = 53;
@@ -27,13 +28,13 @@ export class DnsServer extends EventEmitter {
   private readonly logger: NetworkEventLogger<DNSEvent>;
   constructor(
     downstreamDnsServer: string, 
-    readonly loggerService: LoggerService, 
-    readonly databaseManager: DatabaseManager
+    private readonly loggerService: LoggerService, 
+    private readonly databaseManager: DatabaseManager
   ) {
     super();
     this.dnsProxy = new DnsProxy(this.dnsMessenger, downstreamDnsServer);
     this.dnsMessenger.on("request", request => this.handleRequest(request));
-    this.logger = this.loggerService.getNetworkEventLogger('DNS');
+    this.logger = this.loggerService.getNetworkEventLogger(DnsService.Builder.name);
   }
   start() {
     this.dnsMessenger.start()
@@ -47,7 +48,7 @@ export class DnsServer extends EventEmitter {
     const device = devices.find((d) => d?.ip === address);
     //TODO need arp.
     if (device) {
-      this.loggerService.getNetworkEventLogger('DNS').log(Date.now(), device, {
+      this.logger.log(Date.now(), device, {
         name,
         type
       })

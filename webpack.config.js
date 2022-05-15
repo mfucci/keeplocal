@@ -25,7 +25,17 @@ module.exports = {
         },
         {
             test: /\.css$/,
-            use: ['style-loader', 'css-loader'],
+            use: [
+              'style-loader', 
+              'css-loader',
+              {
+                loader: 'esbuild-loader',
+                options: {
+                  loader: 'css',
+                  minify: true
+                }
+              }
+            ],
             include: [
               path.resolve(__dirname, 'node_modules/bootstrap/dist/css/'),
               path.resolve(__dirname, 'node_modules/bootstrap-icons/font/'),
@@ -35,10 +45,11 @@ module.exports = {
         {
             test: /\.tsx?$/,
             use: [{
-                loader: 'ts-loader',
+                loader: 'esbuild-loader',
                 options: {
-                    configFile: "src/frontend/tsconfig.json",
-                    transpileOnly: true
+                    loader: 'tsx',
+                    target: 'es2015',
+                    tsconfigRaw: require('./src/frontend/tsconfig.json')
                 }
             }],
             include: [path.resolve(__dirname, 'src/')],
@@ -83,4 +94,11 @@ module.exports = {
         filename: 'index.css',
     }),
   ],
+  devServer: {
+    static: {
+      directory: path.resolve(__dirname, 'build/backend/services/frontend/public')
+    },
+    compress: true,
+    port: 8880,
+  }
 };

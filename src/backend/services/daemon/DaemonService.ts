@@ -19,7 +19,7 @@ export class DaemonService implements Service {
             FrontService.Builder, 
             DHCPService.Builder, 
             NetworkScannerService.Builder, 
-            DnsService.Builder
+            DnsService.Builder,
         ],
         build: async () => new DaemonService(),
     }
