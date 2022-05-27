@@ -7,7 +7,7 @@
  */
 
 import PouchDb from "pouchdb";
-import { Database, Entry, NewEntry } from "./Database";
+import { Database, Entry } from "./Database";
 
 const DATABASE_REUSE_DELAY_MS = 5000;
 
@@ -23,6 +23,10 @@ export class DatabaseManager {
 
     async getRecord<T>(name: string, id: string, defaultProvider?: () => T) {
         return await this.withDatabase<T, T>(name, database => database.getRecord(id, defaultProvider));
+    }
+
+    async getRecords<T>(name: string) {
+        return await this.withDatabase<T, T[]>(name, database => database.getRecords())
     }
 
     async addRecord<T>(name: string, value: NewEntry<T>): Promise<Entry<T>> {
