@@ -1,1 +1,1 @@
-databaseUrl="demo";
+databaseUrl = "demo";

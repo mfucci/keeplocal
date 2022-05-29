@@ -1,6 +1,6 @@
-/** 
+/**
  * Main page of the UI.
- * 
+ *
  * @license
  * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
  * SPDX-License-Identifier: Apache-2.0
@@ -53,84 +53,104 @@ import { CreateApp } from "./apps/CreateApp";
 import { InstallApp } from "./apps/InstallApp";
 import { NetworkScanner } from "./apps/NetworkScanner";
 
-function NavigateProvider({children}: {children: ReactChild[]}) {
-    const navigate = useNavigate();
-    return (
-        <NavigateContext.Provider value={ {navigate} }>
-            {children}
-        </NavigateContext.Provider>
-    );
+function NavigateProvider({ children }: { children: ReactChild[] }) {
+  const navigate = useNavigate();
+  return (
+    <NavigateContext.Provider value={{ navigate }}>
+      {children}
+    </NavigateContext.Provider>
+  );
 }
 
 export class Index extends React.Component {
-    render() {
-        return (
-            <DatabaseManagerProvider databaseUrl={databaseUrl}>{databaseManager =>
-                <DatabaseContext.Provider value={{databaseManager}}>
-                    <BrowserRouter>
-                        <NavigateProvider>
-                            <Header />
-                
-                            <Box
-                                component="main"
-                                sx={{
-                                    backgroundColor: (theme) =>
-                                        theme.palette.mode === "light"
-                                        ? theme.palette.grey[100]
-                                        : theme.palette.grey[900],
-                                    flexGrow: 0,
-                                    flexShrink: 1,
-                                    flexBasis: "auto",
-                                    overflow: "auto",
-                                    height: "100vh",
-                                }} >
-        
-                                <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-                                    <Routes>
-                                        <Route path="/" element={<DevicesView />}/>
-                                        <Route path="/devices" element={<DevicesView />}/>
-                                        <Route path="/device/:id" element={<DeviceDetailViewRouter />}/>
-                                        <Route path="/apps" element={<AppsView />}/>
-                                        <Route path="/settings" element={<SettingsView />}/>
-    
-                                        <Route path="/adblocker" element={<AdBlocker />}/>
-                                        <Route path="/dhcp_server" element={<DhcpServer />}/>
-                                        <Route path="/email" element={<Email />}/>
-                                        <Route path="/home_automation" element={<HomeAutomation />}/>
-                                        <Route path="/home_security" element={<HomeSecurity />}/>
-                                        <Route path="/file_storage" element={<FileStorage />}/>
-                                        <Route path="/media_server" element={<MediaServer />}/>
-                                        <Route path="/network_scanner" element={<NetworkScanner />}/>
-                                        <Route path="/network_security" element={<NetworkSecurity />}/>
-                                        <Route path="/parental_control" element={<ParentalControl />}/>
-                                        <Route path="/passwords" element={<Passwords />}/>
-                                        <Route path="/print_scan" element={<PrintScan />}/>
-                                        <Route path="/router" element={<Router />}/>
-                                        <Route path="/voice_assistant" element={<VoiceAssistant />}/>
-    
-                                        <Route path="/app/create" element={<CreateApp />}/>
-                                        <Route path="/app/install" element={<InstallApp />}/>
-    
-                                        <Route path="/about" element={<AboutView />}/>
-                                        <Route path="*" element={<NotFoundView />}/>
-                                    </Routes>
-        
-                                    <Footer />
-                                </Container>
-                            </Box>
-                        </NavigateProvider>
-                    </BrowserRouter>
-                </DatabaseContext.Provider>
-            }</DatabaseManagerProvider>
-        );
-    }
+  render() {
+    return (
+      <DatabaseManagerProvider databaseUrl={databaseUrl}>
+        {(databaseManager) => (
+          <DatabaseContext.Provider value={{ databaseManager }}>
+            <BrowserRouter>
+              <NavigateProvider>
+                <Header />
+
+                <Box
+                  component="main"
+                  sx={{
+                    backgroundColor: (theme) =>
+                      theme.palette.mode === "light"
+                        ? theme.palette.grey[100]
+                        : theme.palette.grey[900],
+                    flexGrow: 0,
+                    flexShrink: 1,
+                    flexBasis: "auto",
+                    overflow: "auto",
+                    height: "100vh",
+                  }}
+                >
+                  <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+                    <Routes>
+                      <Route path="/" element={<DevicesView />} />
+                      <Route path="/devices" element={<DevicesView />} />
+                      <Route
+                        path="/device/:id"
+                        element={<DeviceDetailViewRouter />}
+                      />
+                      <Route path="/apps" element={<AppsView />} />
+                      <Route path="/settings" element={<SettingsView />} />
+
+                      <Route path="/adblocker" element={<AdBlocker />} />
+                      <Route path="/dhcp_server" element={<DhcpServer />} />
+                      <Route path="/email" element={<Email />} />
+                      <Route
+                        path="/home_automation"
+                        element={<HomeAutomation />}
+                      />
+                      <Route path="/home_security" element={<HomeSecurity />} />
+                      <Route path="/file_storage" element={<FileStorage />} />
+                      <Route path="/media_server" element={<MediaServer />} />
+                      <Route
+                        path="/network_scanner"
+                        element={<NetworkScanner />}
+                      />
+                      <Route
+                        path="/network_security"
+                        element={<NetworkSecurity />}
+                      />
+                      <Route
+                        path="/parental_control"
+                        element={<ParentalControl />}
+                      />
+                      <Route path="/passwords" element={<Passwords />} />
+                      <Route path="/print_scan" element={<PrintScan />} />
+                      <Route path="/router" element={<Router />} />
+                      <Route
+                        path="/voice_assistant"
+                        element={<VoiceAssistant />}
+                      />
+
+                      <Route path="/app/create" element={<CreateApp />} />
+                      <Route path="/app/install" element={<InstallApp />} />
+
+                      <Route path="/about" element={<AboutView />} />
+                      <Route path="*" element={<NotFoundView />} />
+                    </Routes>
+
+                    <Footer />
+                  </Container>
+                </Box>
+              </NavigateProvider>
+            </BrowserRouter>
+          </DatabaseContext.Provider>
+        )}
+      </DatabaseManagerProvider>
+    );
+  }
 }
 
 const root = document.getElementById("root");
 if (root !== null) {
-    ReactDom.render(<Index />, root);
-    
-    /*if ("serviceWorker" in navigator) {
+  ReactDom.render(<Index />, root);
+
+  /*if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => navigator.serviceWorker.register("/service-worker.js"));
     }*/
 }

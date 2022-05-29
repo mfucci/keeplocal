@@ -1,6 +1,6 @@
-/** 
+/**
  * Gives access to the auto-refreshing current time.
- * 
+ *
  * @license
  * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
  * SPDX-License-Identifier: Apache-2.0
@@ -9,35 +9,38 @@
 import React from "react";
 
 const REFRESH_MS = 10 * 1000; // 10s
- 
+
 type Props = {
-    children: (now: number) => any,
+  children: (now: number) => any;
 };
 
 type State = {
-    now: number,
+  now: number;
 };
 
 export class Now extends React.Component<Props, State> {
-    private interval?: any;
- 
-    constructor(props: Props) {
-        super(props);
-        this.state = {
-            now: Date.now(),
-        }
-    }
+  private interval?: any;
 
-    componentDidMount() {
-        this.interval = setInterval(() => this.setState({now: Date.now()}), REFRESH_MS);
-    }
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      now: Date.now(),
+    };
+  }
 
-    componentWillUnmount() {
-        clearInterval(this.interval);
-    }
+  componentDidMount() {
+    this.interval = setInterval(
+      () => this.setState({ now: Date.now() }),
+      REFRESH_MS
+    );
+  }
 
-    render() {
-        const { now, children } = { ...this.state, ...this.props };
-        return children(now);
-    }
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
+  render() {
+    const { now, children } = { ...this.state, ...this.props };
+    return children(now);
+  }
 }

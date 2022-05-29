@@ -1,6 +1,6 @@
 /**
  * A simple DNS server.
- * 
+ *
  * @license
  * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
  * SPDX-License-Identifier: Apache-2.0
@@ -22,12 +22,17 @@ export class DnsServer extends EventEmitter {
   constructor(downstreamDnsServer: string, readonly dhcpServer: DHCPServer) {
     super();
     this.dnsProxy = new DnsProxy(this.dnsMessenger, downstreamDnsServer);
-    this.dnsMessenger.on("request", request => this.handleRequest(request));
+    this.dnsMessenger.on("request", (request) => this.handleRequest(request));
   }
 
   start() {
-    this.dnsMessenger.start()
-      .then(server => console.log(`DNS server listening on ${server.address}:${server.port}...`))
+    this.dnsMessenger
+      .start()
+      .then((server) =>
+        console.log(
+          `DNS server listening on ${server.address}:${server.port}...`
+        )
+      )
       .catch(console.error);
   }
 
