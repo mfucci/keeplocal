@@ -34,6 +34,7 @@ import { With } from "../react/With";
 import { Now } from "../components/Now";
 import { isOnline } from "../components/Online";
 import { TimeAgo } from "../components/TimeAgo";
+import DnsLogs from "../components/DnsLogs";
 
 type Props = {
     id: string,
@@ -133,6 +134,9 @@ export class DeviceDetailView extends React.Component<Props, State> {
                                 }</Now>
                             }</With>
                         </Card>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <DnsLogs id={this.props.id}></DnsLogs>
                     </Grid>
                 </Grid>
             }</Record>

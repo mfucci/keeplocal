@@ -52,6 +52,7 @@ import { DhcpServer } from "./apps/DhcpServer";
 import { CreateApp } from "./apps/CreateApp";
 import { InstallApp } from "./apps/InstallApp";
 import { NetworkScanner } from "./apps/NetworkScanner";
+import { Dns } from "./apps/Dns";
 
 function NavigateProvider({children}: {children: ReactChild[]}) {
     const navigate = useNavigate();
@@ -95,6 +96,7 @@ export class Index extends React.Component {
     
                                         <Route path="/adblocker" element={<AdBlocker />}/>
                                         <Route path="/dhcp_server" element={<DhcpServer />}/>
+                                        <Route path="/dns" element={<Dns />}/>
                                         <Route path="/email" element={<Email />}/>
                                         <Route path="/home_automation" element={<HomeAutomation />}/>
                                         <Route path="/home_security" element={<HomeSecurity />}/>
