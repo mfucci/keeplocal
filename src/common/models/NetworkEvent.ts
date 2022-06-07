@@ -17,6 +17,9 @@ export interface NetworkEventLog<T> {
 export interface DnsEvent {
     name: string;
     type: string;
+    handled: boolean;
+    blocked?: boolean;
+    exists?: boolean;
 }
 
 export const NETWORK_EVENT_DATABASE = "network_events";

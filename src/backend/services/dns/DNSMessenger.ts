@@ -85,4 +85,7 @@ export class DNSMessenger extends EventEmitter {
         records.forEach(cname => query.addAnswer(name, createCnameRecord(cname)));
         this.server.send(query);
     }
+    sendError({ query }: Request) {
+        this.server.send(query);
+    }
 }

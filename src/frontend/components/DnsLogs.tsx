@@ -13,6 +13,15 @@ type Props = {
 type State = {};
 
 export default class DnsLogs extends Component<Props, State> {
+  highlighRed(event: DnsEvent): { color?: string } {
+    return event?.blocked ? {color: 'red'} : {}
+  }
+  getStatus(event: DnsEvent): string {
+    if (event.blocked) return 'Blocked';
+    if (!event.exists) return 'No Answer';
+    if (!event.handled) return 'Unsupported';
+    return 'Success'
+  }
   render() {
     const { id } = this.props;
     return (
@@ -26,17 +35,21 @@ export default class DnsLogs extends Component<Props, State> {
                 <TableCell>Time</TableCell>
                 <TableCell>Type</TableCell>
                 <TableCell>Domain</TableCell>
+                <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               <Records<NetworkEventLog<DnsEvent>> dbName={NETWORK_EVENT_DATABASE}>{(logs) => 
-                <Iterate array={logs}>{
+                <Iterate array={logs.sort((loga, logb) => logb.timestamp - loga.timestamp)}>{
                     (log) => 
-                      <If condition={log.device_id === id && log.service === 'DNS'}>
+                      <If key={log?.timestamp} condition={log.device_id === id && log.service === 'DNS'}>
                         <TableRow key={log?.timestamp}>
-                          <TableCell>{dayjs(log?.timestamp).format('YYYY-MM-DD hh:mm:ss a')}</TableCell>
-                          <TableCell>{log?.event?.type}</TableCell>
-                          <TableCell>{log?.event?.name}</TableCell>
+                          <TableCell sx={this.highlighRed(log.event)}>{dayjs(log?.timestamp).format('YYYY-MM-DD hh:mm:ss a')}</TableCell>
+                          <TableCell sx={this.highlighRed(log.event)}>{log?.event?.type}</TableCell>
+                          <TableCell sx={this.highlighRed(log.event)}>{log?.event?.name}</TableCell>
+                          <TableCell sx={this.highlighRed(log.event)}>
+                            {this.getStatus(log.event)}
+                          </TableCell>
                         </TableRow>
                       </If>
                   }
