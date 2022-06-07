@@ -97,11 +97,7 @@ export class DnsProxy {
               this.dnsMessenger.sendPtrRecords(request, (await this.resolver.resolvePtr(name)));
               break;
             default:
-              console.log(`Unhandle query type ${type}`);
-              this.logQuery(request, {
-                handled: false
-              })
-              return;
+              throw('unhandled');
           }
           await this.logQuery(request, {
             handled: true,
@@ -115,6 +111,12 @@ export class DnsProxy {
               handled: true,
               exists: true,
               blocked: true
+            })
+            return;
+          }
+          if (e === 'unhandled') {
+            await this.logQuery(request, {
+              handled: false
             })
             return;
           }
