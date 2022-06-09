@@ -8,10 +8,7 @@
 
 import React from "react";
 
-type Props = {};
-type State = {};
-
-export class SettingsView extends React.Component<Props, State> {
+export class SettingsView extends React.Component {
     render() {
         return <React.Fragment>Settings service</React.Fragment>;
     }

@@ -27,15 +27,16 @@ interface MessageStreamEventMap {
 
 type REQUEST<K> = K extends (string | number) ? `${K}_request` : never;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export declare interface MessageStream<READ_MESSAGE_MAP, WRITE_MESSAGE_MAP> {
     on<K extends keyof MessageStreamEventMap>(event: K, listener: (...value: MessageStreamEventMap[K]) => void): this;
-    once<K extends keyof MessageStreamEventMap>(event: K, listener: (...value: MessageStreamEventMap[K]) => void): this;
-    emit<K extends keyof MessageStreamEventMap>(event: K, ...value: MessageStreamEventMap[K]): boolean;
     on<K extends keyof READ_MESSAGE_MAP>(event: K, listener: (message: READ_MESSAGE_MAP[K]) => void): this;
-    once<K extends keyof READ_MESSAGE_MAP>(event: K, listener: (message: READ_MESSAGE_MAP[K]) => void): this;
-    emit<K extends keyof READ_MESSAGE_MAP>(event: K, message: READ_MESSAGE_MAP[K]): boolean;
     on<K extends keyof READ_MESSAGE_MAP>(event: REQUEST<K>, listener: (message: READ_MESSAGE_MAP[K], requestId: number) => void): this;
+    once<K extends keyof MessageStreamEventMap>(event: K, listener: (...value: MessageStreamEventMap[K]) => void): this;
+    once<K extends keyof READ_MESSAGE_MAP>(event: K, listener: (message: READ_MESSAGE_MAP[K]) => void): this;
     once<K extends keyof READ_MESSAGE_MAP>(event: REQUEST<K>, listener: (message: READ_MESSAGE_MAP[K], requestId: number) => void): this;
+    emit<K extends keyof MessageStreamEventMap>(event: K, ...value: MessageStreamEventMap[K]): boolean;
+    emit<K extends keyof READ_MESSAGE_MAP>(event: K, message: READ_MESSAGE_MAP[K]): boolean;
     emit<K extends keyof READ_MESSAGE_MAP>(event: REQUEST<K>, message: READ_MESSAGE_MAP[K], requestId: number): boolean;
 }
 
@@ -69,7 +70,7 @@ export class MessageStream<READ_MESSAGE_MAP, WRITE_MESSAGE_MAP> extends EventEmi
         return promise;
     }
 
-    async request<K extends keyof WRITE_MESSAGE_MAP, R extends keyof READ_MESSAGE_MAP>(request: K, message: WRITE_MESSAGE_MAP[K], response: R): Promise<READ_MESSAGE_MAP[R]> {
+    async request<K extends keyof WRITE_MESSAGE_MAP, R extends keyof READ_MESSAGE_MAP>(request: K, message: WRITE_MESSAGE_MAP[K]): Promise<READ_MESSAGE_MAP[R]> {
         const { promise, resolver, rejecter } = await getPromiseResolver<READ_MESSAGE_MAP[R]>();
         if (this.closed) throw new Error("The stream is closed");
         const requestId = this.requestCount++;

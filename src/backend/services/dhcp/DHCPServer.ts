@@ -117,7 +117,7 @@ export class DHCPServer {
         }
     }
 
-    private getRouter(internetPermission: boolean = true) {
+    private getRouter(internetPermission = true) {
         return internetPermission ? this.settings.gateway_ip : this.settings.dhcp_ip;
     }
 
@@ -133,8 +133,8 @@ export class DHCPServer {
         const { gateway_ip, ip_lease_time_s } = this.settings;
         
         const prefix = ipUtil.mask(gateway_ip, SUBNET_MASK).slice(0, -1);
-        var ipAddress = 1;
-        while (true) {
+        let ipAddress = 1;
+        for (;;) {
             const proposedIp = prefix + ipAddress;
             if (!this.ipMap.has(proposedIp)) {
                 this.ipMap.set(proposedIp, mac);

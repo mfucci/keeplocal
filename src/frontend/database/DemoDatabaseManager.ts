@@ -470,9 +470,9 @@ export class DemoDatabaseManager extends DatabaseManager {
     }
 
     private async clearAndFillDb<T>(name: string, items: T[]) {
-        var db = this.getDatabase<T>(name);
+        let db = this.getDatabase<T>(name);
         await db.delete();
-        var db = this.getDatabase<T>(name);
+        db = this.getDatabase<T>(name);
         await db.addRecords(items);
         db.close();
     }

@@ -39,7 +39,6 @@ export class Record<T> extends React.Component<Props<T>, State<T>> {
     }
 
     private handleValueUpdate(value?: Entry<T>) {
-        const { dbName, id } = {...this.props, ...this.context};
         this.setState({ value });
     }
 

@@ -11,7 +11,7 @@ import { Stream } from "./Stream";
 const SEPARATOR = "\n";
 
 export class JSONStream<READ_T, WRITE_T> extends Stream<READ_T, WRITE_T> {
-    private buffer: string = "";
+    private buffer = "";
 
     constructor(readonly stream: Stream<string>) {
         super();
@@ -24,7 +24,7 @@ export class JSONStream<READ_T, WRITE_T> extends Stream<READ_T, WRITE_T> {
     }
 
     async read() {
-        var separatorPosition;
+        let separatorPosition;
         while ((separatorPosition = this.buffer.indexOf(SEPARATOR)) === -1) {
             this.buffer += await this.stream.read();
         }

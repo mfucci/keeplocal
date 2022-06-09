@@ -12,7 +12,6 @@ import { DHCPServer } from "../dhcp/DHCPServer";
 import { DNSMessenger, Request } from "./DNSMessenger";
 import { DnsProxy } from "./DNSProxy";
 
-const TTL = 30 * 60; // 30 mn
 const PORT = 53;
 
 export class DnsServer extends EventEmitter {
@@ -32,8 +31,6 @@ export class DnsServer extends EventEmitter {
   }
 
   private async handleRequest(request: Request) {
-    const { name, type } = request;
-
     this.dnsProxy.handleRequest(request);
     return;
 

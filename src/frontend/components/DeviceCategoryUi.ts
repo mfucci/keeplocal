@@ -53,4 +53,4 @@ export const DEVICE_CATEGORIES_LABELS: {[permission in DEVICE_CATEGORIES]: strin
 
 export function DeviceCategoryIcon({category = DEVICE_CATEGORIES.UNKNOWN, sx}: {category?: DEVICE_CATEGORIES, sx: SxProps<any>}) {
     return React.createElement(ICONS[category], { sx });
-};
+}

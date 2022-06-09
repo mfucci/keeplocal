@@ -9,7 +9,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 
-import { Button, Card, CardActions, CardContent, FormControl, FormControlLabel, FormGroup, Grid, Icon, MenuItem, Select, Switch, Typography } from "@mui/material";
+import { Button, Card, CardActions, CardContent, FormControlLabel, FormGroup, Grid, Icon, Switch, Typography } from "@mui/material";
 
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -19,14 +19,13 @@ import { EditableLabel } from "../components/EditableLabel";
 import { NavigateContext } from "../components/Navigate";
 
 import { Device, DEVICES_DATABASE, DEVICES_GROUPS_DATABASE, DEVICE_CATEGORIES, DEVICE_PERMISSIONS } from "../../common/models/Device";
-import { Group } from "../../common/models/Group";
 
 import { IterateObject } from "../react/Iterate";
 import { If } from "../react/If";
 import { AddGroupDialog } from "../common/AddGroupDialog";
 import { ConfirmDialog } from "../components/ConfirmDialog";
 import { Record } from "../database/Record";
-import { UNASSIGNED_GROUP_ID } from "../../common/models/Group";
+import { UNASSIGNED_GROUP_ID, Group } from "../../common/models/Group";
 import { GroupController } from "../controllers/GroupController";
 import { Records } from "../database/Records";
 import { SelectControl } from "../components/SelectControl";

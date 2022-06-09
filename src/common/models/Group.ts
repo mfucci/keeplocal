@@ -17,6 +17,6 @@ export interface GroupItem extends Ordered {
 export interface Group extends Ordered {
     _id: string,
     name: string,
-};
+}
 
 export const UNASSIGNED_GROUP_ID = "unassigned";

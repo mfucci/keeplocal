@@ -49,7 +49,7 @@ export interface Device extends GroupItem {
     model?: string,
     hostname?: string,
     classId?: string,
-};
+}
 
 export const DEVICES_DATABASE = "devices";
 export const DEVICES_GROUPS_DATABASE = "devices_groups";

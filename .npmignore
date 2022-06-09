@@ -3,3 +3,4 @@
 /build/**/*.map
 /built_test
 /test
+/docs

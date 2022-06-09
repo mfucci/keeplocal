@@ -5,11 +5,11 @@
  */
 
 import * as assert from "assert";
-import { Stream } from "../../src/stream/Stream";
-import { JSONStream } from "../../src/stream/JSONStream";
-import { MessageStream, MessageWrappers } from "../../src/stream/MessageStream";
-import { getPromiseResolver } from "../../src/utils/Promises";
-import { Queue } from "../../src/stream/Queue";
+import { Stream } from "../../src/backend/stream/Stream";
+import { JSONStream } from "../../src/backend/stream/JSONStream";
+import { MessageStream, MessageWrappers } from "../../src/backend/stream/MessageStream";
+import { getPromiseResolver } from "../../src/backend/utils/Promises";
+import { Queue } from "../../src/backend/stream/Queue";
 
 class FakeStream<T> extends Stream<T, T> {
     private inputQueue = new Queue<T>();
@@ -44,8 +44,8 @@ const MESSAGE = {
 }
 
 describe("JSONStream", () => {
-    var fakeStream: FakeStream<string>;
-    var jsonStream: JSONStream<any, any>;
+    let fakeStream: FakeStream<string>;
+    let jsonStream: JSONStream<typeof MESSAGE, typeof MESSAGE>;
 
     beforeEach(() => {
         fakeStream = new FakeStream<string>();
@@ -130,8 +130,8 @@ interface TEST_MESSAGE_MAP {
 }
 
 describe("MessageStream", () => {
-    var fakeStream: FakeStream<MessageWrappers<TEST_MESSAGE_MAP>>;
-    var messageStream: MessageStream<TEST_MESSAGE_MAP, TEST_MESSAGE_MAP>;
+    let fakeStream: FakeStream<MessageWrappers<TEST_MESSAGE_MAP>>;
+    let messageStream: MessageStream<TEST_MESSAGE_MAP, TEST_MESSAGE_MAP>;
 
     beforeEach(() => {
         fakeStream = new FakeStream();

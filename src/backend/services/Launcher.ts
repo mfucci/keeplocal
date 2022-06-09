@@ -11,13 +11,13 @@ export class Launcher {
     }
 
     private async startRec<T extends Service>(builder: ServiceBuilder<T>): Promise<T> {
-        var service = this.launchedServices.get(builder) as T | undefined;
+        let service = this.launchedServices.get(builder) as T | undefined;
         if (service !== undefined) {
             return service;
         }
         const { name, dependencyBuilders, build } = builder;
         const dependencies: Service[] = [];
-        for (var dependencyBuilder of dependencyBuilders) {
+        for (const dependencyBuilder of dependencyBuilders) {
             dependencies.push(await this.startRec<Service>(dependencyBuilder));
         }
         console.log(`Launching ${name}`);
