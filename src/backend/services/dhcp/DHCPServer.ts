@@ -32,7 +32,7 @@ export class DHCPServer {
 
     constructor(
             private settings: DHCPSettings,
-            private readonly databaseManager: DatabaseManager) {
+            databaseManager: DatabaseManager) {
         this.messenger.on("discover", request => this.handleDiscover(request));
         this.messenger.on("request", request => this.handleRequest(request));
         this.settingDatabase = databaseManager.getDatabase<DHCPSettings>(SETTINGS_DATABASE);
@@ -125,7 +125,7 @@ export class DHCPServer {
         const { mac, hostname, classId } = request;
         const device = await this.deviceDatabase.getRecord(mac, () => createDevice(mac, IpType.DYNAMIC, {internet: true}));
         if (device.ip === undefined) device.ip = await this.assignNewIp(mac);
-        await this.deviceDatabase.updateRecord({...device, lastSeen: Date.now(), hostname, classId });
+        await this.deviceDatabase.updateRecord({...device, lastSeen: Date.now(), hostname, classId, ipType: IpType.DYNAMIC });
         return device;
     }
 

@@ -1,3 +1,11 @@
+/**
+ * Launcher to launch all services in the dependency tree order,
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { Service, ServiceBuilder } from "./Service";
 
 export class Launcher {

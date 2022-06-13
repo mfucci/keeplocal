@@ -1,3 +1,11 @@
+/** 
+ * Provides a database manager pointing to a remote database or a local demo database.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React from "react";
 import { DatabaseManager } from "../../common/database/DatabaseManager";
 import { DemoDatabaseManager } from "./DemoDatabaseManager";

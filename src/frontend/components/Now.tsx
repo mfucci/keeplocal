@@ -1,5 +1,5 @@
 /** 
- * Display time relative to current time.
+ * Gives access to the auto-refreshing current time.
  * 
  * @license
  * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)

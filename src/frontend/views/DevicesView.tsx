@@ -17,6 +17,9 @@ import { SectionCard } from "../components/SectionCard";
 import { Now } from "../components/Now";
 import { isOnline } from "../components/Online";
 import { Navigate } from "../components/Navigate";
+import { Record } from "../database/Record";
+import { APPS_DATABASE, App } from "../../common/models/App";
+import { NetworkScannerCard } from "../apps/NetworkScanner";
 
 type Props = {};
 type State = {
@@ -61,6 +64,10 @@ export class DevicesView extends React.Component<Props, State> {
                         {editOrder ? "Done" : "Reorder"}
                     </Button>
                 </SectionCard>
+
+                <Record<App> dbName={APPS_DATABASE} id="network_scanner">{networkScanner =>
+                    <NetworkScannerCard />
+                }</Record>
             </Grid>
         );
     }

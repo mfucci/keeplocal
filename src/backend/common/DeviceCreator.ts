@@ -1,3 +1,11 @@
+/**
+ * Creates a new device object with default values.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { Device, DEVICE_CATEGORIES, IpType, Permissions } from "../../common/models/Device";
 import { UNASSIGNED_GROUP_ID } from "../../common/models/Group";
 import { vendorForMac } from "../utils/MacUtils";

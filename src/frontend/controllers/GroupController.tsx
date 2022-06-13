@@ -1,3 +1,11 @@
+/** 
+ * Controller to modify groups.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import React from "react";
 import { DatabaseContext } from "../database/DatabaseContext";
 import { Group, GroupItem, UNASSIGNED_GROUP_ID } from "../../common/models/Group";

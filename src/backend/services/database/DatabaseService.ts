@@ -1,3 +1,11 @@
+/**
+ * Database service using PouchDB.
+ * 
+ * @license
+ * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import { Service, ServiceBuilder } from "../Service";
 import { HTTPService } from "../http/HTTPService";
 import { LocalDatabaseManager, LocalPouchDb } from "./LocalDatabaseManager";
@@ -7,6 +15,8 @@ import { getPersistentStorageDir } from "../../utils/Paths";
 import fs from "fs";
 import path from "path";
 import { DatabaseManager } from "../../../common/database/DatabaseManager";
+import { APPS_DATABASE, AppType } from "../../../common/models/App";
+import { INSTALLED_GROUP_ID } from "../frontend/FrontendService";
 
 const NAME = "Database";
 
@@ -28,7 +38,7 @@ const FAUXTON_BUNDLE_JS = "dashboard.assets/js/bundle-34997e32896293a1fa5d71f79e
 
 export class DatabaseService implements Service {
     static Builder: ServiceBuilder<DatabaseService> = {
-        name: "Database",
+        name: NAME,
         dependencyBuilders: [HTTPService.Builder],
         build: async (http: HTTPService) => {
             const settings = await new LocalDatabaseManager().getRecord(SETTINGS_DATABASE, NAME, () => DEFAULT_SETTINGS);
@@ -56,6 +66,8 @@ export class DatabaseService implements Service {
         });
         server.use(`${baseUrlPath}${dataUrlPath}/_utils/${FAUXTON_BUNDLE_JS}`, (req, res) => res.send(this.patchFauxtonJs(baseUrlPath, dataUrlPath)));
         server.use(baseUrlPath + dataUrlPath, expressPouchDB(LocalPouchDb, { logPath, configPath }));
+
+        await this.databaseManager.getRecord(APPS_DATABASE, "database", () => ({_id: "database", name: "Database", icon: "file_storage.png", type: AppType.External, url: this.getUiUrl(), groupId: INSTALLED_GROUP_ID, order: 0}));
 
         /// Make sure the HTTP database server is aware of settings database created without it
         await this.getDatabaseManager().getDatabase(SETTINGS_DATABASE).getRecords();

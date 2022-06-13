@@ -1,5 +1,5 @@
 /** 
- * Type definitions for package.json
+ * Type definitions for database.js.
  * 
  * @license
  * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)

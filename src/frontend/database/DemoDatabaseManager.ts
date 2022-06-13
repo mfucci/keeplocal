@@ -1,5 +1,5 @@
 /**
- * Local database for demonstratio and testing.
+ * Local database for demonstration and testing.
  * 
  * @license
  * Copyright 2022 Marco Fucci di Napoli (mfucci@gmail.com)
