@@ -1,0 +1,35 @@
+{
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended", 
+        "plugin:@typescript-eslint/recommended",
+        "plugin:import/errors",
+        "plugin:import/warnings",
+        "plugin:import/typescript"
+    ],
+    "plugins": ["@typescript-eslint", "react", "import"],
+    "env": {
+        "mocha": true,
+        "node": true
+    },
+    "ignorePatterns": ["**/*.d.ts"],
+    "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/ban-types": [
+            "error",
+            {
+              "types": {
+                "{}": false
+              },
+              "extendDefaults": true
+            }
+        ]
+    },
+    "settings": {
+        "import/extensions": [".js", ".mjs", ".jsx", ".ts", ".tsx"],
+        "react": {
+            "version": "detect"
+        }
+    }
+}

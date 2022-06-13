@@ -11,16 +11,13 @@ import { Link } from "react-router-dom";
 
 import { Grid, Paper } from "@mui/material";
 
-type Props = {};
-type State = {};
-
-export class NotFoundView extends React.Component<Props, State> {
+export class NotFoundView extends React.Component {
 
     render() {
         return (
             <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                     This page doesn't exist.
+                     This page doesn&apos;t exist.
                      <Link color="inherit" to="/">Back to home</Link>
                 </Paper>
             </Grid>

@@ -24,7 +24,7 @@ export class DaemonService implements Service {
         build: async () => new DaemonService(),
     }
 
-    constructor() {}
-
-    async start() {}
+    async start() {
+        console.log("Daemon is running");
+    }
 }

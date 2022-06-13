@@ -15,7 +15,7 @@
  */
 export function recordMap<T, U>(record: Record<string, T>, mapFunction: (value: T) => U) {
     const result: Record<string, U> = {};
-    for (var key in record) {
+    for (const key in record) {
         result[key] = mapFunction(record[key]);
     }
     return result;

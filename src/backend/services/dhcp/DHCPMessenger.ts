@@ -8,7 +8,7 @@
  */
 
 import EventEmitter from "events";
-import { BOOTMessageType, DHCPMessageType, DHCPOptions, Packet, ParameterListOption, BroadcastAddressOption, Socket, AddressRequestOption, HostnameOption, ClassIdOption, DHCPMessageTypeOption, DHCPServerIdOption, SubnetMaskOption, DomainNameOption, AddressTimeOption, GatewaysOption, SocketType, DomainServerOption } from "@network-utils/dhcp";
+import { BOOTMessageType, DHCPMessageType, DHCPOptions, Packet, ParameterListOption, BroadcastAddressOption, Socket, AddressRequestOption, HostnameOption, ClassIdOption, DHCPMessageTypeOption, DHCPServerIdOption, SubnetMaskOption, DomainNameOption, AddressTimeOption, GatewaysOption, DomainServerOption } from "@network-utils/dhcp";
 
 import { DHCPSettings } from "./DHCPService";
 import { SUBNET_MASK } from "./DHCPServer";

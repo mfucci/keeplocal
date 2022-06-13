@@ -8,13 +8,12 @@
 
 import { EventEmitter } from "events";
 import { DatabaseManager } from "../../../common/database/DatabaseManager";
-import { Device, DEVICES_DATABASE, IpType } from "../../../common/models/Device";
+import { Device, DEVICES_DATABASE } from "../../../common/models/Device";
 import { LoggerService, NetworkEventLogger } from "../logger/LoggerService";
 import { DNSMessenger, Request } from "./DNSMessenger";
 import { DnsProxy } from "./DNSProxy";
 import { DnsService } from "./DnsService";
 
-const TTL = 30 * 60; // 30 mn
 const PORT = 53;
 
 export interface DNSEvent {

@@ -19,7 +19,7 @@ export interface App extends GroupItem {
     icon: string,
     url: string,
     type: AppType,
-};
+}
 
 export const APPS_DATABASE = "apps";
 export const APPS_GROUPS_DATABASE = "apps_groups";

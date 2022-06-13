@@ -24,7 +24,7 @@ export class OrderController<T extends Ordered> extends React.Component<Props<T>
     private async move(id: string, offset: number) {
         const { databaseManager, dbName, filter } = { ...this.props, ...this.context };
         await databaseManager.withDatabase<T>(dbName, async database => {
-            var records = await database.getRecords();
+            let records = await database.getRecords();
             if (filter !== undefined) {
                 records = records.filter(record => filter(record));
             }
@@ -38,7 +38,7 @@ export class OrderController<T extends Ordered> extends React.Component<Props<T>
 
             if (itemToSwap.order == item.order) {
                 // We need to reassign all order index
-                var order = 0;
+                let order = 0;
                 records.forEach(record => record.order = order++);
                 await database.updateRecords(records);
             }

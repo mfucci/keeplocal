@@ -95,10 +95,10 @@ export class DatabaseService implements Service {
         return jsFile
             .replace("host:\"../..\"", `host:".${dataUrl}"`)
             .replace("root:\"/_utils\"", `root:"${baseUrl}"`)
-            .replace(/url:\"\/_session/g, `url:"${databaseUrl}/_session`)
-            .replace(/url:\"\/_replicator/g, `url:"${databaseUrl}/_replicator`)
-            .replace(/window\.location\.origin\+\"\/_replicator/g, `window.location.origin+"${databaseUrl}/_replicator`)
-            .replace(/url:\"\/_users/g, `url:"${databaseUrl}/_users`)
+            .replace(/url:"\/_session/g, `url:"${databaseUrl}/_session`)
+            .replace(/url:"\/_replicator/g, `url:"${databaseUrl}/_replicator`)
+            .replace(/window\.location\.origin\+"\/_replicator/g, `window.location.origin+"${databaseUrl}/_replicator`)
+            .replace(/url:"\/_users/g, `url:"${databaseUrl}/_users`)
             .replace("window.location.origin+\"/\"+o.default.utils.safeURLName", `window.location.origin+"${databaseUrl}/"+o.default.utils.safeURLName`)
     }
 }

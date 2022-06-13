@@ -43,12 +43,12 @@ export class DatabaseManager {
     }
 
     getDatabase<T>(name: string): Database<T> {
-        var underlyingDatabase = this.databaseCache.get(name);
+        let underlyingDatabase = this.databaseCache.get(name);
         if (underlyingDatabase === undefined) {
             underlyingDatabase = this.createdNewDatabase(name);
         }
         const database = new Database<T>(underlyingDatabase, this);
-        var connections = this.databaseConnections.get(name);
+        let connections = this.databaseConnections.get(name);
         if (connections === undefined) {
             connections = [];
             this.databaseConnections.set(name, connections);

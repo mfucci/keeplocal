@@ -47,7 +47,7 @@ export class AddGroupDialog<T extends GroupItem> extends React.Component<Props<T
     }
     
     render() {
-        const { open, groupName, onNewGroup, controller } = { ...this.props, ...this.state };
+        const { open, controller } = { ...this.props, ...this.state };
         return (
             <Dialog open={open} onClose={()=>this.handleCancel()} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
                 <DialogTitle>Add a group</DialogTitle>

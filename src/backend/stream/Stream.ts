@@ -17,6 +17,7 @@ interface StreamEventMap {
     "error": [error: Error],
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export declare interface Stream<READ_T, WRITE_T = READ_T> {
     on<K extends keyof StreamEventMap>(event: K, listener: (...value: StreamEventMap[K]) => void): this;
     once<K extends keyof StreamEventMap>(event: K, listener: (...value: StreamEventMap[K]) => void): this;
@@ -33,11 +34,8 @@ interface StreamProviderEventMap<READ_T, WRITE_T = READ_T> {
     "connected": [stream: Stream<READ_T, WRITE_T>],
 }
 
-export declare interface StreamProvider<READ_T, WRITE_T = READ_T> {
+export interface StreamProvider<READ_T, WRITE_T = READ_T> {
     on<K extends keyof StreamProviderEventMap<READ_T, WRITE_T>>(event: K, listener: (...value: StreamProviderEventMap<READ_T, WRITE_T>[K][]) => void): this;
     once<K extends keyof StreamProviderEventMap<READ_T, WRITE_T>>(event: K, listener: (...value: StreamProviderEventMap<READ_T, WRITE_T>[K][]) => void): this;
     emit<K extends keyof StreamProviderEventMap<READ_T, WRITE_T>>(event: K, ...value: StreamProviderEventMap<READ_T, WRITE_T>[K]): boolean;
-}
-
-export interface StreamProvider<READ_T, WRITE_T = READ_T> {
 }

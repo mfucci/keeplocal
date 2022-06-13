@@ -1,6 +1,6 @@
 import * as assert from "assert";
-import { vendorForMac } from "../src/utils/MacUtils";
-import { deepCopy, diff, recordMap } from "../src/utils/ObjectUtils";
+import { vendorForMac } from "../src/backend/utils/MacUtils";
+import { deepCopy, diff, recordMap } from "../src/backend/utils/ObjectUtils";
 
 describe("MacUtils", () => {
     context("vendorForMac", () => {
