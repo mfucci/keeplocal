@@ -17,8 +17,8 @@ export class NotFoundView extends React.Component {
         return (
             <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                     This page doesn&apos;t exist.
-                     <Link color="inherit" to="/">Back to home</Link>
+                    This page doesn&apos;t exist.
+                    <Link color="inherit" to="/">Back to home</Link>
                 </Paper>
             </Grid>
         );

@@ -35,10 +35,10 @@ export class GroupController<T extends GroupItem> extends React.Component<Props<
                     item.groupId = UNASSIGNED_GROUP_ID;
                     unassignedItems.push(item);
                 });
-    
+
             let order = 0;
             unassignedItems.forEach(item => item.order = order++);
-    
+
             await database.updateRecords(unassignedItems);
         });
 
@@ -47,7 +47,7 @@ export class GroupController<T extends GroupItem> extends React.Component<Props<
 
     async addGroup(name: string): Promise<string> {
         const { databaseManager, groupsDb } = { ...this.context, ...this.state, ...this.props };
-       
+
         const groupId = name + new Date().getTime();
         await databaseManager.withDatabase<Group>(groupsDb, async database => {
             let order = 0;

@@ -37,7 +37,7 @@ export class DHCPService implements Service {
         name: NAME,
         dependencyBuilders: [DatabaseService.Builder],
         build: async (databaseService: DatabaseService) => {
-            const databaseManager =  databaseService.getDatabaseManager();
+            const databaseManager = databaseService.getDatabaseManager();
 
             const settings = await databaseManager.getRecord(SETTINGS_DATABASE, NAME, () => DEFAULT_SETTINGS);
             return new DHCPService(settings, databaseService.getDatabaseManager());

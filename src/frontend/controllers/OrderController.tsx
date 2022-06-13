@@ -31,7 +31,7 @@ export class OrderController<T extends Ordered> extends React.Component<Props<T>
             records.sort(sortByOrder);
             const index = records.findIndex(record => record._id === id);
             if (index === -1 || index + offset < 0 || index + offset >= records.length) return;
-    
+
             // Swap order value between the two groups
             const item = records[index];
             const itemToSwap = records[index + offset];
@@ -46,7 +46,7 @@ export class OrderController<T extends Ordered> extends React.Component<Props<T>
             const tempOrder = itemToSwap.order;
             itemToSwap.order = item.order;
             item.order = tempOrder;
-    
+
             await database.updateRecords([item, itemToSwap]);
         });
     }

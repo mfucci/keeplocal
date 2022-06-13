@@ -31,8 +31,8 @@ export class DHCPServer {
     private readonly ipMap = new Map<string, string>();
 
     constructor(
-            private settings: DHCPSettings,
-            databaseManager: DatabaseManager) {
+        private settings: DHCPSettings,
+        databaseManager: DatabaseManager) {
         this.messenger.on("discover", request => this.handleDiscover(request));
         this.messenger.on("request", request => this.handleRequest(request));
         this.settingDatabase = databaseManager.getDatabase<DHCPSettings>(SETTINGS_DATABASE);
@@ -64,7 +64,7 @@ export class DHCPServer {
                 if (ipType === IpType.STATIC) {
                     throw new Error(`IP ${ip} is assigned to 2 devices using static IPs`);
                 } else {
-                    await this.deviceDatabase.updateRecord({...device, ip: undefined});
+                    await this.deviceDatabase.updateRecord({ ...device, ip: undefined });
                 }
             } else {
                 this.ipMap.set(ip, mac);
@@ -76,7 +76,7 @@ export class DHCPServer {
         if (!this.ipMap.has(myIp)) {
             const myMac = (await macAddressHelper.one()).toUpperCase();
             this.ipMap.set(myIp, myMac);
-            await this.deviceDatabase.addRecord({...createDevice(myMac, IpType.STATIC), name: "keeplocal", ip: myIp, lastSeen: Date.now()});
+            await this.deviceDatabase.addRecord({ ...createDevice(myMac, IpType.STATIC), name: "keeplocal", ip: myIp, lastSeen: Date.now() });
         }
 
         // Create Device records for network equipments if they don't exist yet.
@@ -93,7 +93,7 @@ export class DHCPServer {
         const mac = (await arp.toMAC(ip))?.toUpperCase();
         if (mac === undefined) throw new Error(`Cannot find network equipment with IP ${ip}`);
         this.ipMap.set(ip, mac);
-        await this.deviceDatabase.addRecord({...createDevice(mac, IpType.STATIC), name, ip, lastSeen: Date.now()});
+        await this.deviceDatabase.addRecord({ ...createDevice(mac, IpType.STATIC), name, ip, lastSeen: Date.now() });
     }
 
     stop() {
@@ -123,18 +123,18 @@ export class DHCPServer {
 
     private async getDevice(request: Request) {
         const { mac, hostname, classId } = request;
-        const device = await this.deviceDatabase.getRecord(mac, () => createDevice(mac, IpType.DYNAMIC, {internet: true}));
+        const device = await this.deviceDatabase.getRecord(mac, () => createDevice(mac, IpType.DYNAMIC, { internet: true }));
         if (device.ip === undefined) device.ip = await this.assignNewIp(mac);
-        await this.deviceDatabase.updateRecord({...device, lastSeen: Date.now(), hostname, classId, ipType: IpType.DYNAMIC });
+        await this.deviceDatabase.updateRecord({ ...device, lastSeen: Date.now(), hostname, classId, ipType: IpType.DYNAMIC });
         return device;
     }
 
     private async assignNewIp(mac: string) {
         const { gateway_ip, ip_lease_time_s } = this.settings;
-        
+
         const prefix = ipUtil.mask(gateway_ip, SUBNET_MASK).slice(0, -1);
         let ipAddress = 1;
-        for (;;) {
+        for (; ;) {
             const proposedIp = prefix + ipAddress;
             if (!this.ipMap.has(proposedIp)) {
                 this.ipMap.set(proposedIp, mac);
@@ -149,14 +149,14 @@ export class DHCPServer {
 
         const now = Date.now();
         const devices = (await this.deviceDatabase.getRecords())
-            .filter(({ ip, ipType, lastSeen}) =>
+            .filter(({ ip, ipType, lastSeen }) =>
                 ip !== undefined
                 && ipType === IpType.DYNAMIC
                 && (lastSeen === undefined || (now - lastSeen) > ip_lease_time_s))
             .sort((a, b) => (a.lastSeen ?? 0) - (b.lastSeen ?? 0));
         if (devices.length === 0) throw new Error(`No more available IP addresses in the subnet ${prefix}`);
         const freedIp = devices[0].ip as string;
-        await this.deviceDatabase.updateRecord({...devices[0], ip: undefined});
+        await this.deviceDatabase.updateRecord({ ...devices[0], ip: undefined });
         this.ipMap.set(freedIp, mac);
         return freedIp;
     }

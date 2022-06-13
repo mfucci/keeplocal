@@ -44,7 +44,7 @@ export class NetworkScannerService implements Service {
     }
 
     async start() {
-        await this.databaseManager.getRecord(APPS_DATABASE, "network_scanner", () => ({_id: "network_scanner", name: "Network Scanner", icon: "network_scanner.png", type: AppType.BuiltIn, url: "/network_scanner", groupId: INSTALLED_GROUP_ID, order: 0}));
+        await this.databaseManager.getRecord(APPS_DATABASE, "network_scanner", () => ({ _id: "network_scanner", name: "Network Scanner", icon: "network_scanner.png", type: AppType.BuiltIn, url: "/network_scanner", groupId: INSTALLED_GROUP_ID, order: 0 }));
         await this.scanRequestQueue.clear();
 
         this.scanRequestQueue.onChange((_, request) => this.handleScanRequest(request));
@@ -63,7 +63,7 @@ export class NetworkScannerService implements Service {
                 if (device.ip !== undefined) devicesByIp.set(device.ip, device);
                 devicesByMac.set(device.mac, device);
             });
-    
+
             await this.scan(request, async (ip, mac) => {
                 const deviceByIp = devicesByIp.get(ip);
                 const deviceByMac = devicesByMac.get(mac);
@@ -98,7 +98,7 @@ export class NetworkScannerService implements Service {
                 }
 
                 // Create a new device
-                const newDevice = await deviceDatabase.addRecord({...createDevice(mac, IpType.STATIC), ip, lastSeen: Date.now()});
+                const newDevice = await deviceDatabase.addRecord({ ...createDevice(mac, IpType.STATIC), ip, lastSeen: Date.now() });
                 devicesByIp.set(ip, newDevice);
                 devicesByMac.set(mac, newDevice);
             });
@@ -119,10 +119,10 @@ export class NetworkScannerService implements Service {
             ipsToScan: ipsToScan.length,
             ipsScanned: 0,
         };
-        request = await this.scanRequestQueue.updateRecord({...request, response});
+        request = await this.scanRequestQueue.updateRecord({ ...request, response });
 
         const interval = setInterval(async () => {
-            request = await this.scanRequestQueue.updateRecord({...request, response});
+            request = await this.scanRequestQueue.updateRecord({ ...request, response });
         }, 1000);
 
         // Add this device since it won't respond to ping from itself
@@ -144,7 +144,7 @@ export class NetworkScannerService implements Service {
     }
 
     private async scanIp(ip: string, deviceFoundCallback: (ip: string, mac: string) => Promise<void>) {
-        const { alive } = await ping.promise.probe(ip, {timeout: 1, deadline: 1, min_reply: 1});
+        const { alive } = await ping.promise.probe(ip, { timeout: 1, deadline: 1, min_reply: 1 });
         if (!alive) return;
         const mac = await this.getMac(ip);
         if (mac === undefined) return;

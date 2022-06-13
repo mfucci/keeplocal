@@ -39,10 +39,10 @@ export class EditableLabel extends React.Component<Props, State> {
     }
 
     render() {
-        const { edit, value } = {...this.state, ...this.props};
+        const { edit, value } = { ...this.state, ...this.props };
         if (edit) {
             return (
-                <TextField autoFocus variant="standard" value={value} onChange={({target: { value }}) => this.setState({value})} onBlur={({target: { value }}) => this.handleValueChanged(value)} />
+                <TextField autoFocus variant="standard" value={value} onChange={({ target: { value } }) => this.setState({ value })} onBlur={({ target: { value } }) => this.handleValueChanged(value)} />
             );
         } else {
             return (

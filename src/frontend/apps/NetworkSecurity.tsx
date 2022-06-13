@@ -6,16 +6,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
- import React from "react";
+import React from "react";
 
- import "./icons/network_security.png";
+import "./icons/network_security.png";
 
- type Props = {};
- type State = {};
- 
- export class NetworkSecurity extends React.Component<Props, State> {
-     render() {
-         return <React.Fragment>Network Security service</React.Fragment>;
-     }
- }
- 
+type Props = {};
+type State = {};
+
+export class NetworkSecurity extends React.Component<Props, State> {
+    render() {
+        return <React.Fragment>Network Security service</React.Fragment>;
+    }
+}

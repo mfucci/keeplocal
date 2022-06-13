@@ -29,7 +29,7 @@ export class NetworkEventLogger<T> {
 
     }
 
-    log(timestamp: number, {_id: device_id }: Device, event: T) {
+    log(timestamp: number, { _id: device_id }: Device, event: T) {
         this.database.addRecord({ timestamp, device_id, service: this.service, event });
     }
 }

@@ -17,46 +17,46 @@ import { DnsService } from "./DnsService";
 const PORT = 53;
 
 export interface DNSEvent {
-  name: string; 
-  type: string;
+    name: string;
+    type: string;
 }
 
 export class DnsServer extends EventEmitter {
-  private readonly dnsMessenger: DNSMessenger = new DNSMessenger(PORT);
-  private readonly dnsProxy: DnsProxy;
-  private readonly logger: NetworkEventLogger<DNSEvent>;
-  constructor(
-    downstreamDnsServer: string, 
-    private readonly loggerService: LoggerService, 
-    private readonly databaseManager: DatabaseManager
-  ) {
-    super();
-    this.dnsProxy = new DnsProxy(this.dnsMessenger, downstreamDnsServer);
-    this.dnsMessenger.on("request", request => this.handleRequest(request));
-    this.logger = this.loggerService.getNetworkEventLogger(DnsService.Builder.name);
-  }
-  start() {
-    this.dnsMessenger.start()
-      .then(server => console.log(`DNS server listening on ${server.address}:${server.port}...`))
-      .catch(console.error);
-  }
-
-  private async handleRequest(request: Request) {
-    const { name, type, query: { _client: { address } } } = request;
-    const devices = await this.databaseManager.getRecords<Device>(DEVICES_DATABASE);
-    const device = devices.find(device => device.ip === address);
-    //TODO need arp.
-    if (device) {
-      this.logger.log(Date.now(), device, {
-        name,
-        type,
-      })
+    private readonly dnsMessenger: DNSMessenger = new DNSMessenger(PORT);
+    private readonly dnsProxy: DnsProxy;
+    private readonly logger: NetworkEventLogger<DNSEvent>;
+    constructor(
+        downstreamDnsServer: string,
+        private readonly loggerService: LoggerService,
+        private readonly databaseManager: DatabaseManager
+    ) {
+        super();
+        this.dnsProxy = new DnsProxy(this.dnsMessenger, downstreamDnsServer);
+        this.dnsMessenger.on("request", request => this.handleRequest(request));
+        this.logger = this.loggerService.getNetworkEventLogger(DnsService.Builder.name);
     }
-    this.dnsProxy.handleRequest(request);
-    return;
+    start() {
+        this.dnsMessenger.start()
+            .then(server => console.log(`DNS server listening on ${server.address}:${server.port}...`))
+            .catch(console.error);
+    }
 
-    /*const device = this.dhcpServer.getDeviceByMac(resolvedMac);
-    if (device === undefined) return;
-    this.dnsMessenger.sendARecords(request, [{ address: device.ip, ttl: TTL }]);*/
-  }
+    private async handleRequest(request: Request) {
+        const { name, type, query: { _client: { address } } } = request;
+        const devices = await this.databaseManager.getRecords<Device>(DEVICES_DATABASE);
+        const device = devices.find(device => device.ip === address);
+        //TODO need arp.
+        if (device) {
+            this.logger.log(Date.now(), device, {
+                name,
+                type,
+            })
+        }
+        this.dnsProxy.handleRequest(request);
+        return;
+
+        /*const device = this.dhcpServer.getDeviceByMac(resolvedMac);
+        if (device === undefined) return;
+        this.dnsMessenger.sendARecords(request, [{ address: device.ip, ttl: TTL }]);*/
+    }
 }

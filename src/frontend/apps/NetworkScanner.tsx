@@ -49,7 +49,7 @@ export class NetworkScannerCard extends React.Component<Props, State> {
     private async startScan() {
         const { databaseManager } = this.context;
         const request = await databaseManager.addRecord<ScanRequest>(NETWORK_SCAN_DATABASE, {});
-        this.setState({requestId: request._id});
+        this.setState({ requestId: request._id });
     }
 
     render() {
@@ -57,15 +57,15 @@ export class NetworkScannerCard extends React.Component<Props, State> {
 
         return (
             <SectionCard>
-                <Button disabled={requestId !== undefined} variant="outlined" sx= {{ width: "fit-content" }} onClick={()=>this.startScan()}>
+                <Button disabled={requestId !== undefined} variant="outlined" sx={{ width: "fit-content" }} onClick={() => this.startScan()}>
                     Scan the local network
                 </Button>
 
                 <Record<ScanRequest> dbName={NETWORK_SCAN_DATABASE} id={requestId}>{request =>
-                    <Lifecycle onUnmount={() => this.setState({requestId: undefined})}>
-                        <IfDefined value={request.response}>{response => 
+                    <Lifecycle onUnmount={() => this.setState({ requestId: undefined })}>
+                        <IfDefined value={request.response}>{response =>
                             <React.Fragment>
-                                <LinearProgressWithLabel value={response.ipsScanned*100 / response.ipsToScan} />
+                                <LinearProgressWithLabel value={response.ipsScanned * 100 / response.ipsToScan} />
                             </React.Fragment>
                         }</IfDefined>
                     </Lifecycle>

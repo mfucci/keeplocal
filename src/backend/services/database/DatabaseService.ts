@@ -51,8 +51,8 @@ export class DatabaseService implements Service {
     constructor(
         private readonly settings: DatabaseSettings,
         private readonly httpService: HTTPService) {
-            this.databaseManager = new DatabaseManager(this.getDatabaseUrl());
-        }
+        this.databaseManager = new DatabaseManager(this.getDatabaseUrl());
+    }
 
     async start() {
         const { baseUrlPath, dataUrlPath, logPath, configPath } = this.settings;
@@ -67,11 +67,11 @@ export class DatabaseService implements Service {
         server.use(`${baseUrlPath}${dataUrlPath}/_utils/${FAUXTON_BUNDLE_JS}`, (req, res) => res.send(this.patchFauxtonJs(baseUrlPath, dataUrlPath)));
         server.use(baseUrlPath + dataUrlPath, expressPouchDB(LocalPouchDb, { logPath, configPath }));
 
-        await this.databaseManager.getRecord(APPS_DATABASE, "database", () => ({_id: "database", name: "Database", icon: "file_storage.png", type: AppType.External, url: this.getUiUrl(), groupId: INSTALLED_GROUP_ID, order: 0}));
+        await this.databaseManager.getRecord(APPS_DATABASE, "database", () => ({ _id: "database", name: "Database", icon: "file_storage.png", type: AppType.External, url: this.getUiUrl(), groupId: INSTALLED_GROUP_ID, order: 0 }));
 
         /// Make sure the HTTP database server is aware of settings database created without it
         await this.getDatabaseManager().getDatabase(SETTINGS_DATABASE).getRecords();
-        
+
         console.log(`>> Serving database at ${baseUrlPath}`);
     }
 

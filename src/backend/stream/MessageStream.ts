@@ -99,7 +99,7 @@ export class MessageStream<READ_MESSAGE_MAP, WRITE_MESSAGE_MAP> extends EventEmi
                 pendingResponse.resolver(message);
                 this.pendingResponses.delete(requestId);
                 continue;
-            } 
+            }
             if (this.eventNames().includes(type as string)) {
                 this.emit(type, message);
                 continue;

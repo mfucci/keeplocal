@@ -65,17 +65,17 @@ class CommandLineHandler {
                 hostname,
                 lastSeen,
             }) => [
-                name,
-                `${ip} (${ipType})`,
-                `${mac} (${vendor})`,
-                permissions[DEVICE_PERMISSIONS.INTERNET] ? "GATED" : "UNGATED",
-                hostname ?? "",
-                classId ?? "",
-                lastSeen ? format(lastSeen) : "N/A"
-            ]
-        )]));
+                    name,
+                    `${ip} (${ipType})`,
+                    `${mac} (${vendor})`,
+                    permissions[DEVICE_PERMISSIONS.INTERNET] ? "GATED" : "UNGATED",
+                    hostname ?? "",
+                    classId ?? "",
+                    lastSeen ? format(lastSeen) : "N/A"
+                ]
+            )]));
     }
-    
+
     async gateDevice(id: string) {
         await (await this.getDatabaseManager()).withDatabase<Device>(DEVICES_DATABASE, async database => {
             const device = await database.getRecord(id);
@@ -83,7 +83,7 @@ class CommandLineHandler {
             await database.updateRecord(device);
         });
     }
-    
+
     async ungateDevice(id: string) {
         await (await this.getDatabaseManager()).withDatabase<Device>(DEVICES_DATABASE, async database => {
             const device = await database.getRecord(id);
@@ -91,7 +91,7 @@ class CommandLineHandler {
             await database.updateRecord(device);
         });
     }
-    
+
     async renameDevice(id: string, name: string) {
         await (await this.getDatabaseManager()).withDatabase<Device>(DEVICES_DATABASE, async database => {
             const device = await database.getRecord(id);
@@ -120,18 +120,18 @@ yargs
     .command("gate <deviceMac>",
         "Gate device cloud connectivity",
         yargs => yargs
-            .positional("deviceMac", {type: "string", describe: "Mac address"}),
-        ({deviceMac}) => commandLineHandler.gateDevice(deviceMac as string))
+            .positional("deviceMac", { type: "string", describe: "Mac address" }),
+        ({ deviceMac }) => commandLineHandler.gateDevice(deviceMac as string))
     .command("ungate <deviceMac>",
         "Ungate device cloud connectivity",
         yargs => yargs
-            .positional("deviceMac", {type: "string", describe: "Mac address"}),
-        ({deviceMac}) => commandLineHandler.ungateDevice(deviceMac as string))
+            .positional("deviceMac", { type: "string", describe: "Mac address" }),
+        ({ deviceMac }) => commandLineHandler.ungateDevice(deviceMac as string))
     .command("rename <deviceMac> <name>",
         "Rename a device",
         yargs => yargs
-            .positional("deviceMac", {type: "string", describe: "Mac address"})
-            .positional("name", {type: "string", describe: "New name"}),
-        ({deviceMac, name}) => commandLineHandler.renameDevice(deviceMac as string, name as string))
+            .positional("deviceMac", { type: "string", describe: "Mac address" })
+            .positional("name", { type: "string", describe: "New name" }),
+        ({ deviceMac, name }) => commandLineHandler.renameDevice(deviceMac as string, name as string))
     .demandCommand()
     .argv;

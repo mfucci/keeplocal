@@ -7,6 +7,6 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function With<T>({value, children: render}: {value: T, children: (value: T) => any}) {
+export function With<T>({ value, children: render }: { value: T, children: (value: T) => any }) {
     return render(value);
 }

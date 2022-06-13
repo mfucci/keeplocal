@@ -31,32 +31,32 @@ export class AddGroupDialog<T extends GroupItem> extends React.Component<Props<T
     }
 
     open() {
-        this.setState({open: true});
+        this.setState({ open: true });
     }
 
     private handleCancel() {
-        this.setState({open: false});
+        this.setState({ open: false });
     }
 
     private async handleAddGroup(controller: GroupController<T>) {
         const { groupName, onNewGroup } = { ...this.state, ...this.props };
         if (groupName === "") return;
         const groupId = await controller.addGroup(groupName);
-        this.setState({open: false});
+        this.setState({ open: false });
         onNewGroup(groupId);
     }
-    
+
     render() {
         const { open, controller } = { ...this.props, ...this.state };
         return (
-            <Dialog open={open} onClose={()=>this.handleCancel()} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+            <Dialog open={open} onClose={() => this.handleCancel()} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
                 <DialogTitle>Add a group</DialogTitle>
                 <DialogContent>
-                    <TextField sx={{margin: "5px"}} label="Name" variant="outlined" onChange={({target: {value: groupName}}) => this.setState({groupName})} />
+                    <TextField sx={{ margin: "5px" }} label="Name" variant="outlined" onChange={({ target: { value: groupName } }) => this.setState({ groupName })} />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={()=>this.handleCancel()}>Cancel</Button>
-                    <Button onClick={()=>this.handleAddGroup(controller)} autoFocus>Add</Button>
+                    <Button onClick={() => this.handleCancel()}>Cancel</Button>
+                    <Button onClick={() => this.handleAddGroup(controller)} autoFocus>Add</Button>
                 </DialogActions>
             </Dialog>
         );

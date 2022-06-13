@@ -7,14 +7,14 @@
  */
 
 import React from "react";
- 
+
 type Props = {
     onMount?: () => void,
     onUnmount?: () => void,
     children: any,
 };
 type State = {};
- 
+
 export class Lifecycle extends React.Component<Props, State> {
 
     componentDidMount() {
@@ -24,7 +24,7 @@ export class Lifecycle extends React.Component<Props, State> {
     componentWillUnmount() {
         this.props.onUnmount?.();
     }
- 
+
     render() {
         const { children } = this.props;
         return children;

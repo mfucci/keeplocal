@@ -15,8 +15,8 @@ import { NavigateContext } from "../components/Navigate";
 
 import packageJson from "../../../package.json";
 
-const Logo = ({sx}: {sx: SxProps<any>}) => <Typography variant="h6" noWrap component="div" sx={sx}>KEEPLOCAL (v{packageJson.version})</Typography>;
-const MenuItem = ({label, handler}: {label: string, handler: () => void}) => <Button sx={{ my: 2, color: 'white' }} onClick={handler}>{label}</Button>;
+const Logo = ({ sx }: { sx: SxProps<any> }) => <Typography variant="h6" noWrap component="div" sx={sx}>KEEPLOCAL (v{packageJson.version})</Typography>;
+const MenuItem = ({ label, handler }: { label: string, handler: () => void }) => <Button sx={{ my: 2, color: 'white' }} onClick={handler}>{label}</Button>;
 
 export class Header extends React.Component {
     static contextType = NavigateContext;
@@ -25,26 +25,26 @@ export class Header extends React.Component {
     render() {
         const { navigate } = this.context;
         const pages = [
-            {label: "Devices", handler: () => navigate("/")},
-            {label: "Apps", handler: () => navigate("/apps")},
-            {label: "Settings", handler: () => navigate("/settings")},
-            {label: "About", handler: () => navigate("/about")},
+            { label: "Devices", handler: () => navigate("/") },
+            { label: "Apps", handler: () => navigate("/apps") },
+            { label: "Settings", handler: () => navigate("/settings") },
+            { label: "About", handler: () => navigate("/about") },
         ];
         return (
             <AppBar position="static" component="header">
                 <Container maxWidth="xl">
-                    <Toolbar disableGutters sx={{display: { xs: "flex", md: "none" }}}>
-                        <Box sx={{ flexGrow: 1}} >
+                    <Toolbar disableGutters sx={{ display: { xs: "flex", md: "none" } }}>
+                        <Box sx={{ flexGrow: 1 }} >
                             <PopupMenu items={pages} />
                         </Box>
-                        <Logo sx={{ flexGrow: 1}} />
+                        <Logo sx={{ flexGrow: 1 }} />
                     </Toolbar>
 
-                    <Toolbar disableGutters sx={{display: { xs: "none", md: "flex" }}}>
+                    <Toolbar disableGutters sx={{ display: { xs: "none", md: "flex" } }}>
                         <Logo sx={{ mr: 2 }} />
                         <Box sx={{ flexGrow: 1 }} >
                             <Iterate array={pages}>
-                                {({label, handler}) => <MenuItem key={label} label={label} handler={handler}/>}
+                                {({ label, handler }) => <MenuItem key={label} label={label} handler={handler} />}
                             </Iterate>
                         </Box>
                     </Toolbar>

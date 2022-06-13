@@ -26,10 +26,10 @@ type Props<T extends GroupItem> = {
     editOrder?: boolean,
 }
 
-export const GroupList = <T extends GroupItem>({iconRender, onClick, groupsDb, itemsDb, editOrder = false}: Props<T>) => (
+export const GroupList = <T extends GroupItem>({ iconRender, onClick, groupsDb, itemsDb, editOrder = false }: Props<T>) => (
     <Records<Group> dbName={groupsDb}>{groups =>
         <Records<T> dbName={itemsDb}>{allItems =>
-            <Iterate array={groups.sort(sortByOrder).map(group => ({group, items: allItems.filter(item => item.groupId === group._id).sort(sortByOrder)})).filter(({items}) => items.length > 0)}>{({group: {name, _id}, items}, index) =>
+            <Iterate array={groups.sort(sortByOrder).map(group => ({ group, items: allItems.filter(item => item.groupId === group._id).sort(sortByOrder) })).filter(({ items }) => items.length > 0)}>{({ group: { name, _id }, items }, index) =>
                 <React.Fragment key={_id}>
                     <If condition={index > 0}><Divider /></If>
                     <Typography sx={{ mt: 0.5, ml: 2, mb: 1 }} color="text.secondary" display="block" variant="subtitle1">

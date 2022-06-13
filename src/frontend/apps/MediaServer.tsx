@@ -6,16 +6,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
- import React from "react";
+import React from "react";
 
- import "./icons/media_server.png";
+import "./icons/media_server.png";
 
- type Props = {};
- type State = {};
- 
- export class MediaServer extends React.Component<Props, State> {
-     render() {
-         return <React.Fragment>Media service</React.Fragment>;
-     }
- }
- 
+type Props = {};
+type State = {};
+
+export class MediaServer extends React.Component<Props, State> {
+    render() {
+        return <React.Fragment>Media service</React.Fragment>;
+    }
+}

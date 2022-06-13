@@ -40,7 +40,7 @@ export class DevicesView extends React.Component<Props, State> {
 
         return (
             <Grid container spacing={3}>
-                <Records<Device> dbName={DEVICES_DATABASE}>{devices => 
+                <Records<Device> dbName={DEVICES_DATABASE}>{devices =>
                     <Now>{now =>
                         <SectionCard>
                             {devices.length} devices, {devices.filter(device => isOnline(now, device)).length} online
@@ -49,7 +49,7 @@ export class DevicesView extends React.Component<Props, State> {
                 }</Records>
 
                 <SectionCard>
-                    <Navigate>{navigate => 
+                    <Navigate>{navigate =>
                         <GroupList<Device>
                             groupsDb={DEVICES_GROUPS_DATABASE}
                             itemsDb={DEVICES_DATABASE}
@@ -60,7 +60,7 @@ export class DevicesView extends React.Component<Props, State> {
                 </SectionCard>
 
                 <SectionCard>
-                    <Button variant="outlined" sx= {{ width: "fit-content" }} onClick={()=>this.setState({editOrder: !editOrder})}>
+                    <Button variant="outlined" sx={{ width: "fit-content" }} onClick={() => this.setState({ editOrder: !editOrder })}>
                         {editOrder ? "Done" : "Reorder"}
                     </Button>
                 </SectionCard>
