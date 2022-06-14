@@ -20,36 +20,36 @@ export class DnsProxy {
     async handleRequest(request: Request) {
         const { name, type } = request;
         switch (type) {
-          case "A":
-            this.dnsMessenger.sendARecords(request, (await this.resolver.resolve4(name, { ttl: true })));
-            break;
-          case "AAAA":
-            this.dnsMessenger.sendAAAARecords(request, (await this.resolver.resolve6(name, { ttl: true })));
-            break;
-          case "CNAME":
-            this.dnsMessenger.sendCnameRecords(request, (await this.resolver.resolveCname(name)));
-            break;
-          case "TXT":
-            this.dnsMessenger.sendTxtRecords(request, (await this.resolver.resolveTxt(name)).flat());
-            break;
-          case "MX":
-            this.dnsMessenger.sendMxRecords(request, (await this.resolver.resolveMx(name)));
-            break;
-          case "NS":
-            this.dnsMessenger.sendNsRecords(request, (await this.resolver.resolveNs(name)));
-            break;
-          case "SOA":
-            this.dnsMessenger.sendSoaRecord(request, (await this.resolver.resolveSoa(name)));
-            break;
-          case "SRV":
-            this.dnsMessenger.sendSrvRecords(request, (await this.resolver.resolveSrv(name)));
-            break;
-          case "PTR":
-            this.dnsMessenger.sendPtrRecords(request, (await this.resolver.resolvePtr(name)));
-            break;
-          default:
-            console.log(`Unhandle query type ${type}`);
-            return;
+            case "A":
+                this.dnsMessenger.sendARecords(request, (await this.resolver.resolve4(name, { ttl: true })));
+                break;
+            case "AAAA":
+                this.dnsMessenger.sendAAAARecords(request, (await this.resolver.resolve6(name, { ttl: true })));
+                break;
+            case "CNAME":
+                this.dnsMessenger.sendCnameRecords(request, (await this.resolver.resolveCname(name)));
+                break;
+            case "TXT":
+                this.dnsMessenger.sendTxtRecords(request, (await this.resolver.resolveTxt(name)).flat());
+                break;
+            case "MX":
+                this.dnsMessenger.sendMxRecords(request, (await this.resolver.resolveMx(name)));
+                break;
+            case "NS":
+                this.dnsMessenger.sendNsRecords(request, (await this.resolver.resolveNs(name)));
+                break;
+            case "SOA":
+                this.dnsMessenger.sendSoaRecord(request, (await this.resolver.resolveSoa(name)));
+                break;
+            case "SRV":
+                this.dnsMessenger.sendSrvRecords(request, (await this.resolver.resolveSrv(name)));
+                break;
+            case "PTR":
+                this.dnsMessenger.sendPtrRecords(request, (await this.resolver.resolvePtr(name)));
+                break;
+            default:
+                console.log(`Unhandle query type ${type}`);
+                return;
         }
     }
 }

@@ -32,14 +32,14 @@ export class Record<T> extends React.Component<Props<T>, State<T>> {
     }
 
     componentDidMount() {
-        const { databaseManager, dbName, id } = {...this.props, ...this.context};
+        const { databaseManager, dbName, id } = { ...this.props, ...this.context };
         if (id === undefined) return;
         const database = databaseManager.getDatabase<T>(dbName);
         database.onRecordChange(id, value => this.handleValueUpdate(value));
         this.setState({ database });
     }
 
-    componentDidUpdate({dbName: prevDbName, id: prevId}: Props<T>) {
+    componentDidUpdate({ dbName: prevDbName, id: prevId }: Props<T>) {
         const { dbName, id } = this.props;
         if (prevDbName !== dbName || prevId !== id) {
             this.componentWillUnmount();
@@ -59,7 +59,7 @@ export class Record<T> extends React.Component<Props<T>, State<T>> {
     }
 
     private async remove() {
-        const { database, id } = {...this.state, ...this.props};
+        const { database, id } = { ...this.state, ...this.props };
         if (database === undefined || id === undefined) return;
         await database.remove(id);
     }
@@ -70,7 +70,7 @@ export class Record<T> extends React.Component<Props<T>, State<T>> {
     }
 
     render() {
-        const { value, children, database } = {...this.state, ...this.props};
+        const { value, children, database } = { ...this.state, ...this.props };
         if (database === undefined || value === undefined) return null;
         return children(value, update => this.update(update), () => this.remove());
     }

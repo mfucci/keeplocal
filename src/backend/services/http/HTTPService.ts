@@ -35,7 +35,7 @@ export class HTTPService implements Service {
 
     private readonly server = express();
 
-    constructor(private readonly port: number) {}
+    constructor(private readonly port: number) { }
 
     async start() {
         const { promise, resolver } = await getPromiseResolver<void>();

@@ -28,10 +28,10 @@ export class WebsocketStream extends Stream<string> {
 
     constructor(private readonly socket: WebSocket) {
         super();
-        this.socket.addEventListener("message", ({data}) => this.receiveQueue.write(data));
+        this.socket.addEventListener("message", ({ data }) => this.receiveQueue.write(data));
         this.socket.addEventListener("close", () => this.close());
     }
-    
+
     async read() {
         return await this.receiveQueue.read();
     }

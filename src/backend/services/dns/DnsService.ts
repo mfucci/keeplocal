@@ -28,7 +28,7 @@ export class DnsService implements Service {
     static Builder: ServiceBuilder<DnsService> = {
         name: NAME,
         dependencyBuilders: [
-            DatabaseService.Builder, 
+            DatabaseService.Builder,
             LoggerService.Builder
         ],
         build: async (databaseService: DatabaseService, loggerService: LoggerService) => new DnsService(databaseService, loggerService),
@@ -46,7 +46,7 @@ export class DnsService implements Service {
     }
 
     async start() {
-        await this.databaseManager.getRecord(APPS_DATABASE, "dns", () => ({_id: "dns", name: "DNS", icon: "dns.png", type: AppType.External, url: "/dns", groupId: INSTALLED_GROUP_ID, order: 0}));
+        await this.databaseManager.getRecord(APPS_DATABASE, "dns", () => ({ _id: "dns", name: "DNS", icon: "dns.png", type: AppType.External, url: "/dns", groupId: INSTALLED_GROUP_ID, order: 0 }));
         console.log(">> DNS service started");
         this.server.start();
     }

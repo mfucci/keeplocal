@@ -50,7 +50,7 @@ export class DeviceDetailView extends React.Component<Props, State> {
     render() {
         const { id, navigate } = { ...this.props, ...this.context, ...this.state };
         return (
-            <Record<Device> dbName={DEVICES_DATABASE} id={id}>{(device, update, remove) => 
+            <Record<Device> dbName={DEVICES_DATABASE} id={id}>{(device, update, remove) =>
                 <Grid container spacing={3} columns={{ xs: 6, md: 12 }}>
                     <Grid item xs={12}>
                         <Card>
@@ -59,25 +59,25 @@ export class DeviceDetailView extends React.Component<Props, State> {
                                     <Icon color="warning" sx={{ width: 60, height: 60 }}>
                                         <DeviceCategoryIcon category={category} sx={{ width: 40, height: 40 }} />
                                     </Icon>
-                                    <Typography gutterBottom variant="h4" component="div"><EditableLabel initialValue={name} onChange={name => update({name})} /></Typography>
-                                    <div style={{lineHeight: "36px"}}>Vendor: <EditableLabel initialValue={vendor} onChange={vendor => update({vendor})} /></div>
-                                    <div style={{lineHeight: "36px"}}>Model: <EditableLabel initialValue={model} onChange={model => update({model})} /></div>
-                                    <div style={{lineHeight: "36px"}}>Category:
-                                        <SelectControl<DEVICE_CATEGORIES> value={category} onChange={category => update({category})} sx={{ marginLeft: "5px" }}>
-                                            {Object.entries(DEVICE_CATEGORIES_LABELS).map(([key, label]) => ({key, label}))}
+                                    <Typography gutterBottom variant="h4" component="div"><EditableLabel initialValue={name} onChange={name => update({ name })} /></Typography>
+                                    <div style={{ lineHeight: "36px" }}>Vendor: <EditableLabel initialValue={vendor} onChange={vendor => update({ vendor })} /></div>
+                                    <div style={{ lineHeight: "36px" }}>Model: <EditableLabel initialValue={model} onChange={model => update({ model })} /></div>
+                                    <div style={{ lineHeight: "36px" }}>Category:
+                                        <SelectControl<DEVICE_CATEGORIES> value={category} onChange={category => update({ category })} sx={{ marginLeft: "5px" }}>
+                                            {Object.entries(DEVICE_CATEGORIES_LABELS).map(([key, label]) => ({ key, label }))}
                                         </SelectControl>
                                     </div>
-                                    <div style={{lineHeight: "36px"}}>Group:
+                                    <div style={{ lineHeight: "36px" }}>Group:
                                         <Records<Group> dbName={DEVICES_GROUPS_DATABASE}>{groups =>
                                             <React.Fragment>
-                                                <SelectControl value={groupId} onChange={groupId => update({groupId})} sx={{ marginLeft: "5px" }}>
-                                                    {groups.map(({_id, name}) => ({key: _id, label: name}))}
+                                                <SelectControl value={groupId} onChange={groupId => update({ groupId })} sx={{ marginLeft: "5px" }}>
+                                                    {groups.map(({ _id, name }) => ({ key: _id, label: name }))}
                                                 </SelectControl>
                                                 <Button onClick={() => this.addGroupDialog.current?.open()}>Add group</Button>
 
                                                 <GroupController groupsDb={DEVICES_GROUPS_DATABASE} itemsDb={DEVICES_DATABASE}>{controller =>
                                                     <React.Fragment>
-                                                        <AddGroupDialog<Device> ref={this.addGroupDialog} onNewGroup={groupId => update({groupId})} controller={controller} />
+                                                        <AddGroupDialog<Device> ref={this.addGroupDialog} onNewGroup={groupId => update({ groupId })} controller={controller} />
                                                         <Button disabled={groupId === UNASSIGNED_GROUP_ID} onClick={() => controller.removeGroup(groupId)}>Delete group</Button>
                                                     </React.Fragment>
                                                 }</GroupController>
@@ -86,18 +86,18 @@ export class DeviceDetailView extends React.Component<Props, State> {
                                     </div>
                                 </CardContent>
                             }</With>
-                            
+
                             <CardActions>
-                                <Button variant="outlined" startIcon={<DeleteIcon />} color="error" onClick={()=>this.deleteDeviceConfirmDialog.current?.open()}>Delete</Button>
+                                <Button variant="outlined" startIcon={<DeleteIcon />} color="error" onClick={() => this.deleteDeviceConfirmDialog.current?.open()}>Delete</Button>
                                 <ConfirmDialog ref={this.deleteDeviceConfirmDialog} title="Are you sure you want to delete this device?"
-                                    message="Deleting the device will delete all data associated with this device.\nIf this device requests to join the network again, it will have a default configuration." 
-                                    onConfirm={()=>{remove(); navigate("/");}}/>
+                                    message="Deleting the device will delete all data associated with this device.\nIf this device requests to join the network again, it will have a default configuration."
+                                    onConfirm={() => { remove(); navigate("/"); }} />
                             </CardActions>
                         </Card>
                     </Grid>
 
                     <Grid item xs={6}>
-                        <Card style={{height: "100%"}}>
+                        <Card style={{ height: "100%" }}>
                             <With value={device}>{({ permissions }) =>
                                 <CardContent>
                                     <Typography gutterBottom variant="h5" component="div" color="primary">Permissions</Typography>
@@ -106,7 +106,7 @@ export class DeviceDetailView extends React.Component<Props, State> {
                                             <IterateObject<DEVICE_PERMISSIONS, string> object={PERMISSION_LABELS}>{(permission, label) =>
                                                 <If key={permission} condition={permissions[permission] !== undefined}>
                                                     <FormControlLabel key={permission} control={
-                                                        <Switch checked={permissions[permission]} onChange={(event, checked) => update({permissions: {...permissions, [permission]: checked}})}/>
+                                                        <Switch checked={permissions[permission]} onChange={(event, checked) => update({ permissions: { ...permissions, [permission]: checked } })} />
                                                     } label={label} />
                                                 </If>
                                             }</IterateObject>
@@ -119,7 +119,7 @@ export class DeviceDetailView extends React.Component<Props, State> {
 
 
                     <Grid item xs={6}>
-                        <Card style={{height: "100%"}}>
+                        <Card style={{ height: "100%" }}>
                             <With value={device}>{({ mac, ip = "<unassigned>", ipType, hostname, lastSeen, classId }) =>
                                 <Now>{now =>
                                     <CardContent>

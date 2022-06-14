@@ -36,7 +36,7 @@ export class DHCPServerMessenger extends EventEmitter {
     constructor() {
         super();
         this.socket = new Socket("udp4");
-        this.socket.on("dhcp", ({packet}) => this.handlePacket(packet));
+        this.socket.on("dhcp", ({ packet }) => this.handlePacket(packet));
     }
 
     listen() {

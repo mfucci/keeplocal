@@ -8,7 +8,7 @@
 
 import { Queue } from "./Queue";
 import { Stream } from "./Stream";
-import { WebSocket }  from "ws";
+import { WebSocket } from "ws";
 
 export class WebsocketStream extends Stream<string> {
     private receiveQueue = new Queue<string>();
@@ -27,7 +27,7 @@ export class WebsocketStream extends Stream<string> {
         this.socket.on("message", message => this.receiveQueue.write(message.toString()));
         this.socket.once("close", () => this.close());
     }
-    
+
     async read() {
         return await this.receiveQueue.read();
     }

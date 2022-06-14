@@ -40,7 +40,7 @@ export function deepCopy(object: any) {
         return result;
     }
     if (typeof object === 'object' && object !== {}) {
-        const result = { ...object};
+        const result = { ...object };
         Object.keys(result).forEach(key => {
             result[key] = deepCopy(result[key]);
         });

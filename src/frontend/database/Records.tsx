@@ -24,16 +24,16 @@ type State<T> = {
 export class Records<T> extends React.Component<Props<T>, State<T>> {
     static contextType = DatabaseContext;
     declare context: React.ContextType<typeof DatabaseContext>;
-    
+
     async componentDidMount() {
-        const { databaseManager, dbName } = {...this.props, ...this.context};
+        const { databaseManager, dbName } = { ...this.props, ...this.context };
         const database = databaseManager.getDatabase<T>(dbName);
         this.setState({ database });
         database.onChange((id, value) => this.handleUpdate(id, value));
         this.setState({ values: await database.getRecords() });
     }
 
-    componentDidUpdate({dbName: prevDbName}: Props<T>) {
+    componentDidUpdate({ dbName: prevDbName }: Props<T>) {
         const { dbName } = this.props;
         if (prevDbName !== dbName) {
             this.componentWillUnmount();
@@ -82,7 +82,7 @@ export class Records<T> extends React.Component<Props<T>, State<T>> {
     }
 
     render() {
-        const { values, children } = {...this.state, ...this.props};
+        const { values, children } = { ...this.state, ...this.props };
         if (values === undefined) return null;
         return children(values, (id, update) => this.update(id, update), (id) => this.remove(id));
     }

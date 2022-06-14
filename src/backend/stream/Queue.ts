@@ -11,7 +11,7 @@ import { ERROR } from "./Stream";
 
 export class Queue<T> {
     private readonly queue = new Array<T>();
-    private pendingRead?: { resolver: (data: T) => void, rejecter: (reason: any) => void};
+    private pendingRead?: { resolver: (data: T) => void, rejecter: (reason: any) => void };
     private closed = false;
 
     async read(): Promise<T> {

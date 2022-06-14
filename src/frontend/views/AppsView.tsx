@@ -23,7 +23,7 @@ export class AppsView extends React.Component<Props, State> {
         return (
             <Grid container spacing={3}>
                 <SectionCard>
-                    <Navigate>{navigate => 
+                    <Navigate>{navigate =>
                         <GroupList<App>
                             groupsDb={APPS_GROUPS_DATABASE}
                             itemsDb={APPS_DATABASE}

@@ -6,16 +6,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
- import React from "react";
+import React from "react";
 
- import "./icons/adblocker.svg";
+import "./icons/adblocker.svg";
 
- type Props = {};
- type State = {};
- 
- export class AdBlocker extends React.Component<Props, State> {
-     render() {
-         return <React.Fragment>Voice Assistant service</React.Fragment>;
-     }
- }
- 
+type Props = {};
+type State = {};
+
+export class AdBlocker extends React.Component<Props, State> {
+    render() {
+        return <React.Fragment>Voice Assistant service</React.Fragment>;
+    }
+}

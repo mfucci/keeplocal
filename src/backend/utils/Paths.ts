@@ -7,7 +7,7 @@ export function getPersistentStorageDir(key: string) {
     try {
         fs.statSync(dirPath);
     } catch (error) {
-        fs.mkdirSync(dirPath, {recursive: true});
+        fs.mkdirSync(dirPath, { recursive: true });
     }
     return dirPath;
 }

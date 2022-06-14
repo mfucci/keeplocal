@@ -13,7 +13,7 @@ body {
     height: 100%;
 }
 
-body > div {
+body>div {
     display: flex;
     flex-direction: column;
     height: 100%;
